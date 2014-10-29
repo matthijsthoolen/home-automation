@@ -1,0 +1,3 @@
+[submodule "libraries/PusbulletApi"]
+	path = libraries/PusbulletApi
+	url = https://github.com/alexwhitman/node-pushbullet-api.git
