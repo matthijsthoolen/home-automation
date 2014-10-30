@@ -1,3 +1,6 @@
 [submodule "libraries/PusbulletApi"]
 	path = libraries/PusbulletApi
 	url = https://github.com/alexwhitman/node-pushbullet-api.git
+[submodule "libraries/NodeHue"]
+	path = libraries/NodeHue
+	url = https://github.com/peter-murray/node-hue-api.git
