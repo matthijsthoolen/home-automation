@@ -1,8 +1,8 @@
 var HueApi = require("node-hue-api").HueApi;
 
-var hostname = "192.168.2.129",
+var hostname = "192.168.1.130",
     newUserName = null; // You can provide your own username value, but it is normally easier to leave it to the Bridge to create it
-    userDescription = "device description goes here";
+    userDescription = "Home automation system";
 
 var displayUserResult = function(result) {
     console.log("Created user: " + JSON.stringify(result));
