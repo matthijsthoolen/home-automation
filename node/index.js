@@ -3,7 +3,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var config = require('./config');
 
-console.log(config.sayHelloInEnglish("YOYO BRO"));
+console.log(config.sayHelloInEnglish("Hi There"));
 
 app.get('/home-automation/public/', function(req, res){
  	res.sendFile('/home/cabox/workspace/home-automation/public/index.html');
