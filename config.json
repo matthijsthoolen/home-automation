@@ -1,0 +1,21 @@
+{
+  "name": "Home-automation",
+  "version": "0.0.1",
+  "description": "Home Automation system by Matthijsweb",
+  "abspath": "/home/cabox/workspace/home-automation/",
+  "main": "node/index.js",
+  "publicfolder": "public",
+  "pluginfolder": "plugins",
+  "tempfolder": "temp",
+  "downloadserver": "http://loginweb.nl/hometest/",
+  "author": "Matthijsweb",
+  "plugins": {
+    "pushbullet": {
+      "name": "pushbullet",
+      "folder": "pushbullet",
+      "version": "0.0.1",
+      "active": "true",
+      "level": "1"
+    }
+  }
+}

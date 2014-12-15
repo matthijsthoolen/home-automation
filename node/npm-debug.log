@@ -1,0 +1,212 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'bunyan' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose cache add [ 'bunyan', null ]
+5 verbose cache add name=undefined spec="bunyan" args=["bunyan",null]
+6 verbose parsed url { protocol: null,
+6 verbose parsed url   slashes: null,
+6 verbose parsed url   auth: null,
+6 verbose parsed url   host: null,
+6 verbose parsed url   port: null,
+6 verbose parsed url   hostname: null,
+6 verbose parsed url   hash: null,
+6 verbose parsed url   search: null,
+6 verbose parsed url   query: null,
+6 verbose parsed url   pathname: 'bunyan',
+6 verbose parsed url   path: 'bunyan',
+6 verbose parsed url   href: 'bunyan' }
+7 silly lockFile d7c46da5-bunyan bunyan
+8 verbose lock bunyan /home/cabox/.npm/d7c46da5-bunyan.lock
+9 silly lockFile d7c46da5-bunyan bunyan
+10 silly lockFile d7c46da5-bunyan bunyan
+11 verbose addNamed [ 'bunyan', '' ]
+12 verbose addNamed [ null, '*' ]
+13 silly lockFile 59b53e6e-bunyan bunyan@
+14 verbose lock bunyan@ /home/cabox/.npm/59b53e6e-bunyan.lock
+15 silly addNameRange { name: 'bunyan', range: '*', hasData: false }
+16 verbose registry.get https://registry.npmjs.org/bunyan not expired, no request
+17 silly addNameRange number 2 { name: 'bunyan', range: '*', hasData: true }
+18 silly addNameRange versions [ 'bunyan',
+18 silly addNameRange   [ '0.1.0',
+18 silly addNameRange     '0.2.0',
+18 silly addNameRange     '0.3.0',
+18 silly addNameRange     '0.4.0',
+18 silly addNameRange     '0.5.0',
+18 silly addNameRange     '0.5.1',
+18 silly addNameRange     '0.5.2',
+18 silly addNameRange     '0.5.3',
+18 silly addNameRange     '0.6.0',
+18 silly addNameRange     '0.6.1',
+18 silly addNameRange     '0.6.2',
+18 silly addNameRange     '0.6.3',
+18 silly addNameRange     '0.6.4',
+18 silly addNameRange     '0.6.5',
+18 silly addNameRange     '0.6.6',
+18 silly addNameRange     '0.6.7',
+18 silly addNameRange     '0.6.8',
+18 silly addNameRange     '0.6.9',
+18 silly addNameRange     '0.7.0',
+18 silly addNameRange     '0.8.0',
+18 silly addNameRange     '0.9.0',
+18 silly addNameRange     '0.10.0',
+18 silly addNameRange     '0.11.0',
+18 silly addNameRange     '0.11.2',
+18 silly addNameRange     '0.11.3',
+18 silly addNameRange     '0.12.0',
+18 silly addNameRange     '0.13.0',
+18 silly addNameRange     '0.13.1',
+18 silly addNameRange     '0.13.2',
+18 silly addNameRange     '0.13.3',
+18 silly addNameRange     '0.13.4',
+18 silly addNameRange     '0.13.5',
+18 silly addNameRange     '0.14.0',
+18 silly addNameRange     '0.14.1',
+18 silly addNameRange     '0.14.2',
+18 silly addNameRange     '0.14.4',
+18 silly addNameRange     '0.14.5',
+18 silly addNameRange     '0.14.6',
+18 silly addNameRange     '0.15.0',
+18 silly addNameRange     '0.16.0',
+18 silly addNameRange     '0.16.1',
+18 silly addNameRange     '0.16.2',
+18 silly addNameRange     '0.16.3',
+18 silly addNameRange     '0.16.4',
+18 silly addNameRange     '0.16.5',
+18 silly addNameRange     '0.16.6',
+18 silly addNameRange     '0.16.7',
+18 silly addNameRange     '0.16.8',
+18 silly addNameRange     '0.17.0',
+18 silly addNameRange     '0.18.0',
+18 silly addNameRange     '0.18.1',
+18 silly addNameRange     '0.18.2',
+18 silly addNameRange     '0.18.3',
+18 silly addNameRange     '0.19.0',
+18 silly addNameRange     '0.20.0',
+18 silly addNameRange     '0.21.0',
+18 silly addNameRange     '0.21.1',
+18 silly addNameRange     '0.21.2',
+18 silly addNameRange     '0.21.3',
+18 silly addNameRange     '0.21.4',
+18 silly addNameRange     '0.22.0',
+18 silly addNameRange     '0.22.1',
+18 silly addNameRange     '0.22.2',
+18 silly addNameRange     '0.22.3',
+18 silly addNameRange     '0.23.0',
+18 silly addNameRange     '0.23.1',
+18 silly addNameRange     '1.0.0',
+18 silly addNameRange     '1.0.1',
+18 silly addNameRange     '1.1.0',
+18 silly addNameRange     '1.1.1',
+18 silly addNameRange     '1.1.2',
+18 silly addNameRange     '1.1.3',
+18 silly addNameRange     '1.2.0',
+18 silly addNameRange     '1.2.1',
+18 silly addNameRange     '1.2.2',
+18 silly addNameRange     '1.2.3' ] ]
+19 verbose addNamed [ 'bunyan', '1.2.3' ]
+20 verbose addNamed [ '1.2.3', '1.2.3' ]
+21 silly lockFile 0724a7e1-bunyan-1-2-3 bunyan@1.2.3
+22 verbose lock bunyan@1.2.3 /home/cabox/.npm/0724a7e1-bunyan-1-2-3.lock
+23 silly lockFile 0724a7e1-bunyan-1-2-3 bunyan@1.2.3
+24 silly lockFile 0724a7e1-bunyan-1-2-3 bunyan@1.2.3
+25 silly lockFile 59b53e6e-bunyan bunyan@
+26 silly lockFile 59b53e6e-bunyan bunyan@
+27 silly resolved [ { name: 'bunyan',
+27 silly resolved     version: '1.2.3',
+27 silly resolved     description: 'a JSON logging library for node.js services',
+27 silly resolved     author:
+27 silly resolved      { name: 'Trent Mick',
+27 silly resolved        email: 'trentm@gmail.com',
+27 silly resolved        url: 'http://trentm.com' },
+27 silly resolved     main: './lib/bunyan.js',
+27 silly resolved     bin: { bunyan: './bin/bunyan' },
+27 silly resolved     repository: { type: 'git', url: 'git://github.com/trentm/node-bunyan.git' },
+27 silly resolved     engines: [ 'node >=0.8.0' ],
+27 silly resolved     keywords: [ 'log', 'logging', 'log4j', 'json', 'bunyan' ],
+27 silly resolved     '// comment1': '\'dtrace-provider\' required for dtrace features',
+27 silly resolved     '// comment2': '\'mv\' required for RotatingFileStream',
+27 silly resolved     optionalDependencies: { 'dtrace-provider': '~0.3 >0.3.0', mv: '~2' },
+27 silly resolved     devDependencies:
+27 silly resolved      { nodeunit: '0.9.*',
+27 silly resolved        ben: '0.0.0',
+27 silly resolved        verror: '1.3.3',
+27 silly resolved        vasync: '1.4.3' },
+27 silly resolved     scripts: { test: 'make test' },
+27 silly resolved     contributors:
+27 silly resolved      [ [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object],
+27 silly resolved        [Object] ],
+27 silly resolved     bugs: { url: 'https://github.com/trentm/node-bunyan/issues' },
+27 silly resolved     homepage: 'https://github.com/trentm/node-bunyan',
+27 silly resolved     dependencies: { 'dtrace-provider': '~0.3 >0.3.0', mv: '~2' },
+27 silly resolved     _id: 'bunyan@1.2.3',
+27 silly resolved     _shasum: '103daa1e962ae1aaba92c3ee53b1c1dcc28daa0b',
+27 silly resolved     _from: 'bunyan@',
+27 silly resolved     _npmVersion: '1.4.9',
+27 silly resolved     _npmUser: { name: 'trentm', email: 'trentm@gmail.com' },
+27 silly resolved     maintainers: [ [Object] ],
+27 silly resolved     dist:
+27 silly resolved      { shasum: '103daa1e962ae1aaba92c3ee53b1c1dcc28daa0b',
+27 silly resolved        tarball: 'http://registry.npmjs.org/bunyan/-/bunyan-1.2.3.tgz' },
+27 silly resolved     directories: {},
+27 silly resolved     _resolved: 'https://registry.npmjs.org/bunyan/-/bunyan-1.2.3.tgz',
+27 silly resolved     readme: 'ERROR: No README data found!' } ]
+28 info install bunyan@1.2.3 into /usr/local/lib
+29 info installOne bunyan@1.2.3
+30 verbose lib/node_modules/bunyan unbuild
+31 verbose tar unpack /home/cabox/.npm/bunyan/1.2.3/package.tgz
+32 silly lockFile 47028037-sr-local-lib-node-modules-bunyan tar:///usr/local/lib/node_modules/bunyan
+33 verbose lock tar:///usr/local/lib/node_modules/bunyan /home/cabox/.npm/47028037-sr-local-lib-node-modules-bunyan.lock
+34 silly lockFile 45fb6fdf-box-npm-bunyan-1-2-3-package-tgz tar:///home/cabox/.npm/bunyan/1.2.3/package.tgz
+35 verbose lock tar:///home/cabox/.npm/bunyan/1.2.3/package.tgz /home/cabox/.npm/45fb6fdf-box-npm-bunyan-1-2-3-package-tgz.lock
+36 silly gunzTarPerm modes [ '775', '664' ]
+37 error Error: EACCES, mkdir '/usr/local/lib/node_modules/bunyan'
+37 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules/bunyan']
+37 error   errno: 3,
+37 error   code: 'EACCES',
+37 error   path: '/usr/local/lib/node_modules/bunyan',
+37 error   fstream_type: 'Directory',
+37 error   fstream_path: '/usr/local/lib/node_modules/bunyan',
+37 error   fstream_class: 'DirWriter',
+37 error   fstream_stack:
+37 error    [ '/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
+37 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53',
+37 error      'Object.oncomplete (fs.js:107:15)' ] }
+38 error Please try running this command again as root/Administrator.
+39 error System Linux 2.6.32-042stab092.3
+40 error command "/usr/local/bin/node" "/usr/local/bin/npm" "install" "-g" "bunyan"
+41 error cwd /home/cabox/workspace/home-automation/node
+42 error node -v v0.10.32
+43 error npm -v 1.4.28
+44 error path /usr/local/lib/node_modules/bunyan
+45 error fstream_path /usr/local/lib/node_modules/bunyan
+46 error fstream_type Directory
+47 error fstream_class DirWriter
+48 error code EACCES
+49 error errno 3
+50 error stack Error: EACCES, mkdir '/usr/local/lib/node_modules/bunyan'
+51 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
+51 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53
+51 error fstream_stack Object.oncomplete (fs.js:107:15)
+52 verbose exit [ 3, true ]

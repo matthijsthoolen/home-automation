@@ -20,7 +20,7 @@ exports.getActivePlugins = function() {
 * Remove a plugin from the configuration
 */
 exports.removePlugin = function(name) {
-	nconf.clear(name);	
+	nconf.clear('plugins:' + name);	
 	console.log("Removing plugin");
 	this.saveConfiguration();
 };
@@ -64,6 +64,13 @@ exports.getTempPath = function() {
 
 exports.getPluginPath = function() {
 	return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
+};
+
+/**
+ * Return the requested configuration name
+ */
+exports.getConfiguration = function(name) {
+	return nconf.get(name);
 };
 
 /**
