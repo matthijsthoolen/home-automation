@@ -8,7 +8,8 @@ var fs = require('fs'),
 //removePlugin('pushbullet');
 
 exports.test = function() {
-	getVersionList();
+	//getVersionList();
+	plugin.installPlugin('pushbullet', '1.0'); 
 	log.info('hello there');
 };
 
@@ -45,12 +46,41 @@ exports.removePlugin = function(name) {
 * Install a new plugin
 */
 exports.installPlugin = function(name, version) {
-	var filename = name + '-' + version + '.tar.gz';
+	var filename = name + '/' + version + '.tar.gz';
+	var folder = name;
 	var foldername = 'pushbullet';
-	var tempdir = config.getTempPath();
 	var plugindir = config.getPluginPath();
 	
-	exec('wget http://loginweb.nl/hometest/' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
+	downloadFile(folder, version, function(tempfolder) {
+		exec('mv ' + tempfolder + ' ' + plugindir, function(err, stdout, stderr) {
+			log.info('Moved from temp to plugins: ' + err + ' : ' + stdout);
+		});
+		
+		config.addPlugin(name, name, {});
+	});
+	
+};
+
+/** 
+ * Download updated plugin files and replace the old files, keep the old config. 
+ */
+exports.updatePlugin = function(name, version) {
+	var newFileName = name + '-' + version + '.tar.gz';
+};
+
+
+/** 
+ * Async function to download a tar file from the server, unpack and remove tar.gz file
+ * returns the folder name.
+ */
+
+function downloadFile(folder, version, callback) {
+	var tempdir = config.getTempPath();
+	var filename = version + '.tar.gz';
+	var downloadserver = config.getConfiguration('downloadserver');
+	var path;
+	
+	exec('wget ' + downloadserver + folder + '/' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
     	log.info('Downloaded file from server: \n' + err + " : "  + stdout);
 		
 		exec('tar -zxvf ' + filename, {cwd: tempdir }, function(err, stdout, stderr) {
@@ -58,16 +88,14 @@ exports.installPlugin = function(name, version) {
 			
 			exec('rm '  + filename, {cwd: tempdir }, function(err, stdout, stderr) {
 				log.info('rm status returned ' ); console.log(err); 
+				
+				path = tempdir + folder;
+				callback(path);
+				
 			});
-			
-			exec('mv ' + tempdir + foldername + ' ' + plugindir + foldername, function(err, stdout, stderr) {
-				log.info('Moved from temp to plugins: ' + err + ' : ' + stdout);
-			});
-    	});
+		});
 	});
-	
-	config.addPlugin(name, name, {});
-};
+}
 
 /** 
  * Get file with the most recent plugin versions from the server
