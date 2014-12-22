@@ -4,16 +4,19 @@ var fs = require('fs'),
 
 //checkPlugins();
 //installPlugin('pushbullet', '1.0'); 
-//getVersionList();
 //removePlugin('pushbullet');
 
 exports.test = function() {
 	//getVersionList();
-	plugin.installPlugin('pushbullet', '1.0'); 
+	//plugin.installPlugin('pushbullet', {'version':'1.0'}); 
 	log.info('hello there');
+	versioninfo = getVersionList({'force': false});
+	plugin.updatePlugin('pushbullet', {'version':'1.0'}); 
+	
+	log.info('version 2.0 = ' + versioninfo.get('pushbullet'));
 };
 
-/**
+/*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
 exports.checkPlugins = function() {
@@ -29,7 +32,7 @@ exports.checkPlugins = function() {
 	}
 };
 
-/**
+/*
 * Remove a plugin from the plugin directory and from the config file
 */
 exports.removePlugin = function(name) {
@@ -42,16 +45,15 @@ exports.removePlugin = function(name) {
 	});
 };
 
-/**
+/*
 * Install a new plugin
 */
-exports.installPlugin = function(name, version) {
-	var filename = name + '/' + version + '.tar.gz';
+exports.installPlugin = function(name, options) {
+	var version = util.opt(options, 'version', '1.0');
 	var folder = name;
-	var foldername = 'pushbullet';
 	var plugindir = config.getPluginPath();
 	
-	downloadFile(folder, version, function(tempfolder) {
+	downloadFile(folder, version, function(err, tempfolder, stderr) {
 		exec('mv ' + tempfolder + ' ' + plugindir, function(err, stdout, stderr) {
 			log.info('Moved from temp to plugins: ' + err + ' : ' + stdout);
 		});
@@ -61,15 +63,23 @@ exports.installPlugin = function(name, version) {
 	
 };
 
-/** 
+/* 
  * Download updated plugin files and replace the old files, keep the old config. 
  */
-exports.updatePlugin = function(name, version) {
-	var newFileName = name + '-' + version + '.tar.gz';
+exports.updatePlugin = function(name, options) {
+	var version = util.opt(options, 'version', '1.0');
+	var callback = util.opt(options, 'callback', null);
+	var folder = name;
+	
+	downloadFile(folder, version, function(err, tempfolder, stderr) {
+		//var update = require(tempfolder);
+		var update = require('/home/cabox/workspace/home-automation/plugins/pushbullet-production/update.js');
+		update.start();
+	});
 };
 
 
-/** 
+/*
  * Async function to download a tar file from the server, unpack and remove tar.gz file
  * returns the folder name.
  */
@@ -79,6 +89,8 @@ function downloadFile(folder, version, callback) {
 	var filename = version + '.tar.gz';
 	var downloadserver = config.getConfiguration('downloadserver');
 	var path;
+	
+	log.info(tempdir);
 	
 	exec('wget ' + downloadserver + folder + '/' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
     	log.info('Downloaded file from server: \n' + err + " : "  + stdout);
@@ -90,21 +102,46 @@ function downloadFile(folder, version, callback) {
 				log.info('rm status returned ' ); console.log(err); 
 				
 				path = tempdir + folder;
-				callback(path);
+				callback(null, path, null);
 				
 			});
 		});
 	});
 }
 
-/** 
- * Get file with the most recent plugin versions from the server
+/* 
+ * Get file with the most recent plugin versions from the server.
+ * Returns nconf file with plugin versions.
  */
-function getVersionList() {
+function getVersionList(options) {
 	var tempdir = config.getTempPath();
 	var server = config.getConfiguration('downloadserver');
+	var force = util.opt(options, 'force', false);
+	var nconf = require('nconf');
 	
-	exec('wget ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
-		log.info('Downloaded version file');
+	exec('expr $(date +%s) - $(date +%s -r version.json)', {cwd:tempdir}, function(err, stdout, stderr) {
+		log.info(err + ', stdout = ' + stdout + ' ,stderr = ' + stderr);
+		
+		/*
+		Download new version file if:
+		- current file is older then 30 minutes
+		- An error occured (File not available)
+		- If new file download is forced
+		*/
+		if (stdout > 1800 || err || force === true) {
+			exec('wget ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
+				log.info('Downloaded version file');
+				exec('touch version.json', {cwd: tempdir});
+			});	
+		} else {
+			log.info('Version file is recent enough'); 
+		}
+		
 	});
+	
+	nconf.file('versions', tempdir + 'version.json');
+	nconf.load();
+	
+	return nconf;
+	
 }

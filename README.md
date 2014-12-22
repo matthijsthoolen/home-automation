@@ -1,5 +1,4 @@
 Start server:
 
-- start node.js
-- start redis-server
-- eventually redis-cli
+1. go to node folder
+2. command: nodemon main.js | bunyan
