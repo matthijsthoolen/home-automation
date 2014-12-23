@@ -5,6 +5,4 @@ logger = require('./log');
 
 logger.start('file');
 
-log.error('wowie');
-
 plugin.test(); 

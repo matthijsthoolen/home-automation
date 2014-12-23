@@ -6,7 +6,7 @@
   "main": "node/index.js",
   "publicfolder": "public",
   "pluginfolder": "plugins",
-  "tempfolder": "temp",
+  "tempfolder": "tmp",
   "downloadserver": "http://loginweb.nl/hometest/",
   "author": "Matthijsweb",
   "plugins": {

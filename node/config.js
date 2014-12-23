@@ -50,6 +50,9 @@ exports.addPlugin = function(name, folder, options) {
 	this.saveConfiguration();
 };
 
+exports.getPluginInfo = function(name, type) {
+	return nconf.get('plugins:' + name);
+};
 
 /**
 * Get the absolute path to the base directory
@@ -58,11 +61,17 @@ exports.getAbsolutePath = function() {
 	return nconf.get('abspath');
 };
 
+/*
+ * Get the path of the temp folder
+ */
 exports.getTempPath = function() {
 	return nconf.get('abspath') + nconf.get('tempfolder') + '/';
 };
 
-exports.getPluginPath = function() {
+/*
+ * Get the plugin (root) folder.
+ */
+exports.getPluginFolder = function() {
 	return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
 };
 
