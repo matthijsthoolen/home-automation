@@ -24,7 +24,6 @@ exports.check = function() {
 	var plugindir = config.getAbsolutePath() + 'plugins/';
 	
 	for(var plugin in plugins) {
-		console.log(plugindir + plugins[plugin].folder);
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
     		config.removePlugin(plugins[plugin].name);
 			log.info('(Plugins:Check) Removed plugin from config file: ' + plugins[plugin].name); 

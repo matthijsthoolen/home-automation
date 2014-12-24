@@ -19,6 +19,24 @@ exports.noop = function (err, stdout, stderr) {
 };
 
 /*
+ * Check if the path is within the allowed path
+ * @param {String} path to check
+ * @param {Function} Callback function
+ * @return {Boolean} 
+ */
+exports.checkPath = function (path, callback) {
+	 
+	//Check if it is a substring of plugin or path
+	if (path.indexOf(config.getPluginFolder()) > -1) {
+		 callback(null, true, null);
+	 } else if (path.indexOf(config.getTempPath) > -1) {
+		 callback(null, true, null);
+	 } else {
+		 callback(null, false, null);
+	 }
+};
+
+/*
  * Remove all files and folders from the tmp directory
  * @return Nothing
  */
@@ -36,11 +54,12 @@ exports.cleanTmp = function () {
  * 		root {Boolean} given path starting from root (Default: false)
  * @param {Function} callback - Callback function
  */
-exports.delete = function(options, callback) {
+exports.delete = function (options, callback) {
 	var type = util.opt(options, 'type', '1');
 	var path = util.opt(options, 'path', null);
 	var root = util.opt(options, 'root', false);
 	var command = null;
+	var fullpath = null;
 	callback = callback || util.noop;
 	
 	//Add absolute path to path if root is false
@@ -49,35 +68,45 @@ exports.delete = function(options, callback) {
 	}
 	
 	if (type == 1) {
-		var filename = util.opt(options, 'filename', null);
-		
+		var filename = util.opt(options, 'filename', null);		
 		command = 'rm ' + path + filename;
+		fullpath = path + filename;
 		
 	} else if(type == 2) {
 		
 		command = 'rm -r ' + path;
+		fullpath = path;
 		
 	} else {
 		callback(true, null, 'Type not supported');
 		return;
 	}
 	
-	exec(command, {cwd: path}, function(err, stdout, stderr) {
+	util.checkPath(fullpath, function(err, stdout, stderr) {
 		
-		if (!err) {
-			callback(null, true, null);
-			log.debug('(Utilities:Delete) "' + command + '" executed. ')
-		} else {
-			
-			if (stderr.indexOf('No such file or directory')) {
-				callback(null, 'File or directory already removed', null);
-				log.debug('(Utilities:Delete) Can\'t remove from ' + path + ' already removed' + command); 
-			} else {				
-				callback(true, null, stderr);		
-				log.debug('(Utilities:Delete) Problem with removing ' + stderr);
-			}
-			
+		if (stdout === false) {
+			log.error('(Utilities:Delete) Path not allowed. Abort.');
+			callback(true, null, 'Path not allowed!');
+			return;
 		}
+		
+		exec(command, {cwd: path}, function (err, stdout, stderr) {
+
+			if (!err) {
+				callback(null, true, null);
+				log.debug('(Utilities:Delete) "' + command + '" executed. ');
+			} else {
+
+				if (stderr.indexOf('No such file or directory')) {
+					callback(null, 'File or directory already removed', null);
+					log.debug('(Utilities:Delete) Can\'t remove from ' + path + ' already removed' + command); 
+				} else {				
+					callback(true, null, stderr);		
+					log.debug('(Utilities:Delete) Problem with removing ' + stderr);
+				}
+
+			}
+		});
 	});
 };
 
