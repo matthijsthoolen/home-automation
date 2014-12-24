@@ -1,14 +1,14 @@
 var bunyan = require('bunyan');
 
 
-exports.start = function(mode) {
+exports.start = function(mode, lvl) {
 	
 	if (mode == 'file') {
 		log = bunyan.createLogger({
 			name: 'homeautomation',
 			streams: [
 				{
-					level: 'info',
+					level: lvl,
 					stream: process.stdout            // log INFO and above to stdout
 				},
 				{

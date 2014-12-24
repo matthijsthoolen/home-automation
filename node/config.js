@@ -8,34 +8,41 @@ nconf.load();
 //nconf.set('plugins:pushbullet:folder', 'pushbullet');
 //console.log(nconf.get('plugins'));
 
-/**
-* Get a JSON list with all the active plugins
-*/
+/*
+ * Get a JSON list with all the active plugins
+ * @return {JSON} list of all plugins
+ */
 exports.getActivePlugins = function() {
 	return nconf.get('plugins');
-
 };
 
-/**
-* Remove a plugin from the configuration
-*/
+/*
+ * Remove a plugin from the configuration
+ * @param {String} - name of the plugin
+ */
 exports.removePlugin = function(name) {
 	nconf.clear('plugins:' + name);	
-	console.log("Removing plugin");
-	this.saveConfiguration();
+	log.debug('(Config:RemovePlugin) Removed ' + name + ' from the config');
+	config.saveConfiguration();
 };
 
-/**
-* Add a plugin to the configuration file
-*/
+/*
+ * Add a plugin to the configuration file
+ * @param {String} - Name of plugin
+ * @param {Folder} - Home folder of the plugin
+ * @param {Array} options:
+ *		version {String} (default: 0.0.1)
+ * 		active {Boolean} (default: true)
+ *		level {Number} (default: 1)
+ */
 exports.addPlugin = function(name, folder, options) {
 	if (typeof options === undefined) {
 		options = {};
 	}
 	
-	var version = options.version !== undefined ? options.version : "0.0.1";
-	var active = options.active !== undefined ? options.active : "true";
-	var level = options.level !== undefined ? options.level : "1";
+	var version = util.opt(options, 'version', '0.0.1');
+	var active = util.opt(options, 'active', true);
+	var level = util.opt(options, 'level', '1');
 	
 	var configPlace = 'plugins:' + name;
 	
@@ -45,7 +52,7 @@ exports.addPlugin = function(name, folder, options) {
 	nconf.set(configPlace + ':active', active);
 	nconf.set(configPlace + ':level', level);
 	
-	console.log("Added plugin");
+	log.debug('(Config:AddPlugin) Added ' + name + ' ' + version + ' to the config');
 	
 	this.saveConfiguration();
 };
@@ -88,9 +95,9 @@ exports.getConfiguration = function(name) {
 exports.saveConfiguration = function() {
 	nconf.save(function (err) {
 		if (err) {
-			console.error(err.message);
+			log.error('(Config:SaveConfiguration) Error with saving configuration file ' + err.message);
 			return;
 		}
-		console.log('Configuration saved successfully.');
+		log.debug('(Config:SaveConfiguration) Saved configuration without errors');
 	});	
 };

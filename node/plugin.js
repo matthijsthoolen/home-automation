@@ -2,17 +2,14 @@ var fs = require('fs'),
 	sys = require('sys'),
     exec = require('child_process').exec;
 
-//checkPlugins();
-//installPlugin('pushbullet', '1.0'); 
-//removePlugin('pushbullet');
-
 exports.test = function() {
-	//getVersionList();
-	//plugin.installPlugin('pushbullet', {'version':'1.0'}); 
+	plugin.check();
+	//plugin.getVersionList();
+	//plugin.install('pushbullet', {'version':'0.1'}); 
 	//log.info('hello there');
 	//versioninfo = getVersionList({'force': false});
-	//plugin.removePlugin('pushbullet');
-/* 	plugin.updatePlugin('pushbullet', {'version':'1.0'}, function(err, stdout, stderr) {
+	//plugin.remove('pushbullet');
+/* 	plugin.update('pushbullet', {'version':'1.0'}, function(err, stdout, stderr) {
 		log.info(err + stdout + stderr);
 	});  */
 	
@@ -22,7 +19,7 @@ exports.test = function() {
 /*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
-exports.checkPlugins = function() {
+exports.check = function() {
 	var plugins = config.getActivePlugins();
 	var plugindir = config.getAbsolutePath() + 'plugins/';
 	
@@ -30,7 +27,7 @@ exports.checkPlugins = function() {
 		console.log(plugindir + plugins[plugin].folder);
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
     		config.removePlugin(plugins[plugin].name);
-			log.info('(CheckPlugins) Removed plugin from config file: ' + plugins[plugin].name); 
+			log.info('(Plugins:Check) Removed plugin from config file: ' + plugins[plugin].name); 
 		}
 	}
 };
@@ -38,17 +35,17 @@ exports.checkPlugins = function() {
 /*
 * Remove a plugin from the plugin directory and from the config file
 */
-exports.removePlugin = function(name) {
+exports.remove = function(name) {
 	var plugindir = config.getPluginFolder() + name; 
 	
 	util.delete({'path': plugindir, type: 2, 'root': true}, 
 		function(err, stdout, stderr) 
 	{
 		if (!err) {
-			log.info('(RemovePlugin) Folder removed'); console.log(err); 
+			log.info('Plugin ' + name + ' removed from plugin directory');
 			config.removePlugin(name);
 		} else {
-			log.error('(RemovePlugin) Not renoved ' + stderr);
+			log.error('(Plugin:Remove) Not removed ' + stderr);
 		}
 	});
 };
@@ -56,25 +53,36 @@ exports.removePlugin = function(name) {
 /*
 * Install a new plugin
 */
-exports.installPlugin = function(name, options) {
-	var version = util.opt(options, 'version', '1.0');
+exports.install = function(name, options) {
+	var version = util.opt(options, 'version', '0.0.1');
 	var folder = name;
 	var plugindir = config.getPluginFolder();
 	
 	downloadFile(folder, version, function(err, tempfolder, stderr) {
-		exec('mv ' + tempfolder + ' ' + plugindir, function(err, stdout, stderr) {
-			log.debug('(InstallPlugin) Moved from temp to plugins: ' + err + ' : ' + stdout);
+		util.move({'old': tempfolder, 'new': plugindir, 'type': 2, 'root': true}, 
+			function(err, stdout, stderr) 
+		{
+			if (err) {
+				util.delete({'path':tempfolder, 'type':2, 'root':true}, null);
+				log.error('(Plugin:Install) Can\'t move file! ' + stderr);
+			} else {
+				log.debug('(Plugin:Install) Moved pluginfolder from temp to plugin folder');
+				config.addPlugin(name, name, {'version':version});
+				log.info('Plugin ' + name + ' installed!');
+			}
 		});
-		
-		config.addPlugin(name, name, {});
 	});
 	
 };
 
 /* 
  * Download updated plugin files and replace the old files, keep the old config. 
+ * @param {String} name
+ * @param {Array} options
+ * 		New version {String} 
+ * @param {Function} Callback
  */
-exports.updatePlugin = function(name, options, callback) {
+exports.update = function(name, options, callback) {
 	var version = util.opt(options, 'version', '1.0');
 	var folder = name;
 	var tempdir = config.getTempPath();
@@ -89,16 +97,24 @@ exports.updatePlugin = function(name, options, callback) {
 		if (!err) {
 			backup = true;
 		} else {
-			log.debug('(UpdatePlugin) Backup plugin failed: ' + err);
+			log.debug('(Plugin:Update) Backup plugin failed: ' + err);
 			backup = 'error';
 		}
 		
-		log.debug('(UpdatePlugin) Backup made before updating for: ' + name);
+		log.debug('(Plugin:Update) Backup made before updating for: ' + name);
 		
 	});
 	
 	//Download the file from the server
 	downloadFile(folder, version, function(err, tempfolder, stderr) {
+		
+		//Return if there is an error with the download
+		if (err) {
+			log.debug('(Plugin:Update) Problem with downloading file');
+			callback(true, null, 'Can\'t download plugin file, please try again later.');
+			return;
+		}
+		
 		//var update = require(tempfolder);
 		var update = require('/home/cabox/workspace/home-automation/plugins/pushbullet-production/update.js');
 		
@@ -106,7 +122,7 @@ exports.updatePlugin = function(name, options, callback) {
 		while (backup !== true) {
 			log.info('waiting');
 			if (backup == 'error') {
-				log.info('(UpdatePlugin) Stopped plugin update, error in backup!');
+				log.info('(Plugin:Update) Stopped plugin update, error in backup!');
 				callback(true, null, 'Problems with plugin backup');
 				return;
 			} 
@@ -117,9 +133,14 @@ exports.updatePlugin = function(name, options, callback) {
 			function(err, stdout, stderr) 
 		{
 			if (!err) {
-				log.debug('(UpdatePlugin) Plugin specific update completed.');
+				log.debug('(Plugin:Update) Plugin specific update completed.');
+				
+				util.delete({'path': '', 'type':2}, function(err, stdout, stderr) {
+						
+				});
+				
 			} else {
-				log.error('(UpdatePlugin) Error with plugin specific update ' + stderr);
+				log.error('(Plugin:Update) Error with plugin specific update ' + stderr);
 				callback(true, null, 'Error with plugin specific update see log for more details');
 				return;
 			}
@@ -141,21 +162,26 @@ function downloadFile(folder, version, callback) {
 	var downloadserver = config.getConfiguration('downloadserver');
 	var path;
 	
-	log.info(tempdir);
-	
 	exec('wget ' + downloadserver + folder + '/' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
-    	log.debug('Downloaded file from server: \n' + err + " : "  + stdout);
+    	log.debug('(Plugin:DownloadFile) Downloaded file from server: \n' + err + " : "  + stdout);
 		
 		exec('tar -zxvf ' + filename, {cwd: tempdir }, function(err, stdout, stderr) {
-			log.debug('Unpacked plugin: ' + err + ' : ' + stdout);
+			log.debug('(Plugin:DownloadFile) Unpacked plugin: ' + err + ' : ' + stdout);
+			
+			//If there is an error, abort and exit function
+			if (err) {
+				log.error('(Plugin:DownloadFile) Problem with downloaden file ' + stderr);
+				callback(true, null, 'Can\'t download plugin file from server. Abort!');
+				return;
+			} 
 			
 			util.delete({'path':tempdir, 'type':1, 'filename': filename, 'root': true}, 
 				function(err, stdout, stderr) 
 			{	
 				if (err) {
-					log.debug('DownloadFile error with removed tar.gz ' + stderr);
+					log.debug('(Plugin:DownloadFile) DownloadFile error with removed tar.gz ' + stderr);
 				} else {
-					log.debug('DownloadFile tar.gz removed');
+					log.debug('(Plugin:DownloadFile) DownloadFile tar.gz removed');
 				}
 			});
 			
@@ -186,11 +212,11 @@ function getVersionList(options) {
 		*/
 		if (stdout > 1800 || err || force === true) {
 			exec('wget ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
-				log.info('Downloaded version file');
+				log.info('(Plugin:GetVersionList) Downloaded version file');
 				exec('touch version.json', {cwd: tempdir});
 			});	
 		} else {
-			log.info('Version file is recent enough'); 
+			log.debug('(Plugin:GetVersionList) Version file is recent enough'); 
 		}
 		
 	});

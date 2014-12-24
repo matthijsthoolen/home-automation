@@ -3,6 +3,6 @@ util = require('./utilities');
 plugin = require('./plugin');
 logger = require('./log');
 
-logger.start('file');
+logger.start('file', 'info');
 
 plugin.test(); 
