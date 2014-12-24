@@ -25,11 +25,11 @@ exports.noop = function (err, stdout, stderr) {
  * @return {Boolean} 
  */
 exports.checkPath = function (path, callback) {
-	 
+
 	//Check if it is a substring of plugin or path
 	if (path.indexOf(config.getPluginFolder()) > -1) {
 		 callback(null, true, null);
-	 } else if (path.indexOf(config.getTempPath) > -1) {
+	 } else if (path.indexOf(config.getTempPath()) > -1) {
 		 callback(null, true, null);
 	 } else {
 		 callback(null, false, null);
@@ -113,8 +113,8 @@ exports.delete = function (options, callback) {
 /*
  * Move a file or folder to another directory
  * @param {Array} options:
- *		oldpath {String},
- *		newpath {String},
+ *		old {String} oldpath,
+ *		new {String} newpath,
  *		type {Number} 1 for file 2 for directory,
  *		filename {String} for type 1 only (optional),
  * 		root {Boolean} given path starting from root (Default: false)

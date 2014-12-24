@@ -57,6 +57,14 @@ exports.addPlugin = function(name, folder, options) {
 	this.saveConfiguration();
 };
 
+exports.setPluginInfo = function(name, info) {
+	var configPlace = 'plugins:' + name;
+	nconf.set(configPlace, info);	
+	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + name);
+	
+	this.saveConfiguration();
+};
+
 exports.getPluginInfo = function(name, type) {
 	return nconf.get('plugins:' + name);
 };

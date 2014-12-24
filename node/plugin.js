@@ -62,7 +62,7 @@ exports.install = function(name, options) {
 			function(err, stdout, stderr) 
 		{
 			if (err) {
-				util.delete({'path':tempfolder, 'type':2, 'root':true}, null);
+				util.delete({'path':tempfolder+folder, 'type':2, 'root':true}, null);
 				log.error('(Plugin:Install) Can\'t move file! ' + stderr);
 			} else {
 				log.debug('(Plugin:Install) Moved pluginfolder from temp to plugin folder');
@@ -88,15 +88,18 @@ exports.update = function(name, options, callback) {
 	var plugindir = config.getPluginFolder();
 	var pluginconfig = config.getPluginInfo('pushbullet', 'test');
 	var backup = false;
+	var backupfolder = tempdir + 'backup/';
+	
+	exec('mkdir ' + backupfolder);
 	
 	//Backup folder to temp folder
-	exec('cp -r ' + plugindir + pluginconfig.folder + ' ' + tempdir + '/backup', 
+	exec('cp -r ' + plugindir + pluginconfig.folder + ' ' + backupfolder, 
 		function(err, stdout, stderr) 
 	{
 		if (!err) {
 			backup = true;
 		} else {
-			log.debug('(Plugin:Update) Backup plugin failed: ' + err);
+			log.error('(Plugin:Update) Backup plugin failed: ' + err);
 			backup = 'error';
 		}
 		
@@ -134,8 +137,37 @@ exports.update = function(name, options, callback) {
 			if (!err) {
 				log.debug('(Plugin:Update) Plugin specific update completed.');
 				
-				util.delete({'path': '', 'type':2}, function(err, stdout, stderr) {
+				var oldPlugin = config.getPluginFolder() + pluginconfig.folder;
+				var tempPlugin = tempfolder + folder;
+				
+				//Delete the old plugin folder
+				util.delete({'path': oldPlugin, 'type':2, 'root':true}, function(err, stdout, stderr) {
+					if (err) {
+						log.error('(Plugin:Update) Can\'t remove old plugin folder ' + name + '. Abort.');
+						callback(true, null, 'Can\'t remove old plugin folder');
+						return;
+					}	
+					
+					//Move the new plugin folder to the plugin directory
+					util.move({'old': tempfolder, 'new': oldPlugin, 'type':2, 'root': true}, 
+						function (err, stdout, stderr) 
+					{
+						if (err) {
+							log.debug('(Plugin:UpdatePlugin) Error with moving temp to plugin folder' + stderr);
+							callback(true, null, 'can\'t move folder to plugin directory');
+							return;
+						}
 						
+						log.info('Plugin ' + name + ' is now updated to ' + version);
+						callback(null, 'Plugin updated', null);
+						
+						//Set configuration file to new version
+						pluginconfig.version = version;	
+						config.setPluginInfo(name, pluginconfig);
+						
+						//delete the backup file
+						util.delete({'path': backupfolder + name, 'type':2, 'root':true});
+					});
 				});
 				
 			} else {
@@ -160,17 +192,24 @@ function downloadFile(folder, version, callback) {
 	var filename = version + '.tar.gz';
 	var downloadserver = config.getConfiguration('downloadserver');
 	var path;
+	var downloadpath = downloadserver + folder + '/' + filename;
 	
-	exec('wget ' + downloadserver + folder + '/' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
+	exec('wget ' + downloadpath, {cwd: tempdir}, function(err, stdout, stderr) {
     	log.debug('(Plugin:DownloadFile) Downloaded file from server: \n' + err + " : "  + stdout);
+		
+		if (err) {
+			log.error('(Plugin:DownloadFile) Problem with downloading file (' + downloadpath + ') ' + err);
+			callback(true, null, 'Can\'t download plugin file from server. Abort!');
+			return;
+		}
 		
 		exec('tar -zxvf ' + filename, {cwd: tempdir }, function(err, stdout, stderr) {
 			log.debug('(Plugin:DownloadFile) Unpacked plugin: ' + err + ' : ' + stdout);
 			
 			//If there is an error, abort and exit function
 			if (err) {
-				log.error('(Plugin:DownloadFile) Problem with downloaden file ' + stderr);
-				callback(true, null, 'Can\'t download plugin file from server. Abort!');
+				log.error('(Plugin:DownloadFile) Problem with unpacking file (' + filename + ') ' + stderr);
+				callback(true, null, 'Can\'t unpack plugin file from server. Abort!');
 				return;
 			} 
 			

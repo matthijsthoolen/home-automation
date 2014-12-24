@@ -1,0 +1,7 @@
+{
+  "name": "Pushbullet",
+  "version": "1.0",
+  "updatescript": "update.js",
+  "description": "Plugin for pushbullet",
+  "main": "index.js"
+}

@@ -7,14 +7,15 @@
   "publicfolder": "public",
   "pluginfolder": "plugins",
   "tempfolder": "tmp",
+  "execallowedpath": {},
   "downloadserver": "http://loginweb.nl/hometest/",
   "author": "Matthijsweb",
   "plugins": {
     "pushbullet": {
       "name": "pushbullet",
       "folder": "pushbullet",
-      "version": "0.0.1",
-      "active": "true",
+      "version": "1.0",
+      "active": true,
       "level": "1"
     }
   }
