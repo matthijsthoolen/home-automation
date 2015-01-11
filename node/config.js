@@ -65,6 +65,9 @@ exports.setPluginInfo = function(name, info) {
 	this.saveConfiguration();
 };
 
+/*
+ * Get all the info about a plugin
+ */
 exports.getPluginInfo = function(name, type) {
 	return nconf.get('plugins:' + name);
 };
@@ -85,9 +88,23 @@ exports.getTempPath = function() {
 
 /*
  * Get the plugin (root) folder.
+ * @param {Array} options
+ * 		abs {Boolean} Absolute path, default = true
  */
-exports.getPluginFolder = function() {
-	return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
+exports.getPluginFolder = function(options) {
+	var abs = util.opt(options, 'abs', true);
+	var path = '';
+	
+	
+	if (abs) {
+		path = nconf.get('abspath');
+	}
+	
+	path += nconf.get('pluginfolder') + '/';
+	
+	return path;
+	
+	//return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
 };
 
 /**

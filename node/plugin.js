@@ -32,6 +32,34 @@ exports.check = function() {
 };
 
 /*
+ * Start the plugin.
+ */
+exports.start = function(plugin) {
+	var pluginfolder = config.getPluginFolder({'abs': true});
+	var plugininfo = config.getPluginInfo(plugin);
+	var pluginmainfile = plugininfo.folder + '/main.js';
+	
+	plugins[plugin] = require(pluginfolder + pluginmainfile);
+	
+	log.info('(Plugins:start) Started plugin "' + plugin + '"');
+	
+	plugins[plugin].start();
+};
+
+/*
+ * Start all the active plugins
+ */
+exports.startAll = function() {
+	var plugins = config.getActivePlugins();
+	
+	log.info('(Plugins:startAll) Starting all plugins');
+	
+	for(var name in plugins) {
+		plugin.start(name);
+	}
+};
+
+/*
 * Remove a plugin from the plugin directory and from the config file
 */
 exports.remove = function(name) {

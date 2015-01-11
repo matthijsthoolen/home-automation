@@ -13,7 +13,7 @@
   "plugins": {
     "pushbullet": {
       "name": "pushbullet",
-      "folder": "pushbullet",
+      "folder": "pushbullet-production",
       "version": "1.0",
       "active": true,
       "level": "1"
