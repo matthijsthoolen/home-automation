@@ -1,12 +1,11 @@
 var PushBullet = require('./lib/pushbullet.js');
+var prelog = '(Plugin:Pushbullet:main';
 
 exports.start = function() {
 	var pusher = new PushBullet('JCSXJO6dn5sKyGD9sAVU8zZPS8mUDatA');
 	var stream = pusher.stream();
 	
 	startStream(pusher, stream);
-	
-	console.log('YOOOO');
 };
 
 function startStream(pusher, stream) {
@@ -18,26 +17,28 @@ function startStream(pusher, stream) {
 	stream.connect(); 
 
 	stream.on('connect', function() {
-		console.log("You are connected");
+		log.info(prelog + ":startStream) You are connected");
 	});
 
 	stream.on('push', function(push) {
-		console.log("OMG I received a push message");
+		log.info(prelog + ":startStream) I received a push message");
+		var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
+		homestream.send(message);
 	});
 
 	stream.on('nop', function() {
-		console.log("nop...");
+		log.debug(prelog + ":startStream) nop...");
 	});
 
 	stream.on('tickle', function(type) {
-		console.log("TICKLE TICKLE!" + type);
+		log.debug(prelog + ":startStream) TICKLE TICKLE!" + type);
 	});
 
 	var options = {
 		limit: 10
 	};
 
-	pusher.devices(options, function(error, response) {
-		console.log(response);
-	});
+/* 	pusher.devices(options, function(error, response) {
+		log.debug(response);
+	}); */
 }
