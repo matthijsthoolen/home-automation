@@ -17,6 +17,7 @@
     "socket.io": "latest",
     "jade": "latest",
 	"bunyan": "latest",
-	"nconf": "latest"
+	"nconf": "latest",
+	"node-hue-api": "latest"
   }
 }

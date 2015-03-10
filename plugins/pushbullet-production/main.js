@@ -22,6 +22,8 @@ function startStream(pusher, stream) {
 
 	stream.on('push', function(push) {
 		log.info(prelog + ":startStream) I received a push message");
+		log.info(push);
+		//log.info(push.body);
 		var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
 		homestream.send(message);
 	});
