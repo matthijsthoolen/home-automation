@@ -146,7 +146,7 @@ exports.update = function(name, options, callback) {
 		}
 		
 		//var update = require(tempfolder);
-		var update = require('/home/cabox/workspace/home-automation/plugins/pushbullet-production/update.js');
+		var update = require(config.getAbsolutePath() + 'plugins/pushbullet-production/update.js');
 		
 		//Wait until the backup is completed or there is an error with the backup
 		while (backup !== true) {

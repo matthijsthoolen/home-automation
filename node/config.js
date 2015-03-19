@@ -1,6 +1,6 @@
 var nconf = require('nconf');
 
-nconf.file({ file: '/home/cabox/workspace/home-automation/config.json' });
+nconf.file({ file: '../config.json' });
  
 nconf.load();
 //nconf.set('name', 'Home-automation');
