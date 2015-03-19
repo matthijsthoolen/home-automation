@@ -28,3 +28,6 @@ node_modules
 
 # Temp folder
 temp
+
+# configuration
+config.json
