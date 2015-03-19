@@ -1,4 +1,4 @@
-var prelog = '(Stream:';
+var prelog = '(Eventstream:';
 
 /*
  * Start listening to the stream

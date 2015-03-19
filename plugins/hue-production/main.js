@@ -14,6 +14,15 @@ exports.start = function() {
 	log.info(prelog + ":start) Hue Api started");
 };
 
+
+/*
+ * The main routine will call this function if it is ready to receive registration
+ * on events.
+ */
+exports.register = function () {
+	event.registerForEvent('new-message', 'plugins.hue.changeLightState(2)');	
+};
+
 var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
 };

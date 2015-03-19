@@ -5,6 +5,8 @@ exports.start = function() {
 	var pusher = new PushBullet('JCSXJO6dn5sKyGD9sAVU8zZPS8mUDatA');
 	var stream = pusher.stream();
 	
+	event.registerEvent('new-message', 'Sends a notification on a new push message on the stream', null);
+	
 	startStream(pusher, stream);
 };
 
