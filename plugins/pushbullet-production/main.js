@@ -25,7 +25,7 @@ function startStream(pusher, stream) {
 		log.info(push);
 		//log.info(push.body);
 		var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
-		plugins['philips-hue'].changeLightState(2);
+		plugins['hue'].changeLightState(2);
 		homestream.send(message);
 	});
 
