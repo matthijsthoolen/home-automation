@@ -23,11 +23,13 @@ function startStream(pusher, stream) {
 	});
 
 	stream.on('push', function(push) {
-		log.info(prelog + ":startStream) I received a push message");
+		log.info(prelog + ":startStream) A push has been received from " + push.application_name + "("+ push.package_name + ") with title: " + push.title);
+		
+		checkPush(push);
 		//log.info(push);
 		//log.info(push.body);
-		var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
-		eventstream.putEvent('new-message', null);
+		//var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
+		//eventstream.putEvent('new-message', null);
 		//homestream.send(message);
 	});
 
@@ -47,3 +49,37 @@ function startStream(pusher, stream) {
 		log.debug(response);
 	}); */
 }
+
+
+/*
+ * Check the push message for the content and check if an event needs to be fired.
+ */
+function checkPush(push) {
+	
+	applicationnameCheck = ['whatsapp', 'snapchat', 'mailwise', 'pushbullet'];
+	
+	if (push.application_name === undefined) {
+		return false;
+	}
+	
+	applicationname = push.application_name.toLowerCase().trim();
+	
+	if (applicationnameCheck.indexOf(applicationname) > -1) {
+		log.info('sending out');
+		eventstream.callAction('blink-lights', '');
+	}
+	
+	
+}
+
+/*{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":14454,"level":30,"type":"mirror","title":"Testmelding","body":"Als je dit op je computer ziet, werken Android-naar-pc-meldingen goed!\n","application_name":"Pushbullet",
+"package_name":"com.pushbullet.android","notification_id":"-8","notification_tag":null,"dismissable":true,"client_version":159,"source_device_iden":"ujxwS7jJ61QsjzZGJDP3oy","source_user_iden":"ujxwS7jJ61Q","has_root":true,"icon":"/9j/4AAQSk","msg":"","time":"2015-03-20T16:32:45.234Z","v":0}    */  
+
+
+
+
+
+
+
+
+

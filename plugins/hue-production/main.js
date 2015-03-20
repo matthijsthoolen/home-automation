@@ -17,11 +17,12 @@ exports.start = function() {
 
 /*
  * The main routine will call this function if it is ready to receive registration
- * on events.
+ * on events and actions.
  */
 exports.register = function () {
-	event.listenForEvent('new-message', ['hue', 'changeLightState', '2']);	
-	event.listenForEvent('new-message', ['hue', 'changeLightState', '1']);	
+	//event.listenForEvent('new-message', ['hue', 'changeLightState', '2']);	
+	//event.listenForEvent('new-message', ['hue', 'changeLightState', '1']);	
+	event.registerAction('blink-lights', 'Blink the lights',  ['hue', 'blinkLights', '']);
 };
 
 var displayResult = function(result) {
@@ -38,6 +39,19 @@ exports.changeLightState = function(light_id) {
 	// --------------------------
 	// Using a promise
 	api.setLightState(light_id, state)
+		.then(displayResult)
+		.done();
+};
+
+exports.blinkLights = function () {
+	log.info(prelog + ':blinkLights) Received call!');
+
+	// Set light state to 'on' with warm white value of 500 and brightness set to 100%
+	state = lightState.create().effect('colorloop');
+
+	// --------------------------
+	// Using a promise
+	api.setLightState('1', state)
 		.then(displayResult)
 		.done();
 };

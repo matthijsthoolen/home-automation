@@ -9,16 +9,27 @@ exports.start = function() {
 
 
 /*
- * Add event to the stream
+ * Add event to the stream and notify all the subscribers
  */
 exports.putEvent = function(eventname, info) {
-	eventinfo = events[eventname];
+	var eventinfo = events[eventname];
 	
 	eventinfo.registered.forEach(function(callFunction) {
-		callback = callFunction.callback;
+		var callback = callFunction.callback;
 		
 		plugins[callback[0]][callback[1]](callback[2]);
 	});
+};
+
+/*
+ * Call action
+ */ 
+exports.callAction = function(actionname, parameters) {
+	var action = actions[actionname].callfunction;
+	
+	log.info("Sending");
+	
+	plugins[action[0]][action[1]](parameters);
 };
 
 

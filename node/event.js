@@ -51,7 +51,7 @@ exports.registerAction = function(name, description, callfunction) {
  * Register all the default events to the array
  */
 function registerDefaultEvents() {
-	event.registerEvent('Haggie', 'Baggie', 'Mn bakkie');
+	//event.registerEvent('Haggie', 'Baggie', 'Mn bakkie');
 }
 
 
