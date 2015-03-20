@@ -20,7 +20,8 @@ exports.start = function() {
  * on events.
  */
 exports.register = function () {
-	event.registerForEvent('new-message', 'plugins.hue.changeLightState(2)');	
+	event.listenForEvent('new-message', ['hue', 'changeLightState', '2']);	
+	event.listenForEvent('new-message', ['hue', 'changeLightState', '1']);	
 };
 
 var displayResult = function(result) {
@@ -28,6 +29,8 @@ var displayResult = function(result) {
 };
 
 exports.changeLightState = function(light_id) {
+	
+	log.info(prelog + ':changeLightState) Received call!');
 
 	// Set light state to 'on' with warm white value of 500 and brightness set to 100%
 	state = lightState.create().on().white(500, 100);

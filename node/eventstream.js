@@ -8,6 +8,20 @@ exports.start = function() {
 };
 
 
+/*
+ * Add event to the stream
+ */
+exports.putEvent = function(eventname, info) {
+	eventinfo = events[eventname];
+	
+	eventinfo.registered.forEach(function(callFunction) {
+		callback = callFunction.callback;
+		
+		plugins[callback[0]][callback[1]](callback[2]);
+	});
+};
+
+
 /* 
  * Call this function with the encoded json message
  * [{ 	from: 'pluginname', 

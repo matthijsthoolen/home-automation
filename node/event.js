@@ -32,7 +32,7 @@ exports.registerEvent = function(name, description, callback) {
 /*
  * Register for a new event
  */
-exports.registerForEvent = function(name, callback) {
+exports.listenForEvent = function(name, callback) {
 		events[name].registered.push({callback: callback});
 };
 

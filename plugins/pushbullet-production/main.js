@@ -24,11 +24,11 @@ function startStream(pusher, stream) {
 
 	stream.on('push', function(push) {
 		log.info(prelog + ":startStream) I received a push message");
-		log.info(push);
+		//log.info(push);
 		//log.info(push.body);
 		var message = [{'from' : 'pushbullet', 'to' : 'stream', 'message' : 'Hello there!'}];
-		plugins['hue'].changeLightState(2);
-		homestream.send(message);
+		eventstream.putEvent('new-message', null);
+		//homestream.send(message);
 	});
 
 	stream.on('nop', function() {

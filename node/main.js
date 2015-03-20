@@ -4,7 +4,7 @@ plugin = require('./plugin');
 logger = require('./log');
 
 event = require('./event');
-homestream = require('./eventstream');
+eventstream = require('./eventstream');
 
 plugins = [];
 events = [];
@@ -12,7 +12,7 @@ actions = [];
 
 logger.start('file', 'info');
 event.start();
-homestream.start();
+eventstream.start();
 
 //plugin.test();
 
