@@ -65,7 +65,6 @@ function checkPush(push) {
 	applicationname = push.application_name.toLowerCase().trim();
 	
 	if (applicationnameCheck.indexOf(applicationname) > -1) {
-		log.info('sending out');
 		eventstream.callAction('blink-lights', '');
 	}
 	

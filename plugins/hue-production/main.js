@@ -46,13 +46,21 @@ exports.changeLightState = function(light_id) {
 exports.blinkLights = function () {
 	log.info(prelog + ':blinkLights) Received call!');
 
+	var oldstate = lightState.create().copy();
+	
+	api.setLightState('1', oldstate)
+		.done();
+	
 	// Set light state to 'on' with warm white value of 500 and brightness set to 100%
-	state = lightState.create().effect('colorloop');
+	var state = lightState.create().on().white(500, 100).longAlert();
 
 	// --------------------------
 	// Using a promise
 	api.setLightState('1', state)
 		.then(displayResult)
+		.done();
+	
+	api.setLightState('1', oldstate)
 		.done();
 };
 

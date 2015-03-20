@@ -27,8 +27,6 @@ exports.putEvent = function(eventname, info) {
 exports.callAction = function(actionname, parameters) {
 	var action = actions[actionname].callfunction;
 	
-	log.info("Sending");
-	
 	plugins[action[0]][action[1]](parameters);
 };
 
