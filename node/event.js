@@ -1,4 +1,5 @@
 var prelog = '(Event:';
+var nrEventSub = 0;
 
 /*
  * Start the event registration, defaults will be added automatically. Plugins can regitrate new events. 
@@ -30,10 +31,37 @@ exports.registerEvent = function(name, description, callback) {
 
 
 /*
- * Register for a new event
+ * Register for a new event. An unique ID is returned.
  */
-exports.listenForEvent = function(name, callback) {
-		events[name].registered.push({callback: callback});
+exports.subscribeToEvent = function(name, callback, timeconfig) {
+	
+	if (typeof timeconfig === 'undefined') {
+    	timeconfig = null;
+  	}
+	
+	var id = nrEventSub;
+	nrEventSub++;
+
+	events[name].registered.push({id: id, callback: callback, timeconfig: timeconfig});
+	
+	//this.unsubscribeFromEvent(name, id);
+
+	return id;
+};
+
+
+//TODO: Make this function
+/*
+ * Unsubscribe from an event
+ */
+exports.unsubscribeFromEvent = function(name, id) {
+	var registered = events[name].registered; 
+	
+	var i = 0;
+	
+	//eventinfo.registered.forEach(function(callFunction) {
+	
+	log.info(registered);
 };
 
 

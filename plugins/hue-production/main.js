@@ -3,6 +3,7 @@ var hue = require("node-hue-api"),
     lightState = hue.lightState;
 
 var prelog = '(Plugin:Hue:main';
+var demo = true;
 
 var host = "192.168.1.110",
     username = "Automation",
@@ -12,6 +13,7 @@ var host = "192.168.1.110",
 exports.start = function() {
 	api = new HueApi(host, username);
 	log.info(prelog + ":start) Hue Api started");
+	findBridge();
 };
 
 
@@ -20,18 +22,52 @@ exports.start = function() {
  * on events and actions.
  */
 exports.register = function () {
-	//event.listenForEvent('new-message', ['hue', 'changeLightState', '2']);	
-	//event.listenForEvent('new-message', ['hue', 'changeLightState', '1']);	
+	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '2']);	
+	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '1'], {0: [{f: '00:00', t: '08:00'}, {f: '22:00', t: '00:00'}], 1: [{f: '00:00', t: '12:00'}, {f: '22:00', t: '00:00'}], 2: [{f: '00:00', t: '14:00'}], 3: '', 4: '', 5: '', 6: '', 7: ''});	
 	event.registerAction('blink-lights', 'Blink the lights',  ['hue', 'blinkLights', '']);
+	
+	eventstream.putEvent('new-message', 'blabla');
 };
 
 var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
 };
 
+
+/*
+ * Search for a bridge if an error occures, keep the demo mode on true and return
+ * else set the demo mode on false and return true.
+ */
+function findBridge() {
+	hue.nupnpSearch(function(err, result) {
+		if (err) {
+			log.error(prelog + ':findBridge) Error by finding bridge, entering demo mode!');
+			demo = true;
+			return false;
+		} 
+		
+		if (result.length <= 0) {
+			log.error(prelog + ':findBridge) No bridge found, entering demo mode!');
+			demo = true;
+			return false;
+		}
+		
+		demo = false;
+		
+		log.info(prelog + ':findBridge) No errors, assuming bridge is found! ' + result);
+		
+		return true;
+		
+		//log.info("HELLO + " + result);
+		//displayBridges(result);
+	});
+}
+
 exports.changeLightState = function(light_id) {
 	
 	log.info(prelog + ':changeLightState) Received call!');
+	
+	if (demo) return true;
 
 	// Set light state to 'on' with warm white value of 500 and brightness set to 100%
 	state = lightState.create().on().white(500, 100);
@@ -45,6 +81,8 @@ exports.changeLightState = function(light_id) {
 
 exports.blinkLights = function () {
 	log.info(prelog + ':blinkLights) Received call!');
+	
+	if (demo) return true;
 
 	var oldstate = lightState.create().copy();
 	

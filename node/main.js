@@ -10,7 +10,10 @@ plugins = [];
 events = [];
 actions = [];
 
+//Start the logger, set the log level and location
 logger.start('file', 'info');
+
+//Start the event and eventstream
 event.start();
 eventstream.start();
 
@@ -18,6 +21,5 @@ eventstream.start();
 
 plugin.startAll();
 
+//Ask all the plugins to registrate for events
 event.askForRegistration();
-
-log.info(events);
