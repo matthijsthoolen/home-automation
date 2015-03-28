@@ -43,25 +43,25 @@ exports.subscribeToEvent = function(name, callback, timeconfig) {
 	nrEventSub++;
 
 	events[name].registered.push({id: id, callback: callback, timeconfig: timeconfig});
-	
-	//this.unsubscribeFromEvent(name, id);
 
 	return id;
 };
 
 
-//TODO: Make this function
 /*
- * Unsubscribe from an event
+ * Unsubscribe from an event. The function will loop through the array and remove if the ID matches.
  */
 exports.unsubscribeFromEvent = function(name, id) {
 	var registered = events[name].registered; 
 	
-	var i = 0;
+	for (var i = 0; i < registered.length; i++) {
+		if (registered[i].id === id) {
+			registered.splice(i--, 1);
+			return true;
+		}
+	}
 	
-	//eventinfo.registered.forEach(function(callFunction) {
-	
-	log.info(registered);
+	return false;
 };
 
 
