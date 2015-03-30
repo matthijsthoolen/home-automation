@@ -1,9 +1,32 @@
 var express = require('express');
-var path = require("path");
+var path = require('path');
+var swig = require('swig');
+
 var app, server;
 
-exports.start = function() {
+var prelog = '(Plugin:webgui';
+
+
+/* 
+ * Start the server
+ */
+exports.start = function() {	
 	app = express();
+	
+	// This is where all the magic happens!
+	app.engine('html', swig.renderFile);
+
+	app.set('view engine', 'html');
+	app.set('views', __dirname + '/views');
+
+	app.use(i18nclass);
+	
+	// Swig will cache templates for you, but you can disable
+	// that and use Express's caching instead, if you like:
+	app.set('view cache', false);
+	// To disable Swig's cache, do the following:
+	swig.setDefaults({ cache: false });
+	// Don't leave both of these to `false` in production!
 	
 	app.use('/assets', express.static(__dirname + '/assets'));
 	
@@ -14,17 +37,37 @@ exports.start = function() {
 		var host = server.address().address;
 		var port = server.address().port;
 
-		console.log('Example app listening at http://%s:%s', host, port);
+		log.info(prelog + ':start) WebGui plugin listening at http://%s:%s', host, port);
 
 	});
-	app.use(express.static(path.join(__dirname, 'assets/html')));
+	//app.use(express.static(path.join(__dirname, 'assets/html')));
+};
+
+
+/*
+ * Stop the server, close socket etc.
+ */
+exports.stop = function() {
+	server.close();
+	log.info(prelog + ':stop) Succesfully stopped WebGui server');	
 };
 
 function setRouting() {
 	var html_dir = 'assets/html/';
 	
 	app.get('/', function(req, res) {
-		res.sendFile(html_dir + 'index.html', {"root": __dirname});
+		//res.sendFile(html_dir + 'index.html', {"root": __dirname});
+		
+		var content = { messagesnew: '320 new messages', 
+					   smallbox: [ 
+						   {main: '30 berichten', muted: 'Nieuw', icon: 'fa-envelope-o'}, 
+						   {main: '20 plugins', muted: 'Geinstalleerd', icon: 'fa-bars'},
+						   {main: '5 plugins', muted: 'Hebben een update', icon: 'fa-bell-o'},
+						   {main: '320 errors', muted: 'Zie log', icon: 'fa-rocket'}
+					   ]
+					  };
+		
+		res.render('index', content);
 	});
 	
 	app.get('/Nina', function(req, res) {

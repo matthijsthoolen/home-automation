@@ -16,6 +16,22 @@ exports.test = function() {
 	//log.info('version 2.0 = ' + versioninfo.get('pushbullet'));
 };
 
+
+/*
+ * Start the plugin script, and set some variables.
+ */
+exports.start = function() {
+	
+};
+
+
+/*
+ * On exit
+ */
+exports.stop = function() {
+	stopAll();
+};
+
 /*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
@@ -31,10 +47,11 @@ exports.check = function() {
 	}
 };
 
+
 /*
  * Start the plugin.
  */
-exports.start = function(plugin) {
+function startPlugin(plugin) {
 	var pluginfolder = config.getPluginFolder({'abs': true});
 	var plugininfo = config.getPluginInfo(plugin);
 	var pluginmainfile = plugininfo.folder + '/main.js';
@@ -44,7 +61,20 @@ exports.start = function(plugin) {
 	log.info('(Plugins:start) Started plugin "' + plugin + '"');
 	
 	plugins[plugin].start();
-};
+}
+
+
+/*
+ * Start the plugin.
+ */
+function stopPlugin(plugin) {	
+	log.info('(Plugins:stop) Stopped plugin "' + plugin + '"');
+	
+	if (typeof plugins[plugin].stop === "function") { 
+		plugins[plugin].stop();
+	}
+}
+
 
 /*
  * Start all the active plugins
@@ -55,7 +85,21 @@ exports.startAll = function() {
 	log.info('(Plugins:startAll) Starting all plugins');
 	
 	for(var name in plugins) {
-		plugin.start(name);
+		startPlugin(name);
+	}
+};
+
+
+/*
+ * Start all the active plugins
+ */
+function stopAll() {
+	var plugins = config.getActivePlugins();
+	
+	log.info('(Plugins:stopAll) Stopping all plugins');
+	
+	for(var name in plugins) {
+		stopPlugin(name);
 	}
 };
 
