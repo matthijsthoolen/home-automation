@@ -8,16 +8,20 @@ nconf.load();
 //nconf.set('plugins:pushbullet:folder', 'pushbullet');
 //console.log(nconf.get('plugins'));
 
+
 /*
  * Get a JSON list with all the active plugins
+ *
  * @return {JSON} list of all plugins
  */
 exports.getActivePlugins = function() {
 	return nconf.get('plugins');
 };
 
+
 /*
  * Remove a plugin from the configuration
+ *
  * @param {String} - name of the plugin
  */
 exports.removePlugin = function(name) {
@@ -26,8 +30,10 @@ exports.removePlugin = function(name) {
 	config.saveConfiguration();
 };
 
+
 /*
  * Add a plugin to the configuration file
+ *
  * @param {String} - Name of plugin
  * @param {Folder} - Home folder of the plugin
  * @param {Array} options:
@@ -57,6 +63,13 @@ exports.addPlugin = function(name, folder, options) {
 	this.saveConfiguration();
 };
 
+
+/*
+ * Set the plugin info in the configuration file
+ *
+ * @param {string} name
+ * @param {object} info 
+ */
 exports.setPluginInfo = function(name, info) {
 	var configPlace = 'plugins:' + name;
 	nconf.set(configPlace, info);	
@@ -65,31 +78,43 @@ exports.setPluginInfo = function(name, info) {
 	this.saveConfiguration();
 };
 
+
 /*
  * Get all the info about a plugin
+ *
+ * @returns {object} returns the plugin info
  */
 exports.getPluginInfo = function(name, type) {
 	return nconf.get('plugins:' + name);
 };
 
-/**
+
+/*
 * Get the absolute path to the base directory
+*
+* @return {string} returns path
 */
 exports.getAbsolutePath = function() {
 	return nconf.get('abspath');
 };
 
+
 /*
  * Get the path of the temp folder
+ * 
+ * @return {string} returns the path to the temp folder
  */
 exports.getTempPath = function() {
 	return nconf.get('abspath') + nconf.get('tempfolder') + '/';
 };
 
+
 /*
  * Get the plugin (root) folder.
+ *
  * @param {Array} options
  * 		abs {Boolean} Absolute path, default = true
+ * @return {string} returns the path to plugin folder
  */
 exports.getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
@@ -107,14 +132,18 @@ exports.getPluginFolder = function(options) {
 	//return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
 };
 
-/**
+
+/*
  * Return the requested configuration name
+ *
+ * @return {mixed} returns the requested configuration
  */
 exports.getConfiguration = function(name) {
 	return nconf.get(name);
 };
 
-/**
+
+/*
 * Save the changes to the configuration in a file
 */
 exports.saveConfiguration = function() {

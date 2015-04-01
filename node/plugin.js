@@ -53,6 +53,8 @@ exports.check = function() {
 
 /*
  * Start the plugin.
+ *
+ * @param {string} plugin: name of the plugin
  */
 function startPlugin(plugin) {
 	var pluginfolder = config.getPluginFolder({'abs': true});
@@ -70,6 +72,8 @@ function startPlugin(plugin) {
 
 /*
  * Start the plugin.
+ *
+ * @param {string} plugin: name of the plugin
  */
 function stopPlugin(plugin) {	
 	log.info('(Plugins:stop) Stopped plugin "' + plugin + '"');
@@ -105,11 +109,13 @@ function stopAll() {
 	for(var name in plugins) {
 		stopPlugin(name);
 	}
-};
+}
+
 
 /*
-* Remove a plugin from the plugin directory and from the config file
-*/
+ * Remove a plugin from the plugin directory and from the config file
+ * @param {string} name: plugin name
+ */
 exports.remove = function(name) {
 	var plugindir = config.getPluginFolder() + name; 
 	
@@ -125,9 +131,13 @@ exports.remove = function(name) {
 	});
 };
 
+
 /*
-* Install a new plugin
-*/
+ * Install a new plugin
+ *
+ * @param {string} name: name of the plugin
+ * @param {object} options
+ */
 exports.install = function(name, options) {
 	var version = util.opt(options, 'version', '0.0.1');
 	var folder = name;
@@ -150,8 +160,10 @@ exports.install = function(name, options) {
 	
 };
 
+
 /* 
  * Download updated plugin files and replace the old files, keep the old config. 
+ *
  * @param {String} name
  * @param {Array} options
  * 		New version {String} 
@@ -261,6 +273,10 @@ exports.update = function(name, options, callback) {
 /*
  * Async function to download a tar file from the server, unpack and remove tar.gz file
  * returns the folder name.
+ *
+ * @param {string} folder
+ * @param {int} version
+ * @param {function} callback
  */
 
 function downloadFile(folder, version, callback) {
@@ -305,9 +321,12 @@ function downloadFile(folder, version, callback) {
 	});
 }
 
+
 /* 
  * Get file with the most recent plugin versions from the server.
  * Returns nconf file with plugin versions.
+ *
+ * @param {object} options
  */
 function getVersionList(options) {
 	var tempdir = config.getTempPath();
@@ -345,6 +364,11 @@ function getVersionList(options) {
 
 /*
  * Call a plugin with the given function and parameters
+ *
+ * @param {string} plugin: name of the plugin
+ * @param {string} functionname
+ * @param {string} parameters
+ * @param {object} info
  */
 exports.callFunction = function(plugin, functionname, parameters, info) {
 	//TODO: Check if parameters and info can be combined	

@@ -3,6 +3,7 @@ var hue = require("node-hue-api"),
     lightState = hue.lightState;
 
 var prelog = '(Plugin:Hue:main';
+var pluginname = '';
 var demo = true;
 
 var host = "192.168.1.110",
@@ -10,7 +11,15 @@ var host = "192.168.1.110",
     api,
     state;
 
-exports.start = function() {
+
+/*
+ * Gets called when the server is starting
+ *
+ * @param {string} name: the pluginname
+ */
+exports.start = function(name) {
+	pluginname = name;
+	
 	api = new HueApi(host, username);
 	log.info(prelog + ":start) Hue Api started");
 	findBridge();
@@ -23,23 +32,20 @@ exports.start = function() {
  */
 exports.register = function () {
 	
-	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '2']);	
-	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '1'], {0: [{f: '00:00', t: '08:00'}, {f: '22:00', t: '00:00'}], 1: [{f: '00:00', t: '12:00'}, {f: '22:00', t: '00:00'}], 2: [{f: '00:00', t: '14:00'}], 3: '', 4: '', 5: '', 6: '', 7: ''});	
+	event.subscribeToEvent('new-message', [pluginname, 'changeLightState', '2']);	
+	event.subscribeToEvent('new-message', [pluginname, 'changeLightState', '1'], {0: [{f: '00:00', t: '08:00'}, {f: '22:00', t: '00:00'}], 1: [{f: '00:00', t: '12:00'}, {f: '22:00', t: '00:00'}], 2: [{f: '00:00', t: '14:00'}], 3: '', 4: '', 5: '', 6: '', 7: ''});	
 	
-	event.subscribeToEvent('GUI-register', ['hue', 'gui', '']);
+	event.subscribeToEvent('GUI-register', [pluginname, 'gui', '']);
 	
-	event.registerAction('blink-lights', 'Blink the lights',  ['hue', 'blinkLights', '']);
+	event.registerAction('blink-lights', 'Blink the lights',  [pluginname, 'blinkLights', '']);
 	
 	eventstream.putEvent('new-message', 'blabla');
 };
 
-var displayResult = function(result) {
-    console.log(JSON.stringify(result, null, 2));
-};
-
 
 /*
- *
+ * @param par1
+ * @param par2
  */
 exports.gui = function (par1, par2) {
 	eventstream.callBack(par2[0], par2[1], {main: '6 lampen actief', muted: 'Totaal 14 lampen', icon: 'fa-lightbulb-o'});
@@ -49,6 +55,8 @@ exports.gui = function (par1, par2) {
 /*
  * Search for a bridge if an error occures, keep the demo mode on true and return
  * else set the demo mode on false and return true.
+ *
+ * @return {boolean}
  */
 function findBridge() {
 	hue.nupnpSearch(function(err, result) {
@@ -75,6 +83,13 @@ function findBridge() {
 	});
 }
 
+
+/*
+ * Change the state of the lightState
+ *
+ * @param {int} light_id
+ * @return {boolean}
+ */
 exports.changeLightState = function(light_id) {
 	
 	log.info(prelog + ':changeLightState) Received call!');

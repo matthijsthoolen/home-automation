@@ -1,7 +1,9 @@
 var PushBullet = require('./lib/pushbullet.js');
 var prelog = '(Plugin:Pushbullet:main';
+var pluginname = '';
 
-exports.start = function() {
+exports.start = function(name) {
+	pluginname = name;
 	var pusher = new PushBullet('JCSXJO6dn5sKyGD9sAVU8zZPS8mUDatA');
 	var stream = pusher.stream();
 	
@@ -10,6 +12,13 @@ exports.start = function() {
 	startStream(pusher, stream);
 };
 
+
+/*
+ * Start receiving from the pushbullet stream
+ *
+ * @param {Pushbullet} pusher
+ * @param {Pushbullet.stream} stream
+ */
 function startStream(pusher, stream) {
 
 	/* pusher.subscriptions(function(error, response) {
@@ -53,6 +62,9 @@ function startStream(pusher, stream) {
 
 /*
  * Check the push message for the content and check if an event needs to be fired.
+ *
+ * @param {string} push
+ * @return {boolean} on error
  */
 function checkPush(push) {
 	

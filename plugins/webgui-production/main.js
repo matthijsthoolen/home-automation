@@ -92,6 +92,9 @@ exports.makegui = function() {
 };
 
 
+/*
+ * Routing expressjs
+ */
 function setRouting() {
 	var html_dir = 'assets/html/';
 	
