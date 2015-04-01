@@ -6,11 +6,24 @@ var app, server;
 
 var prelog = '(Plugin:webgui';
 
+var pluginname = '';
+
+var content = { messagesnew: '320 new messages', 
+					   smallbox: [ 
+						   {main: '30 berichten', muted: 'Nieuw', icon: 'fa-envelope-o'}, 
+						   //{main: '20 plugins', muted: 'Geinstalleerd', icon: 'fa-bars'},
+						   //{main: '5 plugins', muted: 'Hebben een update', icon: 'fa-bell-o'},
+						   {main: '320 errors', muted: 'Zie log', icon: 'fa-rocket'}
+					   ]
+					  };
+
 
 /* 
  * Start the server
  */
-exports.start = function() {	
+exports.start = function(name) {	
+	pluginname = name;
+	
 	app = express();
 	
 	// This is where all the magic happens!
@@ -41,6 +54,8 @@ exports.start = function() {
 
 	});
 	//app.use(express.static(path.join(__dirname, 'assets/html')));
+	
+	event.registerEvent('GUI-register', null, [pluginname, 'guiregister', null]);
 };
 
 
@@ -52,20 +67,38 @@ exports.stop = function() {
 	log.info(prelog + ':stop) Succesfully stopped WebGui server');	
 };
 
+
+/*
+ * Default function
+ */
+exports.register = function() {
+	event.subscribeToEvent('registration-completed', [pluginname, 'makegui', null]);	
+};
+
+
+/*
+ * A callback function for the event 'GUI-register'
+ */
+exports.guiregister = function (info) {
+	content.smallbox.push(info);
+};
+
+
+/*
+ * Wait until the registration is completed to fire the GUI-register event
+ */
+exports.makegui = function() {
+	eventstream.putEvent('GUI-register', {parameters: {type: 1}});
+};
+
+
 function setRouting() {
 	var html_dir = 'assets/html/';
 	
 	app.get('/', function(req, res) {
 		//res.sendFile(html_dir + 'index.html', {"root": __dirname});
 		
-		var content = { messagesnew: '320 new messages', 
-					   smallbox: [ 
-						   {main: '30 berichten', muted: 'Nieuw', icon: 'fa-envelope-o'}, 
-						   {main: '20 plugins', muted: 'Geinstalleerd', icon: 'fa-bars'},
-						   {main: '5 plugins', muted: 'Hebben een update', icon: 'fa-bell-o'},
-						   {main: '320 errors', muted: 'Zie log', icon: 'fa-rocket'}
-					   ]
-					  };
+		//eventstream.putEvent('GUI-register', {parameters: {type: 1}});
 		
 		res.render('index', content);
 	});

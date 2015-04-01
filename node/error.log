@@ -265,3 +265,57 @@
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":3173,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-03-30T20:58:43.847Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":4817,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-03-30T21:01:24.684Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":6897,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-03-30T21:04:31.444Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":30436,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T08:59:23.524Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":30461,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T08:59:43.009Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":30510,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T08:59:58.819Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":30723,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T09:01:06.727Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":30866,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T09:03:14.547Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":991,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T09:45:55.213Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":1188,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T09:47:22.385Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":4891,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T10:12:46.928Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":5021,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:13:30.596Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":5162,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T10:13:57.465Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":5755,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:15:48.307Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7220,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:19:32.094Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7399,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:20:13.621Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7575,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:20:47.878Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7683,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T10:21:03.232Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7778,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:21:22.413Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":7921,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:21:50.414Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":8810,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:24:48.314Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9176,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T10:26:01.669Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9378,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T10:26:26.062Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9673,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T10:27:11.223Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":32217,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T11:10:26.176Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":32626,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T11:11:05.554Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":1047,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T11:12:17.908Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":1393,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T11:12:42.012Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":6845,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T11:19:52.749Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":16924,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T11:31:57.426Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":20897,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T11:36:44.372Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":21789,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T11:37:34.190Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":8178,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T12:00:02.714Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9220,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T12:01:34.998Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9439,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T12:01:50.785Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":9683,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T12:02:16.148Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":10222,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T12:02:51.649Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":27846,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T13:07:40.964Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":32447,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T18:32:14.398Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":10948,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T18:48:37.980Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":11033,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T18:53:11.536Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":11509,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:01:29.947Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":12023,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:09:44.982Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":12793,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:15:28.878Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":13016,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:16:32.468Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":13600,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:18:40.803Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":15568,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T19:24:32.163Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":27609,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-01T19:55:05.125Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":28613,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T19:58:16.156Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":32096,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:15:22.441Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":1613,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:28:41.052Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":1835,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:29:39.532Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":2066,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:30:29.761Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":2283,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:31:08.456Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":2416,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:31:27.782Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":8983,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:46:13.143Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":10386,"level":50,"msg":"(Plugin:Hue:main:findBridge) Error by finding bridge, entering demo mode!","time":"2015-04-01T20:48:41.725Z","v":0}

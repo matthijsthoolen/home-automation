@@ -17,11 +17,24 @@ exports.start = function() {
  * After all the plugins have registrated there events, ask the other plugins to registrate for events
  */
 exports.askForRegistration = function() {
-	plugins.hue.register();
+	var plugins = config.getActivePlugins();
+	
+	log.info(prelog + ':askForRegistration) Ask all active plugins for registration to events and tasks');
+	
+	for(var name in plugins) {
+		plugin.callFunction(name, 'register');
+	}
+	
+	eventstream.putEvent('registration-completed');
 };
+
 
 /*
  * Register a new event and make it available to the other plugins
+ *
+ * @param {string} name
+ * @param {string} description
+ * @param {array} callback: [pluginname, function, parameters]
  */
 exports.registerEvent = function(name, description, callback) {
 	var event = {eventname: name, description: description, callback: callback, registered: []};
@@ -32,6 +45,11 @@ exports.registerEvent = function(name, description, callback) {
 
 /*
  * Register for a new event. An unique ID is returned.
+ * 
+ * @param {string} name
+ * @param {array} callback: special callback array [pluginname, function, parameters]
+ * @param {object} timeconfig: {0: (for all days) [{f: starttime, t: endtime}, ...], 1: till 7: from monday till sunday}
+ * @return {int} id
  */
 exports.subscribeToEvent = function(name, callback, timeconfig) {
 	
@@ -50,6 +68,10 @@ exports.subscribeToEvent = function(name, callback, timeconfig) {
 
 /*
  * Unsubscribe from an event. The function will loop through the array and remove if the ID matches.
+ *
+ * @param {string} name
+ * @param {int} id
+ * @return {boolean}
  */
 exports.unsubscribeFromEvent = function(name, id) {
 	var registered = events[name].registered; 
@@ -67,6 +89,10 @@ exports.unsubscribeFromEvent = function(name, id) {
 
 /*
  * Register a new action and make it available to the other plugins
+ *
+ * @param {string} name
+ * @param {string} description
+ * @param {array} callfunction: The function to call on the action [pluginname, function, parameters]
  */
 exports.registerAction = function(name, description, callfunction) {
 	var action = {actionname: name, description: description, callfunction: callfunction};
@@ -79,7 +105,7 @@ exports.registerAction = function(name, description, callfunction) {
  * Register all the default events to the array
  */
 function registerDefaultEvents() {
-	//event.registerEvent('Haggie', 'Baggie', 'Mn bakkie');
+	event.registerEvent('registration-completed', 'Run when all registration is completed', null);
 }
 
 

@@ -2,6 +2,8 @@ var fs = require('fs'),
 	sys = require('sys'),
     exec = require('child_process').exec;
 
+var prelog = '(Pluginmodule:';
+
 exports.test = function() {
 	plugin.check();
 	//plugin.getVersionList();
@@ -32,6 +34,7 @@ exports.stop = function() {
 	stopAll();
 };
 
+
 /*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
@@ -60,7 +63,8 @@ function startPlugin(plugin) {
 	
 	log.info('(Plugins:start) Started plugin "' + plugin + '"');
 	
-	plugins[plugin].start();
+	//Start the plugin and send the name as a parameter
+	plugins[plugin].start(plugin);
 }
 
 
@@ -326,7 +330,7 @@ function getVersionList(options) {
 				exec('touch version.json', {cwd: tempdir});
 			});	
 		} else {
-			log.debug('(Plugin:GetVersionList) Version file is recent enough'); 
+			log.debug(prelog + ':GetVersionList) Version file is recent enough'); 
 		}
 		
 	});
@@ -337,3 +341,24 @@ function getVersionList(options) {
 	return nconf;
 	
 }
+
+
+/*
+ * Call a plugin with the given function and parameters
+ */
+exports.callFunction = function(plugin, functionname, parameters, info) {
+	//TODO: Check if parameters and info can be combined	
+	
+	//return false if the plugin is not loaded (doesn't exist in the array)
+	if (!(plugin in plugins)) return false;
+	
+	//check if the given function is indeed a function
+	if (typeof plugins[plugin][functionname] === "function") { 
+		plugins[plugin][functionname](parameters, info);
+		return true;
+	}
+	
+	log.info(prelog + 'callPlugin) The function "' + functionname + '" is not valid for the plugin: ' + plugin);
+	
+	return false;
+};

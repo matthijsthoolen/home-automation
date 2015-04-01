@@ -10,9 +10,19 @@ exports.start = function() {
 
 /*
  * Add event to the stream and notify all the subscribers
+ *
+ * @param {string} eventname is the name of the event to fire.
+ * @param {object} info:info must be an object with possible keys: 
+ * - parameters to put as one parameter object
  */
 exports.putEvent = function(eventname, info) {
 	var eventinfo = events[eventname];
+	var parameters = null;
+	
+	//check if parameters is given, if so set it
+	if (info !== null && typeof info === 'object' && 'parameters' in info) {
+		parameters = info.parameters;	
+	}
 	
 	eventinfo.registered.forEach(function(callFunction) {
 		var callback = callFunction.callback;
@@ -21,12 +31,19 @@ exports.putEvent = function(eventname, info) {
 		//If the event is not active at this moment go to the next iteration
 		if (!checkTimeconfig(timeconfig)) return;
 		
-		callPlugin(callback[0], callback[1], callback[2]);
+		//If parameters === null set the default parameter
+		if (parameters === null) parameters = callback[2];
+		
+		callPlugin(callback[0], callback[1], parameters, eventinfo.callback);
 	});
 };
 
+
 /*
  * Call action
+ *
+ * @param {string} actionname
+ * @param {string} parameters
  */ 
 exports.callAction = function(actionname, parameters) {
 	if (!(actionname in actions)) {
@@ -39,8 +56,13 @@ exports.callAction = function(actionname, parameters) {
 };
 
 
+
+
+
 /* 
  * Call this function with the encoded json message
+ *
+ * @param {array} message: 
  * [{ 	from: 'pluginname', 
  *		to: 'pluginnames', (seperated by ;)
  *		message: 'the actual message',
@@ -56,26 +78,35 @@ exports.send = function(message) {
 
 
 /*
- * Call a plugin with the given function and parameters
+ * Call a callback function of a plugin
+ * 
+ * @param {string} plugin
+ * @param {string} functionname
+ * @param {mixed} parameters
  */
-function callPlugin(plugin, functionname, parameters) {
-	
-	//return false if the plugin is not loaded (doesn't exist in the array)
-	if (!(plugin in plugins)) return false;
-	
-	//check if the given function is indeed a function
-	if (typeof plugins[plugin][functionname] === "function") { 
-		plugins[plugin][functionname](parameters);
-		return true;
-	}
-	
-	log.info(prelog + 'callPlugin) The function "' + functionname + '" is not valid for the plugin: ' + plugin);
-	
-	return false;
+exports.callBack = function(plugin, functionname, parameters) {
+	callPlugin(plugin, functionname, parameters);	
+};
+
+
+/*
+ * Run a function of a plugin
+ * 
+ * @param {string} pluginname
+ * @param {string} functionname
+ * @param {mixed} parameters
+ * @param {array} info
+ */
+function callPlugin(pluginname, functionname, parameters, info) {
+	plugin.callFunction(pluginname, functionname, parameters, info);
 }
+
 
 /*
  * Check if an event of action is active at this moment
+ *
+ * @param {object} timeconfig
+ * @return {boolean}
  */
 function checkTimeconfig(timeconfig) {
 	

@@ -22,8 +22,12 @@ exports.start = function() {
  * on events and actions.
  */
 exports.register = function () {
+	
 	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '2']);	
 	event.subscribeToEvent('new-message', ['hue', 'changeLightState', '1'], {0: [{f: '00:00', t: '08:00'}, {f: '22:00', t: '00:00'}], 1: [{f: '00:00', t: '12:00'}, {f: '22:00', t: '00:00'}], 2: [{f: '00:00', t: '14:00'}], 3: '', 4: '', 5: '', 6: '', 7: ''});	
+	
+	event.subscribeToEvent('GUI-register', ['hue', 'gui', '']);
+	
 	event.registerAction('blink-lights', 'Blink the lights',  ['hue', 'blinkLights', '']);
 	
 	eventstream.putEvent('new-message', 'blabla');
@@ -31,6 +35,14 @@ exports.register = function () {
 
 var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
+};
+
+
+/*
+ *
+ */
+exports.gui = function (par1, par2) {
+	eventstream.callBack(par2[0], par2[1], {main: '6 lampen actief', muted: 'Totaal 14 lampen', icon: 'fa-lightbulb-o'});
 };
 
 
