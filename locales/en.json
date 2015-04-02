@@ -1,4 +1,24 @@
 {
 	"Hello %s, how are you today?": "Hello %s, how are you today?",
-	"HELLo You There": "Hello you!"
+	"HELLo You There": "Hello you!",
+	"Toggle navigation": "Toggle navigation",
+	"Website.name": "Home Automation",
+	"Dashboard": "Dashboard",
+	"Actions": "Actions",
+	"Plugins": "Plugins",
+	"Store": "Store",
+	"Manual": "Manual",
+	"Contact": "Contact",
+	"30 berichten": "30 berichten",
+	"Nieuw": "Nieuw",
+	"320 errors": "320 errors",
+	"Zie log": "Zie log",
+	"6 lampen actief": "6 lampen actief",
+	"Totaal 14 lampen": "Totaal 14 lampen",
+	"52 Important Issues to Fix": "52 important shit",
+	"Manage your plugins": "Manage your plugins",
+	"All": "All",
+	"Active": "Active",
+	"Inactive": "Inactive",
+	"Update Available": "Update Available"
 }

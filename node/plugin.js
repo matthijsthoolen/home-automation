@@ -386,3 +386,29 @@ exports.callFunction = function(plugin, functionname, parameters, info) {
 	
 	return false;
 };
+
+
+/*
+ * Get a object with all plugins. Can be filtered
+ *
+ * @param {object} filter
+ * @return {object} 
+ */
+exports.getPluginInfo = function(filter) {
+	var plugins = config.getActivePlugins();
+	var info = [];
+	var tmp = {};
+	
+	for(var name in plugins) {
+		tmp = {};
+		tmp.name = plugins[name].name;
+		tmp.active = plugins[name].active;
+		tmp.description = 'No description available';
+		tmp.version = plugins[name].version;
+		tmp.update = true;
+		
+		info.push(tmp);
+	}
+	
+	return info;
+};

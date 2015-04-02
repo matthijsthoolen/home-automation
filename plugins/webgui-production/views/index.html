@@ -14,6 +14,10 @@
 	Hello you there!
 {% endblock %}
 
+{% block activeDashboard %}
+	class="active-menu"
+{% endblock %}
+
 {% block content %}
 <!-- /. ROW  -->
                   <hr />
@@ -41,7 +45,7 @@
                     <i class="fa fa-warning"></i>
                 </span>
 			<div class="text-box">
-				<p class="main-text">52 Important Issues to Fix</p>
+				<p class="main-text">{{ __('52 Important Issues to Fix') }}</p>
 				<p class="text-muted">Please fix these issues to work smooth</p>
 				<p class="text-muted">Time Left: 30 mins</p>
 				<hr />
@@ -396,5 +400,9 @@
 {% endblock %}
 
 {% block footer %}
-  {% parent %}
+  	{% parent %}
+	<!-- MORRIS CHART SCRIPTS -->
+    <script src="assets/js/morris/raphael-2.1.0.min.js"></script>
+    <script src="assets/js/morris/morris.js"></script>
+	<script src="assets/js/custom.js"></script>
 {% endblock %}

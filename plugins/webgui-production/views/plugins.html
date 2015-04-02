@@ -1,0 +1,173 @@
+{% extends 'layout.html' %}
+
+{% block title %}Plugins{% endblock %}
+
+{% block head %}
+	{% parent %}
+{% endblock %}
+
+{% block pagetitle %}
+	Plugin configuration
+{% endblock %}
+
+{% block pagetitle-sub %}
+	{{ __('Manage your plugins')}}
+{% endblock %}
+
+{% block activePlugins %}
+	class="active-menu"
+{% endblock %}
+
+{% block content %}
+
+<div role="tabpanel">
+
+	<ul class="nav nav-tabs" role="tablist" id="plugintab">
+		<li role="presentation" class="active">
+			<a href="#all" aria-controls="all" role="tab" data-toggle="tab">{{ __('All') }}</a>
+		</li>
+		<li role="presentation">
+			<a href="#active" aria-controls="active" role="tab" data-toggle="tab">{{ __('Active') }}</a>
+		</li>
+		<li role="presentation">
+			<a href="#inactive" aria-controls="inactive" role="tab" data-toggle="tab">{{ __('Inactive') }}</a>
+		</li>
+		<li role="presentation">
+			<a href="#update" aria-controls="update" role="tab" data-toggle="tab">{{ __('Update Available') }}</a>
+		</li>
+	</ul>
+
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane active" id="all">
+			<table class="table table-striped">
+
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="select" value="all"></th>
+						<th>Name</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					
+					{% for plugin in plugins %}
+					
+					<tr>
+						<td><input type="checkbox" name="select" value="{{ plugin.name }}"></td>
+						<td>{{ plugin.name }}</td>
+						<td>{{ plugin.description }}</td>
+					</tr>
+					
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<div role="tabpanel" class="tab-pane" id="active">
+			
+			<table class="table table-striped">
+				
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="select" value="all"></th>
+						<th>Name</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					
+					{% for plugin in plugins %}
+					
+					{% if plugin.active %}
+					
+					<tr>
+						<td><input type="checkbox" name="select" value="{{ plugin.name }}"></td>
+						<td>{{ plugin.name }}</td>
+						<td>{{ plugin.description }}</td>
+					</tr>
+					
+					{% endif %}
+					
+					{% endfor %}
+				</tbody>
+				
+			</table>
+			
+		</div>
+		
+		<div role="tabpanel" class="tab-pane" id="inactive">
+			
+			<table class="table table-striped">
+			
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="select" value="all"></th>
+						<th>Name</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					
+					{% for plugin in plugins %}
+					
+					{% if not plugin.active %}
+					
+					<tr>
+						<td><input type="checkbox" name="select" value="{{ plugin.name }}"></td>
+						<td>{{ plugin.name }}</td>
+						<td>{{ plugin.description }}</td>
+					</tr>
+					
+					{% endif %}
+					
+					{% endfor %}
+				</tbody>
+				
+			</table>
+			
+		</div>
+		
+		<div role="tabpanel" class="tab-pane" id="update">
+			
+			<table class="table table-striped">
+			
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="select" value="all"></th>
+						<th>Name</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					
+					{% for plugin in plugins %}
+					
+					{% if plugin.update %}
+					
+					<tr>
+						<td><input type="checkbox" name="select" value="{{ plugin.name }}"></td>
+						<td>{{ plugin.name }}</td>
+						<td>{{ plugin.description }}</td>
+					</tr>
+					
+					{% endif %}
+					
+					{% endfor %}
+				</tbody>
+				
+			</table>
+			
+		</div>
+	</div>
+	
+</div>
+
+{% endblock %}
+
+{% block footer %}
+	{% parent %}
+{% endblock %}

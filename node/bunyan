@@ -1,0 +1,26 @@
+2 Apr 16:20:09 - [33m[nodemon] v1.3.7[39m
+2 Apr 16:20:09 - [33m[nodemon] to restart at any time, enter `rs`[39m
+2 Apr 16:20:09 - [33m[nodemon] watching: *.*[39m
+2 Apr 16:20:09 - [32m[nodemon] starting `node main.js`[39m
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Event:start) Events can now be registered","time":"2015-04-02T14:20:09.510Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Eventstream:start) Stream is now available","time":"2015-04-02T14:20:09.512Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:startAll) Starting all plugins","time":"2015-04-02T14:20:09.513Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:start) Started plugin \"pushbullet\"","time":"2015-04-02T14:20:09.820Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:start) Started plugin \"hue\"","time":"2015-04-02T14:20:09.964Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugin:Hue:main:start) Hue Api started","time":"2015-04-02T14:20:09.964Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:start) Started plugin \"timer\"","time":"2015-04-02T14:20:09.972Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugin:timer:main:start) Timer started","time":"2015-04-02T14:20:09.972Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:start) Started plugin \"webgui\"","time":"2015-04-02T14:20:10.170Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:start) Started plugin \"systeminfo\"","time":"2015-04-02T14:20:10.187Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Event::askForRegistration) Ask all active plugins for registration to events and tasks","time":"2015-04-02T14:20:10.196Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Pluginmodule:callPlugin) The function \"register\" is not valid for the plugin: pushbullet","time":"2015-04-02T14:20:10.196Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugin:Hue:main:changeLightState) Received call!","time":"2015-04-02T14:20:10.197Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugin:webgui:start) WebGui plugin listening at http://0.0.0.0:3001","time":"2015-04-02T14:20:10.203Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Main) SIGINT received, stopping plugins.","time":"2015-04-02T14:20:11.450Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stopAll) Stopping all plugins","time":"2015-04-02T14:20:11.450Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stop) Stopped plugin \"pushbullet\"","time":"2015-04-02T14:20:11.451Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stop) Stopped plugin \"hue\"","time":"2015-04-02T14:20:11.451Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stop) Stopped plugin \"timer\"","time":"2015-04-02T14:20:11.451Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stop) Stopped plugin \"webgui\"","time":"2015-04-02T14:20:11.451Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugin:webgui:stop) Succesfully stopped WebGui server","time":"2015-04-02T14:20:11.451Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":898,"level":30,"msg":"(Plugins:stop) Stopped plugin \"systeminfo\"","time":"2015-04-02T14:20:11.451Z","v":0}

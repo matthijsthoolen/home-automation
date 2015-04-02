@@ -9,9 +9,11 @@ i18n.configure({
 	directory: '../locales',
 
 	defaultLocale: 'en',
+	
+	updateFiles: true,
 
 	// sets a custom cookie name to parse locale settings from  - defaults to NULL
-	cookie: 'lang',
+	//cookie: 'lang',
 });
 
 module.exports = function(req, res, next) {
@@ -20,6 +22,10 @@ module.exports = function(req, res, next) {
 	//res.local('__', res.__);
 
 	var current_locale = i18n.getLocale();
+	
+	//i18n.setLocale('en');
+	//i18n.setLocale(req, 'en');
+	req.setLocale('en');
 
 	return next();
 };

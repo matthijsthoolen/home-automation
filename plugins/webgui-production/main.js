@@ -106,7 +106,18 @@ function setRouting() {
 		res.render('index', content);
 	});
 	
+	app.get('/plugin', function(req, res) {
+		renderPlugin(req, res);
+	});
+	
 	app.get('/Nina', function(req, res) {
 		res.send('Hallo Nientje!!');
 	});
+}
+
+function renderPlugin(req, res) {
+	
+	plugins = plugin.getPluginInfo();
+	
+	res.render('plugins', plugins);
 }
