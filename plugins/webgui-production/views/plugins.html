@@ -1,13 +1,15 @@
 {% extends 'layout.html' %}
 
-{% block title %}Plugins{% endblock %}
+{% block title %}
+	Plugins
+{% endblock %}
 
 {% block head %}
 	{% parent %}
 {% endblock %}
 
 {% block pagetitle %}
-	Plugin configuration
+	Plugin configuration <a class="btn btn-default" href="/plugin-new" role="button">{{ __('New plugin') }}</a>
 {% endblock %}
 
 {% block pagetitle-sub %}
@@ -19,6 +21,8 @@
 {% endblock %}
 
 {% block content %}
+
+
 
 <div role="tabpanel">
 

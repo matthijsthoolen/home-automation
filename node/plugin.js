@@ -399,6 +399,10 @@ exports.getPluginInfo = function(filter) {
 	var info = [];
 	var tmp = {};
 	
+	//var versions = getVersionList();
+	
+	//console.log(versions);
+	
 	for(var name in plugins) {
 		tmp = {};
 		tmp.name = plugins[name].name;
