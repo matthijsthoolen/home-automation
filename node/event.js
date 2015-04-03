@@ -52,6 +52,11 @@ exports.registerEvent = function(name, description, callback) {
  * @return {int} id
  */
 exports.subscribeToEvent = function(name, callback, timeconfig) {
+
+	//check if the event (still) exists
+	if (!events.hasOwnProperty(name)) {
+		return false;
+	}
 	
 	if (typeof timeconfig === 'undefined') {
     	timeconfig = null;

@@ -16,6 +16,12 @@ exports.start = function() {
  * - parameters to put as one parameter object
  */
 exports.putEvent = function(eventname, info) {
+	
+	//check if the event is still available
+	if (!events.hasOwnProperty(eventname)) {
+		return false;
+	}
+	
 	var eventinfo = events[eventname];
 	var parameters = null;
 	

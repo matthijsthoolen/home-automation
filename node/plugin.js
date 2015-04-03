@@ -10,7 +10,7 @@ exports.test = function() {
 	//plugin.install('pushbullet', {'version':'0.1'}); 
 	//log.info('hello there');
 	//versioninfo = getVersionList({'force': false});
-	//plugin.remove('pushbullet');
+	plugin.remove('pushbullet');
 /* 	plugin.update('pushbullet', {'version':'1.0'}, function(err, stdout, stderr) {
 		log.info(err + stdout + stderr);
 	});  */
@@ -74,13 +74,18 @@ function startPlugin(plugin) {
  * Start the plugin.
  *
  * @param {string} plugin: name of the plugin
+ * @return {boolean}
  */
 function stopPlugin(plugin) {	
 	log.info('(Plugins:stop) Stopped plugin "' + plugin + '"');
 	
-	if (typeof plugins[plugin].stop === "function") { 
+	//Check if the plugin is already started and if so if it has a stop function
+	if (plugins.hasOwnProperty(plugin) && typeof plugins[plugin].stop === "function") { 
 		plugins[plugin].stop();
+		return true;
 	}
+
+	return false;
 }
 
 
@@ -114,10 +119,20 @@ function stopAll() {
 
 /*
  * Remove a plugin from the plugin directory and from the config file
+ *
  * @param {string} name: plugin name
+ * @return {boolean}
  */
 exports.remove = function(name) {
 	var plugindir = config.getPluginFolder() + name; 
+	
+	stopPlugin(name);
+	
+	//If the plugin is unremovable only deactivate it
+	if (!pluginRemovable(name)) {
+		config.deactivatePlugin(name);
+		return true;
+	}
 	
 	util.delete({'path': plugindir, type: 2, 'root': true}, 
 		function(err, stdout, stderr) 
@@ -125,11 +140,28 @@ exports.remove = function(name) {
 		if (!err) {
 			log.info('Plugin ' + name + ' removed from plugin directory');
 			config.removePlugin(name);
-		} else {
-			log.error('(Plugin:Remove) Not removed ' + stderr);
+			return true;
 		}
+		
+		log.error('(Plugin:Remove) Not removed ' + stderr);
+		return false;
+		
 	});
 };
+
+
+/*
+ *
+ */
+function pluginRemovable(name) {
+	var info = config.getPluginInfo(name);
+	
+	if (info.production) {
+		return false;
+	}
+	
+	return true;
+}
 
 
 /*

@@ -12,10 +12,21 @@ nconf.load();
 /*
  * Get a JSON list with all the active plugins
  *
- * @return {JSON} list of all plugins
+ * @return {JSON} list of all active plugins
  */
 exports.getActivePlugins = function() {
-	return nconf.get('plugins');
+	var plugins = nconf.get('plugins');
+	var tmp = {};
+	
+	for(var name in plugins) {
+		var plugin = plugins[name];
+		
+		if (plugin.active) {
+			tmp[name] = plugin;
+		}
+	}
+	
+	return tmp;
 };
 
 
@@ -29,6 +40,21 @@ exports.removePlugin = function(name) {
 	log.debug('(Config:RemovePlugin) Removed ' + name + ' from the config');
 	config.saveConfiguration();
 };
+
+
+/*
+ * Deactivate a plugin in the settings
+ *
+ * @param {string} name
+ */
+exports.deactivatePlugin = function(name) {
+	var configPlace = 'plugins:' + name;
+	
+	nconf.set(configPlace + ':active', false);
+	
+	config.saveConfiguration();
+};
+
 
 
 /*
@@ -147,6 +173,7 @@ exports.getConfiguration = function(name) {
 * Save the changes to the configuration in a file
 */
 exports.saveConfiguration = function() {
+	
 	nconf.save(function (err) {
 		if (err) {
 			log.error('(Config:SaveConfiguration) Error with saving configuration file ' + err.message);
