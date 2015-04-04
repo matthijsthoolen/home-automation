@@ -1,4 +1,4 @@
-var prelog = '(Event:';
+var prelog = '(Event';
 var nrEventSub = 0;
 
 /*
@@ -9,7 +9,7 @@ exports.start = function() {
 	registerDefaultEvents();
 	registerDefaultActions();
 	
-	log.info(prelog + 'start) Events can now be registered');
+	log.info(prelog + ':start) Events can now be registered');
 };
 
 

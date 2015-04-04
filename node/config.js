@@ -56,6 +56,19 @@ exports.deactivatePlugin = function(name) {
 };
 
 
+/*
+ * Activate a plugin in the settings
+ *
+ * @param {string} name
+ */
+exports.activatePlugin = function(name) {
+	var configPlace = 'plugins:' + name;
+	
+	nconf.set(configPlace + ':active', true);
+	
+	config.saveConfiguration();
+};
+
 
 /*
  * Add a plugin to the configuration file
