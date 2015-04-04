@@ -14,6 +14,15 @@ exports.start = function(name) {
 
 
 /*
+ * The plugin specific uninstall procedure
+ */
+exports.uninstall = function() {
+	log.info('Fuck you, you can not uninstall me!');
+	return true;
+};
+
+
+/*
  * Start receiving from the pushbullet stream
  *
  * @param {Pushbullet} pusher

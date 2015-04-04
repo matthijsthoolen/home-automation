@@ -10,7 +10,7 @@ exports.test = function() {
 	//plugin.install('pushbullet', {'version':'0.1'}); 
 	//log.info('hello there');
 	//versioninfo = getVersionList({'force': false});
-	plugin.activate('pushbullet');
+	//plugin.remove('pushbullet');
 /* 	plugin.update('pushbullet', {'version':'1.0'}, function(err, stdout, stderr) {
 		log.info(err + stdout + stderr);
 	});  */
@@ -181,7 +181,7 @@ exports.remove = function(name) {
 	
 	stopPlugin(name);	
 	
-	//TODO: uninstall apps
+	uninstall(name);
 	
 	util.delete({'path': plugindir, type: 2, 'root': true}, 
 		function(err, stdout, stderr) 
@@ -210,6 +210,27 @@ function pluginRemovable(name) {
 	
 	if (info.production) {
 		return false;
+	}
+	
+	return true;
+}
+
+
+/*
+ * Run the app specific uninstall procedure
+ *
+ * @param {string} name
+ * @return {boolean}
+ */
+function uninstall(name) {
+	//Check if the plugin is already started and if so if it has a stop function
+	if (plugins.hasOwnProperty(name) && typeof plugins[name].uninstall === "function") { 
+		if (!plugins[name].uninstall()) {
+			log.debug(prelog + ':uninstall) There was a problem running the app specific uninstall procedure for ' + name);
+			return false;
+		}
+		
+		log.info(prelog + ':uninstall) App specific uninstall procedure completed for "' + name + '"');
 	}
 	
 	return true;
@@ -453,6 +474,7 @@ function getVersionList(options) {
  * @param {string} functionname
  * @param {string} parameters
  * @param {object} info
+ * @return {boolean}
  */
 exports.callFunction = function(plugin, functionname, parameters, info) {
 	//TODO: Check if parameters and info can be combined	

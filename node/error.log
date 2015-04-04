@@ -437,3 +437,10 @@
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":25049,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T10:49:53.100Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":25157,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T10:51:07.581Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":25216,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T10:51:42.850Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26182,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:07:12.864Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26238,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:07:45.058Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26275,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:07:59.097Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26348,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:08:13.096Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26426,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:08:36.372Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26472,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:08:58.646Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":26499,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-04T11:09:01.638Z","v":0}
