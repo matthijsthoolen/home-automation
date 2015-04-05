@@ -153,18 +153,24 @@ exports.getTempPath = function() {
  *
  * @param {Array} options
  * 		abs {Boolean} Absolute path, default = true
+ *		pluginname {string} pluginname (optional)
  * @return {string} returns the path to plugin folder
  */
 exports.getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
+	var pluginname = util.opt(options, 'pluginname', null);
 	var path = '';
-	
 	
 	if (abs) {
 		path = nconf.get('abspath');
 	}
 	
 	path += nconf.get('pluginfolder') + '/';
+	
+	//If a plugin name is given, get the plugin specific folder
+	if (pluginname !== null) {
+		path += nconf.get('plugins:' + pluginname + ':folder');
+	}
 	
 	return path;
 	

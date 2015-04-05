@@ -258,6 +258,10 @@ exports.install = function(name, options) {
 			} else {
 				log.debug('(Plugin:Install) Moved pluginfolder from temp to plugin folder');
 				config.addPlugin(name, name, {'version':version});
+				
+				//install plugin dependencies
+				util.installDependencies({'pluginname': name});
+				
 				log.info(prelog + ':install) Plugin ' + name + ' installed!');
 			}
 		});

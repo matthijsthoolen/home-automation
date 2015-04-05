@@ -1,7 +1,10 @@
 var exec = require('child_process').exec;
 
+var prelog = '(utitilites';
+
 /*
  * Return the value of an options field, if not available return the default.
+ *
  * @param {Array} options - array with the input options
  * @param {String} name - name of the option to return
  * @param {Mixed} - if option is not given, default value
@@ -11,15 +14,17 @@ exports.opt = function (options, name, def) {
      return options && options[name] !== undefined ? options[name] : def;
 };
 
+
 /* 
  * If callback is not given, this function is used.
- */
- 
+ */ 
 exports.noop = function (err, stdout, stderr) {	
 };
 
+
 /*
  * Check if the path is within the allowed path
+ *
  * @param {String} path to check
  * @param {Function} Callback function
  * @return {Boolean} 
@@ -38,6 +43,7 @@ exports.checkPath = function (path, callback) {
 
 /*
  * Remove all files and folders from the tmp directory
+ *
  * @return Nothing
  */
 exports.cleanTmp = function () {
@@ -47,6 +53,7 @@ exports.cleanTmp = function () {
 
 /*
  * Remove a file or folder. 
+ *
  * @param {Array} options - 
  *		path {string}, 
  * 		type {Number} 1 for file 2 for directory,
@@ -85,7 +92,7 @@ exports.delete = function (options, callback) {
 	util.checkPath(fullpath, function(err, stdout, stderr) {
 		
 		if (stdout === false) {
-			log.error('(Utilities:Delete) Path not allowed. Abort.');
+			log.error(prelog + ':Delete) Path not allowed. Abort.');
 			callback(true, null, 'Path not allowed!');
 			return;
 		}
@@ -94,15 +101,15 @@ exports.delete = function (options, callback) {
 
 			if (!err) {
 				callback(null, true, null);
-				log.debug('(Utilities:Delete) "' + command + '" executed. ');
+				log.debug(prelog + ':Delete) "' + command + '" executed. ');
 			} else {
 
 				if (stderr.indexOf('No such file or directory')) {
 					callback(null, 'File or directory already removed', null);
-					log.debug('(Utilities:Delete) Can\'t remove from ' + path + ' already removed' + command); 
+					log.debug(prelog + ':Delete) Can\'t remove from ' + path + ' already removed' + command); 
 				} else {				
 					callback(true, null, stderr);		
-					log.debug('(Utilities:Delete) Problem with removing ' + stderr);
+					log.debug(prelog + ':Delete) Problem with removing ' + stderr);
 				}
 
 			}
@@ -112,7 +119,8 @@ exports.delete = function (options, callback) {
 
 /*
  * Move a file or folder to another directory
- * @param {Array} options:
+ *
+ * @param {object} options:
  *		old {String} oldpath,
  *		new {String} newpath,
  *		type {Number} 1 for file 2 for directory,
@@ -162,5 +170,55 @@ exports.move = function (options, callback) {
 			callback(null, 'Move succesfull', null);
 		}
 	});
+	
+};
+
+
+/*
+ * Install the dependencies with npm from package.json
+ *
+ * @param {object} options:
+ *		pluginname {string}
+ * 		folder {string} folder of the plugin (default: pluginfolder)
+ *		package {string} package.json file (default package.json in pluginfolder)
+ * @param {function} callback
+ */
+exports.installDependencies = function(options, callback) {
+	
+	//If name is not given, return false
+	if (!options.hasOwnProperty('pluginname')) {
+		log.error(prelog + ':installDependencies) Pluginname not given');
+		return false;
+	}
+	
+	var name = options.pluginname;
+	var folder = util.opt(options, 'folder', config.getPluginFolder({'pluginname': name}));
+	var package = util.opt(options, 'package', 'package.json');
+	callback = callback || util.noop;
+	var command;
+	
+	var nconf = require('nconf');
+	
+	//load package.json dependencies
+	nconf.file({ file: folder + '/' + package});
+	nconf.load();
+	
+	var dependencies = nconf.get('dependencies');
+	var abspath = config.getAbsolutePath();
+	
+	for(var depname in dependencies) {
+		var version = dependencies[depname];
+		
+		command = 'npm install ' + depname + '@"' + version + '"';
+		
+		//Execute the command
+		exec(command, {cwd: abspath}, function(err, stdout, stderr) {
+			if (err) {
+				log.error(prelog + ':installDependencies) Error with installing: ' + err);
+			} else {
+				callback(null, 'Dependency install succesfull of ' + depname + '(' + version + ')', null);
+			}
+		});
+	}
 	
 };
