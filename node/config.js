@@ -8,6 +8,11 @@ nconf.load();
 //nconf.set('plugins:pushbullet:folder', 'pushbullet');
 //console.log(nconf.get('plugins'));
 
+/******************************************************************************\
+ *																			  *
+ *							Plugin Functions								  *
+ *																			  *
+\******************************************************************************/
 
 /*
  * Get a JSON list with all the active plugins
@@ -38,7 +43,7 @@ exports.getActivePlugins = function() {
 exports.removePlugin = function(name) {
 	nconf.clear('plugins:' + name);	
 	log.debug('(Config:RemovePlugin) Removed ' + name + ' from the config');
-	config.saveConfiguration();
+	saveConfiguration();
 };
 
 
@@ -52,7 +57,7 @@ exports.deactivatePlugin = function(name) {
 	
 	nconf.set(configPlace + ':active', false);
 	
-	config.saveConfiguration();
+	saveConfiguration();
 };
 
 
@@ -66,7 +71,7 @@ exports.activatePlugin = function(name) {
 	
 	nconf.set(configPlace + ':active', true);
 	
-	config.saveConfiguration();
+	saveConfiguration();
 };
 
 
@@ -99,7 +104,7 @@ exports.addPlugin = function(name, folder, options) {
 	
 	log.debug('(Config:AddPlugin) Added ' + name + ' ' + version + ' to the config');
 	
-	this.saveConfiguration();
+	saveConfiguration();
 };
 
 
@@ -114,7 +119,7 @@ exports.setPluginInfo = function(name, info) {
 	nconf.set(configPlace, info);	
 	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + name);
 	
-	this.saveConfiguration();
+	saveConfiguration();
 };
 
 
@@ -178,6 +183,13 @@ exports.getPluginFolder = function(options) {
 };
 
 
+/******************************************************************************\
+ *																			  *
+ *							General Functions								  *
+ *																			  *
+\******************************************************************************/
+
+
 /*
  * Return the requested configuration name
  *
@@ -189,15 +201,49 @@ exports.getConfiguration = function(name) {
 
 
 /*
+ * Set configuration in the file for the given configuration settings. Can be
+ * multiple settings at once in a object.
+ *
+ * @param {object} options:
+ *		name: setting {mixed}
+ * @return {boolean}
+ */
+exports.setConfiguration = function(options, callback) {
+	
+	for(var name in options) {
+		var setting = options[name];
+		
+		nconf.set(name, setting);
+	}
+	
+	saveConfiguration();
+	
+	callback(false, 'Set configuration succesfull', null);
+};
+
+
+/*
 * Save the changes to the configuration in a file
 */
-exports.saveConfiguration = function() {
+function saveConfiguration() {
+	var message;
 	
 	nconf.save(function (err) {
 		if (err) {
-			log.error('(Config:SaveConfiguration) Error with saving configuration file ' + err.message);
+			message = '(Config:SaveConfiguration) Error with saving configuration file ' + err.message;
+			try {
+				log.error(message);
+			} catch (e) {
+				console.log(message);
+			}
 			return;
 		}
-		log.debug('(Config:SaveConfiguration) Saved configuration without errors');
+		
+		message = '(Config:SaveConfiguration) Saved configuration without errors';
+		try {
+			log.error(message);
+		} catch (e) {
+			console.log(message);
+		}
 	});	
-};
+}

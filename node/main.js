@@ -1,4 +1,4 @@
-if (!checkInstalled('../config2.json')) {
+if (!checkInstalled('../config.json')) {
 	var install = require('./install');
 	
 	install.start(function(err, stdout, stderr, callback) {
@@ -7,8 +7,10 @@ if (!checkInstalled('../config2.json')) {
 				console.log('Will load files now');
 				requireFiles(callback);
 				return true;
+			} else if (stdout === 'run') {
+				startApplication();
 			}
-			startApplication();
+			
 		}
 	});
 	

@@ -17,13 +17,6 @@
       "version": "1.0",
       "active": true,
       "level": "1"
-    },
-	 "hue": {
-      "name": "philips-hue",
-      "folder": "hue-production",
-      "version": "1.0",
-      "active": true,
-      "level": "1"
     }
   }
 }

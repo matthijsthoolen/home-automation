@@ -1,20 +1,22 @@
 var exec = require('child_process').exec;
 var path = require('path');
 var prelog = '(installer:';
-var prompt;
-var callback;
+var abspath = path.join(__dirname, '../');
+var prompt,
+ 	callback,
+	configdata;
 
 //try if prompt is already available, if not install prompt. 
 exports.start = function (callbackLocal) {
 	callback = callbackLocal;
 	try { 
 		prompt = require('prompt');
-		askData(loadFiles);
+		askData(makeConfig);
 	} catch (e) {
 		installDependency({'name': 'prompt'}, function(err, stdout, stderr) {
 			if (!err) {
 				prompt = require('prompt');
-				askData(loadFiles);
+				askData(makeConfig);
 			} else {
 				console.log(stderr);
 			}
@@ -59,13 +61,13 @@ function installDependency(options, callback) {
  *		abspath {string}
  */
 function installPackageJSON(options, callback) {
-	var abspath = opt(options, 'abspath', null);
+	var path = opt(options, 'abspath', null);
 	
-	if (abspath === null) return;
+	if (path === null) return;
 	
 	var command = 'npm install';
 	
-	exec(command, {cwd: abspath}, function(err, stdout, stderr) {
+	exec(command, {cwd: path}, function(err, stdout, stderr) {
 		if (err) {
 			console.log(prelog + ':promptInstall) Error with installing: ' + stderr);
 			callback(true, null, 'Failed to install package.json');
@@ -81,13 +83,13 @@ function installPackageJSON(options, callback) {
 function askData(callback) {
 	
 	console.log('Welcome to the installation of your home automation system. \n');
-	console.log('Please fill in the next few configuration settings. Type \'yes\' if the default is correct. If the default is not correct fill in the correct setting.\n');
+	console.log('Please fill in the next few configuration settings. Just enter if default is correct. If the default is not correct fill in the correct setting.\n');
 	
 	  var schema = {
 		  properties: {
 			  abspath: {
 				  description: 'Basepath of the application',
-				  default: path.join(__dirname, '../'),
+				  default: abspath,
 				  required: true
 			  },
 			  publicfolder: {
@@ -122,11 +124,9 @@ function askData(callback) {
 	// Get two properties from the user: username and email 
 	prompt.get(schema, function (err, result) {
 		console.log('\n You are done now! Please wait while we apply the new settings');
-		var abspath = '';
 		
-		if (result.abspath == 'yes') {
-			abspath = path.join(__dirname, '../');
-		} else {
+		if (result.abspath != abspath) {
+			console.log('will change...');
 			abspath = result.abspath;
 		}
 		
@@ -137,6 +137,8 @@ function askData(callback) {
 				return;
 			} 
 			
+			configdata = result;
+			
 			callback(false, result, null);
 			
 		});
@@ -145,9 +147,34 @@ function askData(callback) {
 
 
 /*
- * 
+ * Copy the config.sample.json to config.json.
+ *
+ * @param {boolean} err
+ * @param {mixed} stdout
+ * @param {mixed} stderr
  */
-function loadFiles(err, stdout, stderr) {
+function makeConfig(err, stdout, stderr) {
+	
+	var command = 'cp config.sample.json config.json';
+	
+	exec(command, {cwd: abspath}, function(err, stdout, stderr) {
+		if (err) {
+			var message = prelog + ':makeConfig) Failed to make config.json file: ' + stderr;
+			console.log(message);
+			callback(true, null, message);
+		} else {
+			callback(false, 'Succesfully created config.json', null);
+			loadFiles();
+		}
+	});
+}
+
+
+/*
+ * Load all required files for the application. 
+ */
+function loadFiles() {
+	
 	callback(false, 'load', null, function() {
 		
 		//Buggy way to make sure we will only continue when config has been loaded
@@ -165,10 +192,23 @@ function loadFiles(err, stdout, stderr) {
 
 
 /*
- *
+ * Save the configuration to the configuration file.
  */
 function saveConfig() {
 	
+	var settings = {abspath: configdata.abspath, 
+					publicfolder: configdata.publicfolder,
+					pluginfolder: configdata.pluginfolder,
+					tempfolder: configdata.tempfolder,
+					downloadserver: configdata.downloadserver,
+					port: configdata.port
+				   };
+	
+	//Save the configuration to the file, and then callback and the application can start!
+	config.setConfiguration(settings, function(err, stdout, stderr) {
+		console.log(prelog + ':saveConfig) All settings saved, application will now start!');
+		callback(false, 'run', null);
+	});
 }
 
 
