@@ -41,6 +41,7 @@ exports.checkPath = function (path, callback) {
 	 }
 };
 
+
 /*
  * Remove all files and folders from the tmp directory
  *
@@ -50,6 +51,7 @@ exports.cleanTmp = function () {
 	var tmp = config.getTempPath();
 	exec('rm -rf ' + tmp + '*');
 };
+
 
 /*
  * Remove a file or folder. 
@@ -116,6 +118,7 @@ exports.delete = function (options, callback) {
 		});
 	});
 };
+
 
 /*
  * Move a file or folder to another directory

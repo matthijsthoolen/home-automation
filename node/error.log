@@ -460,3 +460,11 @@
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":31307,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-05T22:10:56.554Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":31535,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-05T22:11:58.618Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":31669,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-05T22:12:34.793Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":13796,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:46:56.125Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":13829,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:47:05.154Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":14274,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:54:07.018Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":14317,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:54:23.960Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":14372,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:54:55.161Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":14425,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T12:55:24.395Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":27752,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T16:34:12.736Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":28240,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T16:42:01.348Z","v":0}
