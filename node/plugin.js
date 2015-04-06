@@ -52,6 +52,15 @@ exports.check = function() {
 
 
 /*
+ * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
+ * the config file, but do not activate them.
+ */
+function checkFolder() {
+	
+}
+
+
+/*
  * Start the plugin.
  *
  * @param {string} plugin: name of the plugin
@@ -505,6 +514,7 @@ exports.callFunction = function(plugin, functionname, parameters, info) {
  * @return {object} 
  */
 exports.getPluginInfo = function(filter) {
+	//TODO filter
 	var plugins = config.getActivePlugins();
 	var info = [];
 	var tmp = {};

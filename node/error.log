@@ -470,3 +470,5 @@
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":28240,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T16:42:01.348Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":11065,"level":50,"msg":"(Config:SaveConfiguration) Saved configuration without errors","time":"2015-04-06T19:13:07.337Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":11065,"level":50,"msg":"(Eventstream:callAction) The action 'blink-lights' is called, but doesn't exist (anymore)","time":"2015-04-06T19:40:14.552Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":20885,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T21:55:03.643Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":22350,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T22:19:03.510Z","v":0}

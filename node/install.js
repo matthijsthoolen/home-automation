@@ -6,9 +6,14 @@ var prompt,
  	callback,
 	configdata;
 
-//try if prompt is already available, if not install prompt. 
+/*
+ * Start the installation process
+ *
+ * @param {function} callbackLocal
+ */
 exports.start = function (callbackLocal) {
 	callback = callbackLocal;
+	//try if prompt is already available, if not install prompt. 
 	try { 
 		prompt = require('prompt');
 		askData(makeConfig);
@@ -77,8 +82,11 @@ function installPackageJSON(options, callback) {
 	});
 }
 
+
 /*
+ * Ask the user for some input for the configuration file
  *
+ * @param {function} callback
  */
 function askData(callback) {
 	
