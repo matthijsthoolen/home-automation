@@ -1,6 +1,16 @@
 var exec = require('child_process').exec;
+var fs = require('fs'),
+    path = require('path');
 
 var prelog = '(utitilites';
+
+
+/******************************************************************************\
+ *																			  *
+ *							Control functions								  *
+ *																			  *
+\******************************************************************************/
+
 
 /*
  * Return the value of an options field, if not available return the default.
@@ -12,13 +22,6 @@ var prelog = '(utitilites';
  */
 exports.opt = function (options, name, def) {
      return options && options[name] !== undefined ? options[name] : def;
-};
-
-
-/* 
- * If callback is not given, this function is used.
- */ 
-exports.noop = function (err, stdout, stderr) {	
 };
 
 
@@ -40,6 +43,13 @@ exports.checkPath = function (path, callback) {
 		 callback(null, false, null);
 	 }
 };
+
+
+/******************************************************************************\
+ *																			  *
+ *							Folder actions									  *
+ *																			  *
+\******************************************************************************/
 
 
 /*
@@ -174,6 +184,51 @@ exports.move = function (options, callback) {
 		}
 	});
 	
+};
+
+
+/*
+ * Get a complete list of all files and/or folders inside a directory
+ *
+ * @param {object} options:
+ *		abspath {string} (required)
+ *		folders {boolean} show folders, (default: true)
+ *		files {boolean} show files (default: true)
+ *		sync {boolean} (default: true)
+ * @param {function} callback: only if sync = false
+ * @return {array}
+ */
+exports.listDirectory = function(options, callback) {
+	var srcpath = this.opt(options, 'abspath', null);
+	var folders = this.opt(options, 'folders', true);
+	var files = this.opt(options, 'files', true);
+	var sync = this.opt(options, 'sync', true);
+	
+	return fs.readdirSync(srcpath).filter(function(file) {
+		if (folders && files ) {
+    		return fs.statSync(path.join(srcpath, file));
+		} else if (folders) {
+			return fs.statSync(path.join(srcpath, file)).isDirectory();
+		} else if (files) {
+			return fs.statSync(path.join(srcpath, file)).isFile();
+		}
+  	});
+	
+	//TODO: async version
+};
+
+
+/******************************************************************************\
+ *																			  *
+ *							Diverse Functions								  *
+ *																			  *
+\******************************************************************************/
+
+
+/* 
+ * If callback is not given, this function is used.
+ */ 
+exports.noop = function (err, stdout, stderr) {	
 };
 
 

@@ -57,7 +57,7 @@ function startApplication() {
 	event.start();
 	eventstream.start();
 
-	//plugin.test();
+	plugin.test();
 
 	plugin.startAll();
 

@@ -472,3 +472,21 @@
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":11065,"level":50,"msg":"(Eventstream:callAction) The action 'blink-lights' is called, but doesn't exist (anymore)","time":"2015-04-06T19:40:14.552Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":20885,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T21:55:03.643Z","v":0}
 {"name":"homeautomation","hostname":"box-codeanywhere.com","pid":22350,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-06T22:19:03.510Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":17582,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:39:47.951Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":17905,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:44:38.802Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18022,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:46:12.366Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18069,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:46:35.513Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18123,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:47:05.750Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18209,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:48:02.058Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18294,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:48:39.341Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18334,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:48:55.433Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18416,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:49:53.892Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18602,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:52:37.076Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18643,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:52:54.241Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18679,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:53:06.318Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18726,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:53:29.458Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18762,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:53:41.637Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18810,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:54:05.991Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18840,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:54:11.806Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18884,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:54:32.100Z","v":0}
+{"name":"homeautomation","hostname":"box-codeanywhere.com","pid":18982,"level":50,"msg":"(Plugin:Hue:main:findBridge) No bridge found, entering demo mode!","time":"2015-04-07T14:55:46.704Z","v":0}

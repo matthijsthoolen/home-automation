@@ -5,7 +5,8 @@ var fs = require('fs'),
 var prelog = '(Pluginmodule';
 
 exports.test = function() {
-	plugin.check();
+	//plugin.check();
+	checkFolder();
 	//plugin.getVersionList();
 	//plugin.install('pushbullet', {'version':'0.1'}); 
 	//log.info('hello there');
@@ -40,7 +41,7 @@ exports.stop = function() {
 */
 exports.check = function() {
 	var plugins = config.getActivePlugins();
-	var plugindir = config.getAbsolutePath() + 'plugins/';
+	var plugindir = config.getPluginFolder();
 	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
@@ -56,7 +57,7 @@ exports.check = function() {
  * the config file, but do not activate them.
  */
 function checkFolder() {
-	
+	console.log(util.listDirectory({abspath: config.getAbsolutePath(), folders: false, files: false}));
 }
 
 
