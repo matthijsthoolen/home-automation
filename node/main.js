@@ -19,12 +19,16 @@ if (!checkInstalled('../config.json')) {
 	startApplication();
 }
 
+exports.test = function() {
+	console.log('test');
+};
+
 
 /* 
  * Load all the required files. But do not start yet. 
  */
 function requireFiles(callback) {
-	config = require('./config');
+	config = require('./config')(childCallback);
 	util = require('./utilities');
 	plugin = require('./plugin');
 	logger = require('./log');
@@ -71,6 +75,17 @@ function startApplication() {
 		plugin.stop();
 		process.exit();
 	});
+}
+
+
+/*
+ * Callback function for childs
+ */
+function childCallback(err, stdout, stderr) {
+	if (err && stderr === 1) {
+		console.log('Critical error, will shutdown now!');
+		process.exit();
+	}
 }
 
 

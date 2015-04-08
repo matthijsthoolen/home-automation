@@ -1,8 +1,43 @@
-var nconf = require('nconf');
+var nconf, 
+	prelog, 
+	parentCallback;
 
-nconf.file({ file: '../config.json' });
- 
-nconf.load();
+module.exports = function(callback) {
+	parentCallback = callback;
+	
+	nconf = require('nconf');
+
+	prelog = '(config';
+
+	try {
+		nconf.file({ file: '../config.json' });
+
+		nconf.load();
+		
+		console.log("Loaded");
+	} catch (e) {
+		console.log(prelog + ') There is an error with the config.json file');
+		parentCallback(true, null, 1);
+	}
+	
+	this.getActivePlugins = getActivePlugins;
+	this.getPlugins = getPlugins;
+	this.removePlugin = removePlugin;
+	this.deactivatePlugin = deactivatePlugin;
+	this.activatePlugin = activatePlugin;
+	this.addPlugin = addPlugin;
+	this.setPluginInfo = setPluginInfo;
+	this.getPluginInfo = getPluginInfo;
+	this.getAbsolutePath = getAbsolutePath;
+	this.getTempPath = getTempPath;
+	this.getPluginFolder = getPluginFolder;
+	this.getConfiguration = getConfiguration;
+	this.setConfiguration = setConfiguration;
+	
+	return this;
+};
+
+
 //nconf.set('name', 'Home-automation');
 
 //nconf.set('plugins:pushbullet:folder', 'pushbullet');
@@ -20,7 +55,7 @@ nconf.load();
  *
  * @return {JSON} list of all active plugins
  */
-exports.getActivePlugins = function() {
+getActivePlugins = function getActivePlugins() {
 	var plugins = nconf.get('plugins');
 	var tmp = {};
 	
@@ -41,7 +76,7 @@ exports.getActivePlugins = function() {
  *
  * @return {JSON}
  */
-exports.getPlugins = function() {
+getPlugins = function() {
 	return nconf.get('plugins');
 };
 
@@ -51,7 +86,7 @@ exports.getPlugins = function() {
  *
  * @param {String} - name of the plugin
  */
-exports.removePlugin = function(name) {
+removePlugin = function(name) {
 	nconf.clear('plugins:' + name);	
 	log.debug('(Config:RemovePlugin) Removed ' + name + ' from the config');
 	saveConfiguration();
@@ -63,7 +98,7 @@ exports.removePlugin = function(name) {
  *
  * @param {string} name
  */
-exports.deactivatePlugin = function(name) {
+deactivatePlugin = function(name) {
 	var configPlace = 'plugins:' + name;
 	
 	nconf.set(configPlace + ':active', false);
@@ -77,7 +112,7 @@ exports.deactivatePlugin = function(name) {
  *
  * @param {string} name
  */
-exports.activatePlugin = function(name) {
+activatePlugin = function(name) {
 	var configPlace = 'plugins:' + name;
 	
 	nconf.set(configPlace + ':active', true);
@@ -96,7 +131,7 @@ exports.activatePlugin = function(name) {
  * 		active {Boolean} (default: true)
  *		level {Number} (default: 1)
  */
-exports.addPlugin = function(name, folder, options) {
+addPlugin = function(name, folder, options) {
 	if (typeof options === undefined) {
 		options = {};
 	}
@@ -125,7 +160,7 @@ exports.addPlugin = function(name, folder, options) {
  * @param {string} name
  * @param {object} info 
  */
-exports.setPluginInfo = function(name, info) {
+setPluginInfo = function(name, info) {
 	var configPlace = 'plugins:' + name;
 	nconf.set(configPlace, info);	
 	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + name);
@@ -139,7 +174,7 @@ exports.setPluginInfo = function(name, info) {
  *
  * @returns {object} returns the plugin info
  */
-exports.getPluginInfo = function(name, type) {
+getPluginInfo = function(name, type) {
 	return nconf.get('plugins:' + name);
 };
 
@@ -149,7 +184,7 @@ exports.getPluginInfo = function(name, type) {
 *
 * @return {string} returns path
 */
-exports.getAbsolutePath = function() {
+getAbsolutePath = function() {
 	return nconf.get('abspath');
 };
 
@@ -159,7 +194,7 @@ exports.getAbsolutePath = function() {
  * 
  * @return {string} returns the path to the temp folder
  */
-exports.getTempPath = function() {
+getTempPath = function() {
 	return nconf.get('abspath') + nconf.get('tempfolder') + '/';
 };
 
@@ -172,7 +207,7 @@ exports.getTempPath = function() {
  *		pluginname {string} pluginname (optional)
  * @return {string} returns the path to plugin folder
  */
-exports.getPluginFolder = function(options) {
+getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
 	var pluginname = util.opt(options, 'pluginname', null);
 	var path = '';
@@ -206,7 +241,7 @@ exports.getPluginFolder = function(options) {
  *
  * @return {mixed} returns the requested configuration
  */
-exports.getConfiguration = function(name) {
+getConfiguration = function(name) {
 	return nconf.get(name);
 };
 
@@ -219,7 +254,7 @@ exports.getConfiguration = function(name) {
  *		name: setting {mixed}
  * @return {boolean}
  */
-exports.setConfiguration = function(options, callback) {
+setConfiguration = function(options, callback) {
 	
 	for(var name in options) {
 		var setting = options[name];
@@ -240,7 +275,7 @@ exports.setConfiguration = function(options, callback) {
  * 		abspath {string}
  * @return {nconf}
  */
-exports.loadSeperateConfig = function(options) {
+function loadSeperateConfig(options) {
 	var abspath = util.opt(options, 'abspath', null);
 	
 	//Make sure the file exists, else just return
@@ -252,7 +287,7 @@ exports.loadSeperateConfig = function(options) {
 	customnconf.load();
 	
 	return customnconf;
-};
+}
 
 /*
 * Save the changes to the configuration in a file

@@ -44,6 +44,8 @@ function checkConfig() {
 	var plugins = config.getActivePlugins();
 	var plugindir = config.getPluginFolder();
 	
+	console.log(config.nconf);
+	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
     		config.removePlugin(plugins[plugin].name);
