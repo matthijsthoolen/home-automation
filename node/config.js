@@ -14,6 +14,7 @@ nconf.load();
  *																			  *
 \******************************************************************************/
 
+
 /*
  * Get a JSON list with all the active plugins
  *
@@ -32,6 +33,16 @@ exports.getActivePlugins = function() {
 	}
 	
 	return tmp;
+};
+
+
+/*
+ * Get a list of all plugins
+ *
+ * @return {JSON}
+ */
+exports.getPlugins = function() {
+	return nconf.get('plugins');
 };
 
 
@@ -221,6 +232,27 @@ exports.setConfiguration = function(options, callback) {
 	callback(false, 'Set configuration succesfull', null);
 };
 
+
+/*
+ * Load a seperate nconf file and get back 
+ *
+ * @param {object} options
+ * 		abspath {string}
+ * @return {nconf}
+ */
+exports.loadSeperateConfig = function(options) {
+	var abspath = util.opt(options, 'abspath', null);
+	
+	//Make sure the file exists, else just return
+	
+	var customnconf = require('nconf');
+
+	customnconf.file({ file: abspath });
+ 
+	customnconf.load();
+	
+	return customnconf;
+};
 
 /*
 * Save the changes to the configuration in a file

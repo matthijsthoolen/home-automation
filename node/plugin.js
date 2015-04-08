@@ -24,7 +24,8 @@ exports.test = function() {
  * Start the plugin script, and set some variables.
  */
 exports.start = function() {
-	
+	checkConfig();
+	checkFolder();
 };
 
 
@@ -39,25 +40,40 @@ exports.stop = function() {
 /*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
-exports.check = function() {
+function checkConfig() {
 	var plugins = config.getActivePlugins();
 	var plugindir = config.getPluginFolder();
 	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
     		config.removePlugin(plugins[plugin].name);
-			log.info(prelog + ':check) Removed plugin from config file: ' + plugins[plugin].name); 
+			log.info(prelog + ':checkConfig) Removed plugin from config file: ' + plugins[plugin].name); 
 		}
 	}
-};
+}
 
 
 /*
  * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
  * the config file, but do not activate them.
  */
-function checkFolder() {
-	console.log(util.listDirectory({abspath: config.getAbsolutePath(), folders: false, files: false}));
+function checkFolder(param) {
+	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
+	
+	var foldersConf = [];
+	var info = config.getPlugins();
+	
+	for (var name in info) {
+		foldersConf.push(info[name].folder);
+	}
+	
+	var dif = util.arrayDif(foldersDir, foldersConf);
+	var pluginfolder = config.getPluginFolder();
+	
+	for (var folder in dif) {
+		//console.log(dif[folder]);
+		//console.log(config.loadSeperateConfig({abspath: pluginfolder + dif[folder] + '/config.json'}));
+	}
 }
 
 
@@ -71,7 +87,12 @@ function startPlugin(plugin) {
 	var plugininfo = config.getPluginInfo(plugin);
 	var pluginmainfile = plugininfo.folder + '/main.js';
 	
-	plugins[plugin] = require(pluginfolder + pluginmainfile);
+	try {
+		plugins[plugin] = require(pluginfolder + pluginmainfile);
+	} catch (e) {
+		log.info('Plugin not found: ' + plugin);
+		return;
+	}
 	
 	log.info(prelog + ':startPlugin) Started plugin "' + plugin + '"');
 	
@@ -267,7 +288,7 @@ exports.install = function(name, options) {
 				log.error(prelog + ':install) Can\'t move file! ' + stderr);
 			} else {
 				log.debug('(Plugin:Install) Moved pluginfolder from temp to plugin folder');
-				config.addPlugin(name, name, {'version':version});
+				config.addPlugin(name, folder, {'version':version});
 				
 				//install plugin dependencies
 				util.installDependencies({'pluginname': name});

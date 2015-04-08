@@ -26,6 +26,22 @@ exports.opt = function (options, name, def) {
 
 
 /*
+ * Check if a parameter has been set, returns default if undefined
+ *
+ * @param {mixed} param
+ * @param {mixed} default
+ *
+ * @return {mixed} param if defined else default
+ */
+exports.checkParam = function(param, def) {
+	if ( typeof param !== 'undefined' && param ) {
+		return param;
+	} 
+	
+	return def;
+};
+
+/*
  * Check if the path is within the allowed path
  *
  * @param {String} path to check
@@ -43,6 +59,63 @@ exports.checkPath = function (path, callback) {
 		 callback(null, false, null);
 	 }
 };
+
+
+/*
+ * Check if file exists
+ * 
+ * @param {string} abspath
+ */
+exports.fileExists = function(abspath) {
+	return checkExists(abspath, 2);
+};
+
+
+/*
+ * Check if directory exists
+ *
+ * @param {string} abspath
+ */
+exports.dirExists = function(abspath) {
+	return checkExists(abspath, 1);
+};
+
+
+/* 
+ * Function to check if a directory or file exists
+ *
+ * @param {string} abspath
+ * @param {int} type: 
+ *		1: folder
+ *		2: file (default)
+ *
+ * @return {boolean}
+ */
+function checkExists(abspath, type) {
+	abspath = util.checkParam(abspath, null);
+	
+	if (abspath === null) return false;
+	
+	type = util.checkParam(type, 2);
+	
+	try {
+		var check = fs.lstatSync(abspath);
+		
+		//First check is for testing if its a file or not, second for directory
+		if (type === 2 && !check.isFile()) {
+			return false;
+		} else if (type === 1 && !check.isDirectory()) {
+			return false;
+		}
+	}
+	//If nothing found (no dir or file), catch the error and return false
+	catch (e) {
+		return false;
+	}
+	
+	return true;
+	
+}
 
 
 /******************************************************************************\
@@ -229,6 +302,35 @@ exports.listDirectory = function(options, callback) {
  * If callback is not given, this function is used.
  */ 
 exports.noop = function (err, stdout, stderr) {	
+};
+
+
+/*
+ * Get an array with the items available in arr1 but not in arr2. 
+ * if bothsides is true, check both ways. 
+ *
+ * @param {array} arr1
+ * @param {array} arr2 
+ * @param {object} options
+ * 		bothsides {boolean} (default: false)
+ *		dif {array}: the dif array to start with (default: [])
+ */
+exports.arrayDif = function(arr1, arr2, options) {
+	var bothsides = this.opt(options, 'bothsides', true);
+	var dif = this.opt(options, 'dif', []);
+
+	arr1.forEach(function(key) {
+		if (arr2.indexOf(key) === -1) {
+			dif.push(key);
+		}
+	}, this);
+	
+	//also check from arr2 to arr2 if bothsides is true
+	if (bothsides) {
+		this.arrayDif(arr2, arr1, {bothsides: false, dif: dif});
+	}
+	
+	return dif;
 };
 
 
