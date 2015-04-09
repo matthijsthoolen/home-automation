@@ -15,13 +15,10 @@ if (!checkInstalled('../config.json')) {
 	});
 	
 } else {
-	requireFiles();
-	startApplication();
+	requireFiles(function(err, stdout, stderr) {
+		startApplication();
+	});
 }
-
-exports.test = function() {
-	console.log('test');
-};
 
 
 /* 
@@ -29,6 +26,7 @@ exports.test = function() {
  */
 function requireFiles(callback) {
 	config = require('./config')(childCallback);
+	
 	util = require('./utilities');
 	plugin = require('./plugin');
 	logger = require('./log');
@@ -37,7 +35,7 @@ function requireFiles(callback) {
 	eventstream = require('./eventstream');
 
 	i18nclass = require('./i18n');
-	
+
 	if (typeof callback === "function") {
 		callback(false, 'Loaded', null);
 	}
@@ -61,7 +59,7 @@ function startApplication() {
 	event.start();
 	eventstream.start();
 
-	plugin.test();
+	//plugin.test();
 
 	plugin.startAll();
 

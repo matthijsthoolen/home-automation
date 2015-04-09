@@ -1,4 +1,4 @@
-var nconf, 
+var	nconf, 
 	prelog, 
 	parentCallback;
 
@@ -13,7 +13,9 @@ module.exports = function(callback) {
 		//nconf.add('default', {type: 'file', file: '../config.json' });
 		nconf.file({ file: '../config.json' });
 
-		nconf.load();
+		nconf.load(function(err, stdout, stderr) {
+			parentCallback(false, 2, null);
+		});
 	} catch (e) {
 		console.log(prelog + ') There is an error with the config.json file');
 		parentCallback(true, null, 1);
@@ -132,6 +134,19 @@ activatePlugin = function(name) {
  *		level {Number} (default: 1)
  */
 addPlugin = function(name, folder, options) {
+	
+	//Check if name is given and is a valid name
+	if (typeof name === 'undefined' || name === '' || name === null) {
+		log.debug(prelog + ':addPlugin) Tried to add plugin without a name');
+		return;
+	}
+	
+	//Make sure a folder is given and is valid
+	if (typeof folder === 'undefined' || folder === '' || folder === null) {
+		log.debug(prelog + ':addPlugin) Tried to add plugin without a folder');
+		return;
+	}
+	
 	if (typeof options === undefined) {
 		options = {};
 	}
@@ -139,6 +154,7 @@ addPlugin = function(name, folder, options) {
 	var version = util.opt(options, 'version', '0.0.1');
 	var active = util.opt(options, 'active', true);
 	var level = util.opt(options, 'level', '1');
+	var description = util.opt(options, 'description', 'No description available');
 	
 	var configPlace = 'plugins:' + name;
 	
@@ -147,8 +163,9 @@ addPlugin = function(name, folder, options) {
 	nconf.set(configPlace + ':version', version);
 	nconf.set(configPlace + ':active', active);
 	nconf.set(configPlace + ':level', level);
+	nconf.set(configPlace + ':level', description);
 	
-	log.debug('(Config:AddPlugin) Added ' + name + ' ' + version + ' to the config');
+	log.debug(prelog + ':AddPlugin) Added ' + name + ' ' + version + ' to the config');
 	
 	saveConfiguration();
 };
@@ -317,22 +334,31 @@ removeCustomConfig = function(options) {
 function saveConfiguration() {
 	var message;
 	
-	nconf.save(function (err) {
-		if (err) {
-			message = '(Config:SaveConfiguration) Error with saving configuration file ' + err.message;
+	try {
+		nconf.save(function (err) {
+			if (err) {
+				message = prelog + ':SaveConfiguration) Error with saving configuration file ' + err.message;
+				try {
+					log.error(message);
+				} catch (e) {
+					console.log(message);
+				}
+				return;
+			}
+
+			message = prelog + ':SaveConfiguration) Saved configuration without errors';
 			try {
-				log.error(message);
+				log.debug(message);
 			} catch (e) {
 				console.log(message);
 			}
-			return;
-		}
-		
-		message = '(Config:SaveConfiguration) Saved configuration without errors';
+		});
+	} catch (e) {
+		message = prelog + ':SaveConfiguration) An error occured while saving!';
 		try {
 			log.error(message);
 		} catch (e) {
 			console.log(message);
 		}
-	});	
+	}
 }

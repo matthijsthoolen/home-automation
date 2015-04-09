@@ -44,8 +44,6 @@ function checkConfig() {
 	var plugins = config.getActivePlugins();
 	var plugindir = config.getPluginFolder();
 	
-	console.log(config.nconf);
-	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
     		config.removePlugin(plugins[plugin].name);
@@ -59,7 +57,7 @@ function checkConfig() {
  * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
  * the config file, but do not activate them.
  */
-function checkFolder(param) {
+function checkFolder() {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
 	
 	if (typeof foldersDir === 'undefined') return;
@@ -72,14 +70,23 @@ function checkFolder(param) {
 	}
 	
 	var dif = util.arrayDif(foldersDir, foldersConf);
-	var pluginfolder = config.getPluginFolder();
+	var pluginsfolder = config.getPluginFolder();
 	
 	for (var folder in dif) {
-		//console.log(dif[folder]);
-		config.loadCustomConfig({abspath: pluginfolder + dif[folder] + '/config.json'});
+		var confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
 		
-		console.log(config.getConfiguration('packageconfig:name'));
-		config.removeCustomConfig({name: 'temp'});		
+		var pluginname = config.getConfiguration('packageconfig:name');
+		var pluginfolder = dif[folder];
+		
+		var options = {
+			version: config.getConfiguration('packageconfig:version'),
+			level: config.getConfiguration('packageconfig:level'),
+			description: config.getConfiguration('packageconfig:description')
+		};
+		
+		config.addPlugin(pluginname, pluginfolder, options);
+		
+		config.removeCustomConfig({name: confName});	
 	}
 
 }
