@@ -81,13 +81,14 @@ function checkFolder() {
 		var options = {
 			version: config.getConfiguration('packageconfig:version'),
 			level: config.getConfiguration('packageconfig:level'),
-			description: config.getConfiguration('packageconfig:description')
+			description: config.getConfiguration('packageconfig:description'),
+			active: false
 		};
 		
-		config.addPlugin(pluginname, pluginfolder, options);
-		
-		config.removeCustomConfig({name: confName});	
+		config.addPlugin(pluginname, pluginfolder, options);	
 	}
+	
+	config.removeCustomConfig({name: confName});
 
 }
 
@@ -552,7 +553,7 @@ exports.callFunction = function(plugin, functionname, parameters, info) {
  */
 exports.getPluginInfo = function(filter) {
 	//TODO filter
-	var plugins = config.getActivePlugins();
+	var plugins = config.getPlugins();
 	var info = [];
 	var tmp = {};
 	
@@ -564,7 +565,12 @@ exports.getPluginInfo = function(filter) {
 		tmp = {};
 		tmp.name = plugins[name].name;
 		tmp.active = plugins[name].active;
-		tmp.description = 'No description available';
+		tmp.description = plugins[name].description;
+		
+		if (typeof tmp.description == 'undefined') {
+			tmp.description = 'No description available';
+		}
+		
 		tmp.version = plugins[name].version;
 		tmp.update = true;
 		
