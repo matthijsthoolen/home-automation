@@ -273,6 +273,9 @@ exports.move = function (options, callback) {
  */
 exports.listDirectory = function(options, callback) {
 	var srcpath = this.opt(options, 'abspath', null);
+	
+	if (!this.dirExists(srcpath)) return;
+	
 	var folders = this.opt(options, 'folders', true);
 	var files = this.opt(options, 'files', true);
 	var sync = this.opt(options, 'sync', true);

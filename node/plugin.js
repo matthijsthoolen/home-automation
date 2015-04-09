@@ -6,7 +6,7 @@ var prelog = '(Pluginmodule';
 
 exports.test = function() {
 	//plugin.check();
-	checkFolder();
+	//checkFolder();
 	//plugin.getVersionList();
 	//plugin.install('pushbullet', {'version':'0.1'}); 
 	//log.info('hello there');
@@ -62,6 +62,8 @@ function checkConfig() {
 function checkFolder(param) {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
 	
+	if (typeof foldersDir === 'undefined') return;
+	
 	var foldersConf = [];
 	var info = config.getPlugins();
 	
@@ -74,8 +76,12 @@ function checkFolder(param) {
 	
 	for (var folder in dif) {
 		//console.log(dif[folder]);
-		//console.log(config.loadSeperateConfig({abspath: pluginfolder + dif[folder] + '/config.json'}));
+		config.loadCustomConfig({abspath: pluginfolder + dif[folder] + '/config.json'});
+		
+		console.log(config.getConfiguration('packageconfig:name'));
+		config.removeCustomConfig({name: 'temp'});		
 	}
+
 }
 
 

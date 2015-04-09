@@ -10,11 +10,10 @@ module.exports = function(callback) {
 	prelog = '(config';
 
 	try {
+		//nconf.add('default', {type: 'file', file: '../config.json' });
 		nconf.file({ file: '../config.json' });
 
 		nconf.load();
-		
-		console.log("Loaded");
 	} catch (e) {
 		console.log(prelog + ') There is an error with the config.json file');
 		parentCallback(true, null, 1);
@@ -33,6 +32,7 @@ module.exports = function(callback) {
 	this.getPluginFolder = getPluginFolder;
 	this.getConfiguration = getConfiguration;
 	this.setConfiguration = setConfiguration;
+	this.loadCustomConfig = loadCustomConfig;
 	
 	return this;
 };
@@ -269,25 +269,47 @@ setConfiguration = function(options, callback) {
 
 
 /*
- * Load a seperate nconf file and get back 
+ * Load a seperate nconf file
  *
  * @param {object} options
  * 		abspath {string}
- * @return {nconf}
+ *		name {string} Do not use 'file'! (default: temp)
+ * @return {string} name
  */
-function loadSeperateConfig(options) {
+loadCustomConfig = function(options) {
 	var abspath = util.opt(options, 'abspath', null);
+	var name = util.opt(options, 'name', 'temp');
+	
+	//Make sure not to overwrite
+	if (name === 'file') name = 'temp';
 	
 	//Make sure the file exists, else just return
-	
-	var customnconf = require('nconf');
+	if (!util.fileExists(abspath)) return;
 
-	customnconf.file({ file: abspath });
- 
-	customnconf.load();
+	nconf.use(name, { type: 'file', file: abspath });
 	
-	return customnconf;
-}
+	return name;
+};
+
+
+/*
+ * Remove custom loaded config
+ *
+ * @param {object} options
+ *		name {string} Do not use 'file'!
+ * @return {boolean}
+ */
+removeCustomConfig = function(options) {
+	var name = util.opt(options, 'name', null);
+	
+	//Make sure not to remove default
+	if (name === 'file' || name === null) return;
+	
+	nconf.remove(name);
+	
+	return true;
+};
+
 
 /*
 * Save the changes to the configuration in a file
