@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+error.log
 
 # Runtime data
 pids

@@ -21,5 +21,14 @@
 	"Active": "Active",
 	"Inactive": "Inactive",
 	"Update Available": "Update Available",
-	"New plugin": "New plugin"
+	"New plugin": "New plugin",
+	"Select all": "Select all",
+	"With selected ": "With selected ",
+	"Activate": "Activate",
+	"Deactivate": "Deactivate",
+	"Update": "Update",
+	"Remove": "Remove",
+	"Plugin": "Plugin",
+	"Description": "Description",
+	"Select action": "Select action"
 }

@@ -1,0 +1,74 @@
+{% macro plugintable(id, condition) %}
+	<table class="table table-striped">
+
+		<thead>
+			<tr>
+				<th><input type="checkbox" value="all" onchange="checkAll(this)" name="chk[]" id="{{ id }}" title="{{ __('Select all') }}"></th>
+				<th>{{ __('Plugin') }}</th>
+				<th>{{ __('Description') }}</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			{% for plugin in plugins %}
+			
+				{% if condition == 1 %}
+
+					{{plugintablerow(id, plugin.active)}}
+
+				{% elseif condition == 2 %}
+			
+					{{plugintablerow(id, not plugin.active)}}
+			
+				{% elseif condition == 3 %}
+			
+					{{plugintablerow(id, plugin.update)}}
+			
+				{% else %}
+			
+					{{plugintablerow(id, 1 === 1)}}
+			
+				{% endif %}
+
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<form class="form-horizontal" type="GET">
+		<div class="col-xs-2">
+			<div class="form-group">
+				
+				<div class="col-sm-9">
+					<select name="action" class="form-control" required>
+						<option value="" disabled selected>{{ __('Select action') }}</option>
+						<option value="activate">{{ __('Activate') }}</option>
+						<option value="deactivate">{{ __('Deactivate') }}</option>
+						<option value="update">{{ __('Update') }}</option>
+						<option value="remove">{{ __('Remove') }}</option>
+					</select>
+				</div>
+				
+				<div class="col-sm-3">
+					<button class="btn btn-default" type="submit" id="{{ id }}">Go!</button>
+				</div>
+				
+			</div>
+		</div>
+	</form>
+{% endmacro %}
+
+<!-- Print all the rows with, only print rows if they apply to the if condition -->
+{% macro plugintablerow(id, condition) %}
+
+	{% if condition %}
+
+	<tr>
+		<td><input type="checkbox" name="row-{{ id }}" value="{{ plugin.name }}"></td>
+		<td>{{ plugin.name }}</td>
+		<td>{{ plugin.description }}</td>
+	</tr>
+
+	{% endif %}
+
+{% endmacro %}

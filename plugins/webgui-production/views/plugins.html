@@ -74,7 +74,9 @@
 	{% parent %}
 <script type="text/javascript">
 	function checkAll(ele) {
-		var checkboxes = document.getElementsByTagName('input');
+		var id = 'row-' + ele.id;
+		var checkboxes = document.getElementsByName(id);
+		console.log(checkboxes);
 		if (ele.checked) {
 			for (var i = 0; i < checkboxes.length; i++) {
 				if (checkboxes[i].type == 'checkbox') {
