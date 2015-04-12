@@ -76,7 +76,7 @@
 	function checkAll(ele) {
 		var id = 'row-' + ele.id;
 		var checkboxes = document.getElementsByName(id);
-		console.log(checkboxes);
+		
 		if (ele.checked) {
 			for (var i = 0; i < checkboxes.length; i++) {
 				if (checkboxes[i].type == 'checkbox') {
@@ -85,12 +85,30 @@
 			}
 		} else {
 			for (var i = 0; i < checkboxes.length; i++) {
-				console.log(i)
 				if (checkboxes[i].type == 'checkbox') {
 					checkboxes[i].checked = false;
 				}
 			}
 		}
+	}
+	
+	function plugin_send(id) {
+		var checkboxes = document.getElementsByName('row-' + id);
+		var list = [];
+		
+		var all = document.getElementById(id);
+		if (all.type == 'checkbox') {
+			all.checked = false;
+		}
+		
+		for (var i = 0; i < checkboxes.length; i++) {
+			if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked) {
+				list.push(checkboxes[i].value);
+				checkboxes[i].checked = false;
+			}
+		}
+		
+		console.log(list);
 	}
 </script>
 {% endblock %}
