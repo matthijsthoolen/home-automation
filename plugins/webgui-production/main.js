@@ -1,8 +1,9 @@
 var express = require('express');
 var path = require('path');
 var swig = require('swig');
+var socketio  = require('socket.io');
 
-var app, server;
+var app, server, io;
 
 var prelog = '(Plugin:webgui';
 
@@ -25,7 +26,7 @@ exports.start = function(name) {
 	pluginname = name;
 	
 	app = express();
-	
+
 	// This is where all the magic happens!
 	app.engine('html', swig.renderFile);
 
@@ -45,6 +46,8 @@ exports.start = function(name) {
 	
 	setRouting();
 	
+	setErrorRouting();
+	
 	server = app.listen(3001, function() {
 
 		var host = server.address().address;
@@ -54,6 +57,10 @@ exports.start = function(name) {
 
 	});
 	//app.use(express.static(path.join(__dirname, 'assets/html')));
+	
+	io = require('socket.io').listen(server);	
+	
+	setIO();
 	
 	event.registerEvent('GUI-register', null, [pluginname, 'guiregister', null]);
 };
@@ -110,11 +117,54 @@ function setRouting() {
 		renderPlugin(req, res);
 	});
 	
+	app.get('/chat', function(req, res) {
+		res.render('chat', content);
+	});
+	
 	app.get('/Nina', function(req, res) {
 		res.send('Hallo Nientje!!');
 	});
+
 }
 
+
+/*
+ * Handle error pages routing
+ */
+function setErrorRouting() {
+	// Handle 404
+	app.use(function(req, res) {
+		res.status(404).render('404', {title: '404: File Not Found'});
+	});
+
+	// Handle 500
+	app.use(function(error, req, res, next) {
+		res.status(500).render('500', {title:'500: Internal Server Error', error: error});
+	});
+}
+
+
+/*
+ * Start the socket.io connections
+ */
+function setIO() {
+	io.on('connection', function(socket){
+		console.log('a user connected');
+		socket.on('disconnect', function(){
+			console.log('user disconnected');
+		});
+		
+		socket.on('chat message', function(msg){
+			console.log('message: ' + msg);
+			io.emit('chat message', msg);
+		});
+	});
+}
+
+
+/*
+ * Render plugin page
+ */
 function renderPlugin(req, res) {
 	
 	plugins = plugin.getPluginInfo();
