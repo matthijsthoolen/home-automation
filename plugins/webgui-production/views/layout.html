@@ -16,7 +16,9 @@
         <!-- CUSTOM STYLES-->
     <link href="assets/css/custom.css" rel="stylesheet" />
      <!-- GOOGLE FONTS-->
-   <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+   	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+	<!-- jQuery-UI STYLES -->
+	<link rel="stylesheet" href="assets/js/jquery-ui/jquery-ui.min.css">
 	
 	{% endblock %}
 </head>
@@ -92,11 +94,14 @@ font-size: 16px;"> Last access : 26 March 2015 &nbsp; <a href="#" class="btn btn
 	{% block footer %}
 	<!--     <script src="assets/js/jquery-1.10.2.js"></script> -->
 	<script src="assets/js/jquery-2.1.3.js"></script>
-      <!-- BOOTSTRAP SCRIPTS -->
+	<script src="assets/js/jquery-ui/jquery-ui.min.js"></script>
+    <!-- BOOTSTRAP SCRIPTS -->
     <script src="assets/js/bootstrap.min.js"></script>
     <!-- METISMENU SCRIPTS -->
     <script src="assets/js/jquery.metisMenu.js"></script>
-      <!-- CUSTOM SCRIPTS -->
+	<!-- SOCKET.IO SCRIPTS -->
+	<script src="/socket.io/socket.io.js"></script>	
+    <!-- CUSTOM SCRIPTS -->
 	<script src="assets/js/custom-general.js"></script>
 	{% endblock %}
     

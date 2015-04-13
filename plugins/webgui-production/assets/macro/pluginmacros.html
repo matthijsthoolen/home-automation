@@ -39,8 +39,8 @@
 		<div class="col-xs-2">
 			<div class="form-group">
 				
-				<div class="col-sm-9">
-					<select name="action" class="form-control" required>
+				<div class="col-sm-9 action-button">
+					<select id="action-{{ id }}" class="form-control" required>
 						<option value="" disabled selected>{{ __('Select action') }}</option>
 						<option value="activate">{{ __('Activate') }}</option>
 						<option value="deactivate">{{ __('Deactivate') }}</option>
@@ -64,7 +64,7 @@
 	{% if condition %}
 
 	<tr>
-		<td><input type="checkbox" name="row-{{ id }}" value="{{ plugin.name }}"></td>
+		<td><input type="checkbox" class="row-{{ id }}" value="{{ plugin.name }}"></td>
 		<td>{{ plugin.name }}</td>
 		<td>{{ plugin.description }}</td>
 	</tr>

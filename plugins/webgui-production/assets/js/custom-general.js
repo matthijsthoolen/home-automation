@@ -1,6 +1,3 @@
-
-
-
 /*=============================================================
     Authour URI: www.binarycart.com
     License: Commons Attribution 3.0
@@ -12,6 +9,8 @@
    
     ========================================================  */
 
+//Start the socket
+var socket = io();
 
 (function ($) {
     "use strict";

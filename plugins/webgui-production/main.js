@@ -158,6 +158,11 @@ function setIO() {
 			console.log('message: ' + msg);
 			io.emit('chat message', msg);
 		});
+		
+		socket.on('pluginaction', function(msg){
+			console.log('message: ' + msg);
+			io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day sir!');
+		});
 	});
 }
 
