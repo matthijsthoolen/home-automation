@@ -309,6 +309,20 @@ exports.noop = function (err, stdout, stderr) {
 
 
 /*
+ * Run a specific function for each of the entries
+ */
+exports.runForEach = function(param, functionname, callback) {
+	if (typeof functionname !== "function") {
+		return;
+	}
+	
+	for (var i in param) {
+		functionname(param[i]);
+	}
+};
+
+
+/*
  * Get an array with the items available in arr1 but not in arr2. 
  * if bothsides is true, check both ways. 
  *

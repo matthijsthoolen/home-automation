@@ -160,7 +160,22 @@ function setIO() {
 		});
 		
 		socket.on('pluginaction', function(msg){
-			console.log('message: ' + msg);
+			console.log('message: ' + msg.list);
+			
+			switch(msg.action) {
+				case 'activate':
+					util.runForEach(msg.list, plugin.activate);
+					break;
+				case 'deactivate':
+					util.runForEach(msg.list, plugin.deactivate);
+					break;
+				case 'update':
+					util.runForEach(msg.list, plugin.update);
+					break;
+				case 'remove':
+					util.runForEach(msg.list, plugin.remove);
+					break;
+			}
 			io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day sir!');
 		});
 	});
