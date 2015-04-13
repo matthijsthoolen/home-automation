@@ -85,7 +85,10 @@ function checkFolder() {
 			active: false
 		};
 		
-		config.addPlugin(pluginname, pluginfolder, options);	
+		if (pluginname !== undefined) {
+			config.addPlugin(pluginname, pluginfolder, options);
+			log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginname);
+		}
 	}
 	
 	config.removeCustomConfig({name: confName});
@@ -195,7 +198,15 @@ exports.activate = function(name) {
  * @return {boolean}
  */
 exports.deactivate = function(name) {
+	console.log(name);
 	var info = config.getPluginInfo(name);
+	
+	if (info === undefined) {
+		log.info(prelog + ':deactivate) Requested the information of ' + name + ' but nothing found');
+		return;
+	}
+	
+	console.log(info);
 	
 	if (!info.active) {
 		log.info(prelog + ':deactivate) Plugin already deactivated: ' + name);
@@ -219,7 +230,7 @@ exports.deactivate = function(name) {
  * @return {boolean}
  */
 exports.remove = function(name) {
-	var plugindir = config.getPluginFolder() + name; 
+	var plugindir = config.getPluginFolder({pluginname: name}); 
 	
 	//If the plugin is unremovable only deactivate it
 	if (!pluginRemovable(name)) {
@@ -233,9 +244,10 @@ exports.remove = function(name) {
 	util.delete({'path': plugindir, type: 2, 'root': true}, 
 		function(err, stdout, stderr) 
 	{
+		console.log(stdout);
 		if (!err) {
-			log.info(prelog + ':remove) Plugin ' + name + ' removed from plugin directory');
 			config.removePlugin(name);
+			log.info(prelog + ':remove) Plugin ' + name + ' removed from plugin directory');
 			return true;
 		}
 		
