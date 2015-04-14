@@ -37,63 +37,11 @@ exports.stop = function() {
 };
 
 
-/*
-* Check if all the plugins in the config file still exists, if not remove from config file
-*/
-function checkConfig() {
-	var plugins = config.getActivePlugins();
-	var plugindir = config.getPluginFolder();
-	
-	for(var plugin in plugins) {
-		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
-    		config.removePlugin(plugins[plugin].name);
-			log.info(prelog + ':checkConfig) Removed plugin from config file: ' + plugins[plugin].name); 
-		}
-	}
-}
-
-
-/*
- * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
- * the config file, but do not activate them.
- */
-function checkFolder() {
-	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
-	
-	if (typeof foldersDir === 'undefined') return;
-	
-	var foldersConf = [];
-	var info = config.getPlugins();
-	
-	for (var name in info) {
-		foldersConf.push(info[name].folder);
-	}
-	
-	var dif = util.arrayDif(foldersDir, foldersConf);
-	var pluginsfolder = config.getPluginFolder();
-	
-	for (var folder in dif) {
-		var confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
-		
-		var pluginname = config.getConfiguration('packageconfig:name');
-		var pluginfolder = dif[folder];
-		
-		var options = {
-			version: config.getConfiguration('packageconfig:version'),
-			level: config.getConfiguration('packageconfig:level'),
-			description: config.getConfiguration('packageconfig:description'),
-			active: false
-		};
-		
-		if (pluginname !== undefined) {
-			config.addPlugin(pluginname, pluginfolder, options);
-			log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginname);
-		}
-	}
-	
-	config.removeCustomConfig({name: confName});
-
-}
+/******************************************************************************\
+ *																			  *
+ *							Change plugin state								  *
+ *																			  *
+\******************************************************************************/
 
 
 /*
@@ -173,6 +121,72 @@ function stopAll() {
 }
 
 
+/******************************************************************************\
+ *																			  *
+ *							Config actions									  *
+ *																			  *
+\******************************************************************************/
+
+
+/*
+* Check if all the plugins in the config file still exists, if not remove from config file
+*/
+function checkConfig() {
+	var plugins = config.getActivePlugins();
+	var plugindir = config.getPluginFolder();
+	
+	for(var plugin in plugins) {
+		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
+    		config.removePlugin(plugins[plugin].name);
+			log.info(prelog + ':checkConfig) Removed plugin from config file: ' + plugins[plugin].name); 
+		}
+	}
+}
+
+
+/*
+ * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
+ * the config file, but do not activate them.
+ */
+function checkFolder() {
+	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
+	
+	if (typeof foldersDir === 'undefined') return;
+	
+	var foldersConf = [];
+	var info = config.getPlugins();
+	
+	for (var name in info) {
+		foldersConf.push(info[name].folder);
+	}
+	
+	var dif = util.arrayDif(foldersDir, foldersConf);
+	var pluginsfolder = config.getPluginFolder();
+	
+	for (var folder in dif) {
+		var confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
+		
+		var pluginname = config.getConfiguration('packageconfig:name');
+		var pluginfolder = dif[folder];
+		
+		var options = {
+			version: config.getConfiguration('packageconfig:version'),
+			level: config.getConfiguration('packageconfig:level'),
+			description: config.getConfiguration('packageconfig:description'),
+			active: false
+		};
+		
+		if (pluginname !== undefined) {
+			config.addPlugin(pluginname, pluginfolder, options);
+			log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginname);
+		}
+	}
+	
+	config.removeCustomConfig({name: confName});
+
+}
+
+
 /*
  * Activate the given plugin
  *
@@ -237,6 +251,13 @@ exports.deactivate = function(name, callback) {
 };
 
 
+/******************************************************************************\
+ *																			  *
+ *							(un)install/update plugin						  *
+ *																			  *
+\******************************************************************************/
+
+
 /*
  * Remove a plugin from the plugin directory and from the config file
  *
@@ -270,30 +291,6 @@ exports.remove = function(name) {
 		
 	});
 };
-
-
-/*
- * Check if a plugin is removable (production apps are not removable). 
- *
- * @param {string} name
- * @return {boolean}
- */
-function pluginRemovable(name, callback) {
-	var info = config.getPluginInfo(name);
-	
-	if (!info) {
-		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
-			return false;
-	}
-	
-	if (info.production) {
-		if (!util.doCallback(callback, {err: true, stderr: 'Production plugin can\'t be removed'}))
-			return false;
-	}
-	
-	if (!util.doCallback(callback, {stdout: true}))
-		return true;
-}
 
 
 /*
@@ -559,6 +556,37 @@ function getVersionList(options) {
 }
 
 
+/******************************************************************************\
+ *																			  *
+ *								Plugin actions								  *
+ *																			  *
+\******************************************************************************/
+
+
+/*
+ * Check if a plugin is removable (production apps are not removable). 
+ *
+ * @param {string} name
+ * @return {boolean}
+ */
+function pluginRemovable(name, callback) {
+	var info = config.getPluginInfo(name);
+	
+	if (!info) {
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
+			return false;
+	}
+	
+	if (info.production) {
+		if (!util.doCallback(callback, {err: true, stderr: 'Production plugin can\'t be removed'}))
+			return false;
+	}
+	
+	if (!util.doCallback(callback, {stdout: true}))
+		return true;
+}
+
+
 /*
  * Call a plugin with the given function and parameters
  *
@@ -620,3 +648,10 @@ exports.getPluginInfo = function(filter) {
 	
 	return info;
 };
+
+
+/******************************************************************************\
+ *																			  *
+ *								Plugin production							  *
+ *																			  *
+\******************************************************************************/
