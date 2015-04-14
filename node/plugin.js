@@ -101,9 +101,15 @@ function checkFolder() {
  *
  * @param {string} plugin: name of the plugin
  */
-function startPlugin(plugin) {
+function startPlugin(plugin, callback) {
 	var pluginfolder = config.getPluginFolder({'abs': true});
 	var plugininfo = config.getPluginInfo(plugin);
+	
+	if (!plugininfo) {
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info found'}))
+			return false;
+	}
+	
 	var pluginmainfile = plugininfo.folder + '/main.js';
 	
 	try {
@@ -173,12 +179,19 @@ function stopAll() {
  * @param {string} name
  * @return {boolean}
  */
-exports.activate = function(name) {
+exports.activate = function(name, callback) {
 	var info = config.getPluginInfo(name);
+	
+	if (!info) {
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info found'}))
+			return false;
+	}
 	
 	if (info.active) {
 		log.info(prelog + ':activate) Plugin already activated: ' + name);
-		return true;
+		
+		if (!util.doCallback(callback, {stdout: true}))
+			return true;
 	}
 	
 	config.activatePlugin(name);
@@ -187,7 +200,8 @@ exports.activate = function(name) {
 	
 	startPlugin(name);
 	
-	return true;
+	if (!util.doCallback(callback, {stdout: true}))
+		return true;
 };
 
 
@@ -197,20 +211,19 @@ exports.activate = function(name) {
  * @param {string} name
  * @return {boolean}
  */
-exports.deactivate = function(name) {
-	console.log(name);
+exports.deactivate = function(name, callback) {
 	var info = config.getPluginInfo(name);
 	
-	if (info === undefined) {
-		log.info(prelog + ':deactivate) Requested the information of ' + name + ' but nothing found');
-		return;
+	if (!info) {
+		log.debug(prelog + ':deactivate) Requested the information of ' + name + ' but nothing found');
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
+			return;
 	}
-	
-	console.log(info);
 	
 	if (!info.active) {
 		log.info(prelog + ':deactivate) Plugin already deactivated: ' + name);
-		return true;
+		if (!util.doCallback(callback, {stdout: true}))
+			return true;
 	}
 	
 	stopPlugin(name);
@@ -219,7 +232,8 @@ exports.deactivate = function(name) {
 	
 	log.info(prelog + ':deactivate) Deactivated the plugin: ' + name);
 	
-	return true;
+	if (!util.doCallback(callback, {stdout: true}))
+		return true;
 };
 
 
@@ -264,14 +278,21 @@ exports.remove = function(name) {
  * @param {string} name
  * @return {boolean}
  */
-function pluginRemovable(name) {
+function pluginRemovable(name, callback) {
 	var info = config.getPluginInfo(name);
 	
-	if (info.production) {
-		return false;
+	if (!info) {
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
+			return false;
 	}
 	
-	return true;
+	if (info.production) {
+		if (!util.doCallback(callback, {err: true, stderr: 'Production plugin can\'t be removed'}))
+			return false;
+	}
+	
+	if (!util.doCallback(callback, {stdout: true}))
+		return true;
 }
 
 
@@ -339,17 +360,25 @@ exports.install = function(name, options) {
  */
 exports.update = function(name, options, callback) {
 	var version = util.opt(options, 'version', '1.0');
+	var pluginconfig = config.getPluginInfo('pushbullet', 'test');
+	
+	if (!pluginconfig) {
+		log.debug(prelog + ':update) No plugin info could be found for ' + name);
+		
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
+			return false;
+	}
+	
 	var folder = name;
 	var tempdir = config.getTempPath();
-	var plugindir = config.getPluginFolder();
-	var pluginconfig = config.getPluginInfo('pushbullet', 'test');
+	var plugindir = config.getPluginFolder({pluginname: name});
 	var backup = false;
 	var backupfolder = tempdir + 'backup/';
 	
 	exec('mkdir ' + backupfolder);
 	
 	//Backup folder to temp folder
-	exec('cp -r ' + plugindir + pluginconfig.folder + ' ' + backupfolder, 
+	exec('cp -r ' + plugindir + ' ' + backupfolder, 
 		function(err, stdout, stderr) 
 	{
 		if (!err) {
@@ -393,7 +422,7 @@ exports.update = function(name, options, callback) {
 			if (!err) {
 				log.debug(prelog + ':update) Plugin specific update completed.');
 				
-				var oldPlugin = config.getPluginFolder() + pluginconfig.folder;
+				var oldPlugin = plugindir;
 				var tempPlugin = tempfolder + folder;
 				
 				//Delete the old plugin folder

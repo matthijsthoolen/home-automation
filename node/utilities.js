@@ -41,6 +41,37 @@ exports.checkParam = function(param, def) {
 	return def;
 };
 
+
+/*
+ * Check if a callback is indeed a function, and if so do the callback with
+ * the default callback parameters (err, stdout, stderr)
+ *
+ * @param {function} callback
+ * @param {object} param:
+ *		err {boolean}
+ *		stdout {mixed}
+ *		stderr {mixed}
+ * @return {boolean}
+ */
+exports.doCallback = function(callback, param) {
+	if (typeof callback !== "function") {
+		return false;
+	}
+	
+	var err = this.opt(param, 'err', false);
+	var stdout = this.opt(param, 'stdout', null);
+	var stderr = this.opt(param, 'stderr', null);
+	
+	try {
+		callback(err, stdout, stderr);
+		return true;
+	} catch (e) {
+		log.debug(prelog + ':doCallback) Failed a callback (' + callback +') error: ' + e);
+		return false;
+	}
+};
+
+
 /*
  * Check if the path is within the allowed path
  *
@@ -317,7 +348,10 @@ exports.runForEach = function(param, functionname, callback) {
 	}
 	
 	for (var i in param) {
-		functionname(param[i]);
+		functionname(param[i], callback);
+		if (typeof callback === "function") {
+			callback(false, 'hello you little creature', null);
+		}
 	}
 };
 

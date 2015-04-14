@@ -159,26 +159,29 @@ function setIO() {
 			io.emit('chat message', msg);
 		});
 		
-		socket.on('pluginaction', function(msg){
-			console.log('message: ' + msg.list);
-			
+		//socket connection for /plugin 
+		socket.on('pluginaction', function(msg){			
 			switch(msg.action) {
 				case 'activate':
-					util.runForEach(msg.list, plugin.activate);
+					util.runForEach(msg.list, plugin.activate, test);
 					break;
 				case 'deactivate':
-					util.runForEach(msg.list, plugin.deactivate);
+					util.runForEach(msg.list, plugin.deactivate, test);
 					break;
 				case 'update':
-					util.runForEach(msg.list, plugin.update);
+					util.runForEach(msg.list, plugin.update, test);
 					break;
 				case 'remove':
-					util.runForEach(msg.list, plugin.remove);
+					util.runForEach(msg.list, plugin.remove, test);
 					break;
 			}
-			io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day sir!');
 		});
 	});
+}
+
+
+function test(err, stdout, stderr) {
+	io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day madame!' + stdout + stderr);
 }
 
 

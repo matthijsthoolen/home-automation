@@ -192,7 +192,13 @@ setPluginInfo = function(name, info) {
  * @returns {object} returns the plugin info
  */
 getPluginInfo = function(name, type) {
-	return nconf.get('plugins:' + name);
+	var data = nconf.get('plugins:' + name);
+	
+	if (data === undefined) {
+		data = false;
+	}
+	
+	return data;
 };
 
 
