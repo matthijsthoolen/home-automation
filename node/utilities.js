@@ -350,7 +350,7 @@ exports.runForEach = function(param, functionname, callback) {
 	for (var i in param) {
 		functionname(param[i], callback);
 		if (typeof callback === "function") {
-			callback(false, 'hello you little creature', null);
+			callback(false, 'called function', null);
 		}
 	}
 };
