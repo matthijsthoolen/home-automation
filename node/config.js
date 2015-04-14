@@ -252,6 +252,20 @@ getPluginFolder = function(options) {
 };
 
 
+/*
+ * Get the unique plugin identifier with the plugin name and/or the pluginfolder
+ *
+ * @param {object} options:
+ *		name {string} the pluginname
+ *		folder {string} the pluginfolder
+ * @param {function} callback
+ * @return {callback}
+ */
+exports.getUniqueID = function() {
+	
+};
+
+
 /******************************************************************************\
  *																			  *
  *							General Functions								  *

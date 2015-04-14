@@ -655,3 +655,37 @@ exports.getPluginInfo = function(filter) {
  *								Plugin production							  *
  *																			  *
 \******************************************************************************/
+
+
+/*
+ * For developers only, an option to publish a plugin to the central server. The 
+ * pluginfolder will first be tarred and then uploaded to the server. The server
+ * will place it in the correct folder and update the references. 
+ *
+ * @param {string} name: pluginname
+ * @param {function} callback
+ * @return {callback} default callback
+ */
+exports.publish = function(name, callback) {
+	var folder = config.getPluginFolder({pluginname: name});
+	
+	packPlugin(name, folder, function(err, stdout, stderr) {
+		
+	});
+};
+
+
+/*
+ *
+ */
+function packPlugin(name, folder, callback) {
+	
+}
+
+
+/*
+ * 
+ */
+function uploadPlugin(name, folder, callback) {
+	
+}
