@@ -1,4 +1,5 @@
 {
+  "id": "defaulftid",
   "name": "home-automation plugin",
   "version": "0.0.1",
   "description": "Home Automation system by Matthijsweb",

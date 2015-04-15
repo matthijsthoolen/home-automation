@@ -19,6 +19,7 @@
     "nconf": "latest",
     "node-hue-api": "latest",
     "redis": "~0.8.2",
+    "request": "^2.55.0",
     "socket.io": "latest"
   }
 }

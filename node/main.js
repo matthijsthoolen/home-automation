@@ -66,7 +66,7 @@ function startApplication() {
 	//Ask all the plugins to registrate for events
 	event.askForRegistration();
 
-	//plugin.test();
+	plugin.test();
 
 	process.on('SIGINT', function() {
 		log.info('(Main) SIGINT received, stopping plugins.');

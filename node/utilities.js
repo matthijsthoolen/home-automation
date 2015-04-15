@@ -357,6 +357,55 @@ exports.runForEach = function(param, functionname, callback) {
 
 
 /*
+ * Do a http request to a remote host
+ *
+ * @param {object} options:
+ *		uri {string} (required)
+ *		method {string}: get/post (default: postMessage)
+ *		datatype {string}: (default: json)
+ *		data {mixed}
+ * 		return {string}: what to return? body or all (default: body)
+ * @param {function} callback
+ */
+exports.httpRequest = function(options, callback) {
+	var uri = util.opt(options, 'uri', null);
+	
+	if (uri === null) {
+		callback(true, null, 'The given url is not correct, or no url is given at all!');
+		return;
+	}
+	
+	var method = util.opt(options, 'method', 'post');
+	var datatype = util.opt(options, 'datatype', 'json');
+	var data = util.opt(options, 'data', null);
+	var returntype = util.opt(options, 'return', 'body');
+	
+	var request = require('request');
+	
+	//Put all the options in an object
+	var reqOptions = {
+		uri: uri,
+		method: method,
+	};
+	
+	reqOptions[datatype] = data;
+	
+	request(reqOptions, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			
+			//if returntype is body only return body, else return response
+			var returndata = (returntype === 'body' ? body : response);
+			
+			callback(error, returndata, null);
+			return;
+		}
+		
+		callback(true, null, error);
+	});
+};
+
+
+/*
  * Get an array with the items available in arr1 but not in arr2. 
  * if bothsides is true, check both ways. 
  *

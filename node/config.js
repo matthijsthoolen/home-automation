@@ -35,6 +35,8 @@ module.exports = function(callback) {
 	this.getConfiguration = getConfiguration;
 	this.setConfiguration = setConfiguration;
 	this.loadCustomConfig = loadCustomConfig;
+	this.getUniqueID = getUniqueID;
+	this.setUniqueID = setUniqueID;
 	
 	return this;
 };
@@ -61,11 +63,11 @@ getActivePlugins = function getActivePlugins() {
 	var plugins = nconf.get('plugins');
 	var tmp = {};
 	
-	for(var name in plugins) {
-		var plugin = plugins[name];
+	for(var id in plugins) {
+		var plugin = plugins[id];
 		
 		if (plugin.active) {
-			tmp[name] = plugin;
+			tmp[id] = plugin;
 		}
 	}
 	
@@ -86,11 +88,11 @@ getPlugins = function() {
 /*
  * Remove a plugin from the configuration
  *
- * @param {String} - name of the plugin
+ * @param {String} id
  */
-removePlugin = function(name) {
-	nconf.clear('plugins:' + name);	
-	log.debug('(Config:RemovePlugin) Removed ' + name + ' from the config');
+removePlugin = function(id) {
+	nconf.clear('plugins:' + id);	
+	log.debug('(Config:RemovePlugin) Removed ' + id + ' from the config');
 	saveConfiguration();
 };
 
@@ -98,10 +100,10 @@ removePlugin = function(name) {
 /*
  * Deactivate a plugin in the settings
  *
- * @param {string} name
+ * @param {string} id
  */
-deactivatePlugin = function(name) {
-	var configPlace = 'plugins:' + name;
+deactivatePlugin = function(id) {
+	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':active', false);
 	
@@ -112,10 +114,10 @@ deactivatePlugin = function(name) {
 /*
  * Activate a plugin in the settings
  *
- * @param {string} name
+ * @param {string} id
  */
-activatePlugin = function(name) {
-	var configPlace = 'plugins:' + name;
+activatePlugin = function(id) {
+	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':active', true);
 	
@@ -127,22 +129,26 @@ activatePlugin = function(name) {
  * Add a plugin to the configuration file
  *
  * @param {String} - Name of plugin
- * @param {Folder} - Home folder of the plugin
  * @param {Array} options:
+ *		folder {String} (required)
+ *		name {String} (required)
  *		version {String} (default: 0.0.1)
  * 		active {Boolean} (default: true)
  *		level {Number} (default: 1)
+ * @param {function} callback
  */
-addPlugin = function(name, folder, options) {
+addPlugin = function(id, options, callback) {
 	
-	//Check if name is given and is a valid name
-	if (typeof name === 'undefined' || name === '' || name === null) {
-		log.debug(prelog + ':addPlugin) Tried to add plugin without a name');
+	//Check if id is given and is a valid id
+	if (typeof id === 'undefined' || id === '' || id === null) {
+		log.debug(prelog + ':addPlugin) Tried to add plugin without an id');
 		return;
 	}
 	
+	var folder = util.opt(options, 'folder', null);
+	
 	//Make sure a folder is given and is valid
-	if (typeof folder === 'undefined' || folder === '' || folder === null) {
+	if (folder === '' || folder === null) {
 		log.debug(prelog + ':addPlugin) Tried to add plugin without a folder');
 		return;
 	}
@@ -151,12 +157,13 @@ addPlugin = function(name, folder, options) {
 		options = {};
 	}
 	
+	var name = util.opt(options, 'name', id);
 	var version = util.opt(options, 'version', '0.0.1');
 	var active = util.opt(options, 'active', true);
 	var level = util.opt(options, 'level', '1');
 	var description = util.opt(options, 'description', 'No description available');
 	
-	var configPlace = 'plugins:' + name;
+	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':name', name);
 	nconf.set(configPlace + ':folder', folder);
@@ -167,20 +174,20 @@ addPlugin = function(name, folder, options) {
 	
 	log.debug(prelog + ':AddPlugin) Added ' + name + ' ' + version + ' to the config');
 	
-	saveConfiguration();
+	saveConfiguration(callback);
 };
 
 
 /*
  * Set the plugin info in the configuration file
  *
- * @param {string} name
+ * @param {string} id
  * @param {object} info 
  */
-setPluginInfo = function(name, info) {
-	var configPlace = 'plugins:' + name;
+setPluginInfo = function(id, info) {
+	var configPlace = 'plugins:' + id;
 	nconf.set(configPlace, info);	
-	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + name);
+	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + id);
 	
 	saveConfiguration();
 };
@@ -189,10 +196,11 @@ setPluginInfo = function(name, info) {
 /*
  * Get all the info about a plugin
  *
+ * @param {string} id
  * @returns {object} returns the plugin info
  */
-getPluginInfo = function(name, type) {
-	var data = nconf.get('plugins:' + name);
+getPluginInfo = function(id, type) {
+	var data = nconf.get('plugins:' + id);
 	
 	if (data === undefined) {
 		data = false;
@@ -261,8 +269,41 @@ getPluginFolder = function(options) {
  * @param {function} callback
  * @return {callback}
  */
-exports.getUniqueID = function() {
+getUniqueID = function(options, callback) {
 	
+};
+
+
+/*
+ * Set the unique plugin identifier for a given plugin. 
+ * Note that the unique identifier will only change when the current unique 
+ * identifier starts with 'dev-'.
+ *
+ * @param {string} oldID
+ * @param {string} newID
+ * @param {function} callback
+ * @return {boolean}
+ */
+setUniqueID = function(oldID, newID, callback) {
+	if (oldID.indexOf('dev-') !== 0) {
+		util.doCallback(callback, {err: true, stderr: 'This is not a dev plugin, can\'t change unique id!'});
+		return;
+	}
+	
+	var data = this.getPluginInfo(oldID);
+	
+	//Add the old data with the new plugin. Wait until the callback before continuing
+	this.addPlugin(newID, data, function(err, stdout, stderr) {
+		if (err) {
+			log.error(prelog + ': setUniqueID) We can\'t save the unique id. Error: ' + err);
+			util.doCallback(callback, {err: true, stderr: err});
+		}
+		
+		//Now we can safely remove the old record
+		this.removePlugin(oldID);
+		
+		util.doCallback(callback, {stdout: 'Succesfully changed the unique id!'});
+	});
 };
 
 
@@ -350,14 +391,17 @@ removeCustomConfig = function(options) {
 
 /*
 * Save the changes to the configuration in a file
+*
+* @param {function} callback
 */
-function saveConfiguration() {
+function saveConfiguration(callback) {
 	var message;
 	
 	try {
 		nconf.save(function (err) {
 			if (err) {
 				message = prelog + ':SaveConfiguration) Error with saving configuration file ' + err.message;
+				callback(true, null, 'Error while saving!');
 				try {
 					log.error(message);
 				} catch (e) {
@@ -367,6 +411,7 @@ function saveConfiguration() {
 			}
 
 			message = prelog + ':SaveConfiguration) Saved configuration without errors';
+			callback(false, 'Configuration saved!');
 			try {
 				log.debug(message);
 			} catch (e) {
@@ -375,6 +420,7 @@ function saveConfiguration() {
 		});
 	} catch (e) {
 		message = prelog + ':SaveConfiguration) An error occured while saving!';
+		callback(true, null, 'Error while saving!');
 		try {
 			log.error(message);
 		} catch (e) {

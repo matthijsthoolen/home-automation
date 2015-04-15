@@ -17,6 +17,27 @@ exports.test = function() {
 	});  */
 	
 	//log.info('version 2.0 = ' + versioninfo.get('pushbullet'));
+	
+	var options = {
+		plugin: {
+			id: 'dev-Pushie',
+			name: 'Pushie',
+			description: 'Push your life',
+			version: '1.0'
+		},
+		developer: {
+			name: 'Matthijsweb',
+			key: '12345'
+		}
+	};
+	
+	registerPlugin(options, function(err, stdout, stderr) {
+		if (err) {
+			console.log('lol, error...' + stderr);
+		}
+		
+		console.log('output: ' + stdout);
+	});
 };
 
 
@@ -148,7 +169,7 @@ function checkConfig() {
  * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
  * the config file, but do not activate them.
  */
-function checkFolder() {
+function checkFolder(callback) {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
 	
 	if (typeof foldersDir === 'undefined') return;
@@ -166,20 +187,25 @@ function checkFolder() {
 	for (var folder in dif) {
 		var confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
 		
-		var pluginname = config.getConfiguration('packageconfig:name');
-		var pluginfolder = dif[folder];
+		var pluginid = config.getConfiguration('packageconfig:id');
+		
+		if (pluginid === undefined || pluginid === '') {
+			log.debug(prelog + ':checkFolder) The pluginfolder does not contain a pluginid. Plugin can\'t be added!');
+			util.doCallback(callback, {err: true, stderr: 'pluginid is not available'});
+			return;
+		}
 		
 		var options = {
+			folder: dif[folder],
+			name: config.getConfiguration('packageconfig:name'),
 			version: config.getConfiguration('packageconfig:version'),
 			level: config.getConfiguration('packageconfig:level'),
 			description: config.getConfiguration('packageconfig:description'),
 			active: false
 		};
 		
-		if (pluginname !== undefined) {
-			config.addPlugin(pluginname, pluginfolder, options);
-			log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginname);
-		}
+		config.addPlugin(pluginid, options);
+		log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginid);
 	}
 	
 	config.removeCustomConfig({name: confName});
@@ -317,12 +343,16 @@ function uninstall(name) {
 /*
  * Install a new plugin
  *
- * @param {string} name: name of the plugin
- * @param {object} options
+ * @param {string} id
+ * @param {object} options:
+ *		name {string}
+ *		version {string}
+ * @param {function} callback
  */
-exports.install = function(name, options) {
+exports.install = function(id, options, callback) {
+	var name = util.opt(options, 'name', id);
 	var version = util.opt(options, 'version', '0.0.1');
-	var folder = name;
+	var folder = id;
 	var plugindir = config.getPluginFolder();
 	
 	downloadFile(folder, version, function(err, tempfolder, stderr) {
@@ -334,7 +364,7 @@ exports.install = function(name, options) {
 				log.error(prelog + ':install) Can\'t move file! ' + stderr);
 			} else {
 				log.debug('(Plugin:Install) Moved pluginfolder from temp to plugin folder');
-				config.addPlugin(name, folder, {'version':version});
+				config.addPlugin(id, {'version':version, 'name': name, 'folder': folder});
 				
 				//install plugin dependencies
 				util.installDependencies({'pluginname': name});
@@ -662,30 +692,119 @@ exports.getPluginInfo = function(filter) {
  * pluginfolder will first be tarred and then uploaded to the server. The server
  * will place it in the correct folder and update the references. 
  *
- * @param {string} name: pluginname
+ * @param {string} id
  * @param {function} callback
  * @return {callback} default callback
  */
-exports.publish = function(name, callback) {
-	var folder = config.getPluginFolder({pluginname: name});
+exports.publish = function(id, callback) {
+	var folder = config.getPluginFolder({pluginname: id});
 	
-	packPlugin(name, folder, function(err, stdout, stderr) {
+	packPlugin(id, folder, function(err, stdout, stderr) {
 		
 	});
 };
 
 
 /*
+ * Register a plugin in the pluginstore, plugindata will be send to the central 
+ * server, the central server will generate a unique key for the plugin.$
  *
+ * @param {object} info (required)
+ * @param {function} callback
+ * @return {callback}
  */
-function packPlugin(name, folder, callback) {
+function registerPlugin(info, callback) {
+	
+	//Make sure that info is available
+	if (info === undefined) {
+		util.doCallback(callback, {err: true, stderr: 'The info parameter is required!'});
+		return;
+	}
+	
+	//Make sure that info has the properties plugin and developer
+	if (!info.hasOwnProperty('plugin') || !info.hasOwnProperty('developer')) {
+		util.doCallback(callback, {err: true, stderr: 'Not all info is given'});
+		return;
+	}
+	
+	//The register URI on the server 
+	var portal = 'http://preview.32urhzqdibxa8aorbk51fcdkq3zestt9us699c13dv64unmi.box.codeanywhere.com/home-automation-server/registerplugin.php';
+	
+	//Get all the needed info from the input, check if it is required
+	var oldID = util.opt(info.plugin, 'id', null);
+	var pluginname = util.opt(info.plugin, 'name', null);
+	
+	if (pluginname === null || oldID === null) {
+		util.doCallback(callback, {err: true, stderr: 'Plugin name and old ID are required!'});
+		return;
+	}
+	
+	var plugindescription = util.opt(info.plugin, 'description', null);
+	var pluginversion = util.opt(info.plugin, 'name', '0.1');
+	
+	var developer = util.opt(info.developer, 'name', null);
+	var developerkey = util.opt(info.developer, 'key', null);
+	
+	if (developer === null || developerkey === null) {
+		util.doCallback(callback, {err: true, stderr: 'No developer name or key is specified, both are required!'});
+		return;
+	}
+	
+	//Put all the data in a options object
+	var options = {
+  		uri: portal,
+		method: 'POST',
+		datatype: 'json',
+		data: {
+			plugininfo: {
+				name: pluginname,
+				description: plugindescription,
+				version: pluginversion
+			},
+			developerinfo: {
+				name: developer,
+				key: developerkey
+			}
+		}
+	};
+	
+	//Do the actual http request
+	util.httpRequest(options, function(err, stdout, stderr) {
+		if (err) {
+			util.doCallback(callback, {err: err, stderr: stderr});
+			return;
+		}
+		
+		var newID = stdout.data.id;
+		
+		config.setUniqueID(oldID, newID);
+	});
+}
+
+
+/*
+ * This function will generate a tar file from the given plugin. This plugin can be
+ * used for distribution of the app through the plugin store. The folder is checked
+ * for all the necessary files. 
+ *
+ * @param {string} id
+ * @param {string} folder
+ * @param {function} callback
+ * @return {callback}
+ */
+function packPlugin(id, folder, callback) {
 	
 }
 
 
 /*
- * 
+ * Upload the plugin to the central server.
+ *
+ * @param {string} id
+ * @param {string} folder
+ * @param {function} callback
+ * @return {callback}
  */
-function uploadPlugin(name, folder, callback) {
+function uploadPlugin(id, folder, callback) {
 	
 }
