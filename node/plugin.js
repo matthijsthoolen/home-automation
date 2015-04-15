@@ -699,6 +699,8 @@ exports.getPluginInfo = function(filter) {
 exports.publish = function(id, callback) {
 	var folder = config.getPluginFolder({pluginname: id});
 	
+	
+	
 	packPlugin(id, folder, function(err, stdout, stderr) {
 		
 	});
@@ -710,6 +712,12 @@ exports.publish = function(id, callback) {
  * server, the central server will generate a unique key for the plugin.$
  *
  * @param {object} info (required)
+ *		plugin.id {string} (required)
+ *		plugin.name {string} (required)
+ *		plugin.description {string}
+ *		plugin.version {string}
+ *		developer.name {string} (required)
+ *		developer.key {string} (required)
  * @param {function} callback
  * @return {callback}
  */
@@ -740,7 +748,7 @@ function registerPlugin(info, callback) {
 	}
 	
 	var plugindescription = util.opt(info.plugin, 'description', null);
-	var pluginversion = util.opt(info.plugin, 'name', '0.1');
+	var pluginversion = util.opt(info.plugin, 'version', '0.1');
 	
 	var developer = util.opt(info.developer, 'name', null);
 	var developerkey = util.opt(info.developer, 'key', null);
@@ -756,12 +764,12 @@ function registerPlugin(info, callback) {
 		method: 'POST',
 		datatype: 'json',
 		data: {
-			plugininfo: {
+			plugin: {
 				name: pluginname,
 				description: plugindescription,
 				version: pluginversion
 			},
-			developerinfo: {
+			developer: {
 				name: developer,
 				key: developerkey
 			}
@@ -771,13 +779,27 @@ function registerPlugin(info, callback) {
 	//Do the actual http request
 	util.httpRequest(options, function(err, stdout, stderr) {
 		if (err) {
-			util.doCallback(callback, {err: err, stderr: stderr});
+			util.doCallback(callback, {err: true, stderr: stderr});
 			return;
 		}
 		
-		var newID = stdout.data.id;
+		console.log(stdout);
 		
-		config.setUniqueID(oldID, newID);
+		//If the server returns an error, do not continue
+		if (stdout.error) {
+			log.error(prelog + ':registerPlugin) Unable to register plugin to central server. ' + stdout.stderr);
+			util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+			return;
+		}
+		
+		if (!(stdout.hasOwnProperty('data') && stdout.data.hasOwnProperty('id'))) {
+			log.error(prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.');
+			util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+			return;
+		}
+		var newID = stdout.data.id;
+
+		config.setUniqueID(oldID, newID, callback);
 	});
 }
 

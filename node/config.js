@@ -292,6 +292,11 @@ setUniqueID = function(oldID, newID, callback) {
 	
 	var data = this.getPluginInfo(oldID);
 	
+	if (!data) {
+		if (!util.doCallback(callback, {err: true, stderr: 'No plugin found with the oldID!'}))
+			return false;
+	}
+	
 	//Add the old data with the new plugin. Wait until the callback before continuing
 	this.addPlugin(newID, data, function(err, stdout, stderr) {
 		if (err) {
