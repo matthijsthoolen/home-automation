@@ -18,5 +18,9 @@
       "active": true,
       "level": "1"
     }
+  },
+  "developer": {
+	  "name": "Matthijsweb",
+	  "key": "12345"
   }
 }

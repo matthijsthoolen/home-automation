@@ -149,6 +149,29 @@ function checkExists(abspath, type) {
 }
 
 
+/*
+ * Check if the given plugin ID is registered on the remote server and check if
+ * it's a developer plugin or a published plugin.
+ *
+ * @param {object} info
+ *		id {string}
+ * @param {function} callback
+ * @return {callback} if no error:
+ *		type: dev/prod
+ */
+exports.checkPluginID = function(info, callback) {
+	
+	if (info.id.indexOf('dev-') === 0) {
+		util.doCallback(callback, {stdout: {type: 'dev'}});
+		return;
+	}
+	
+	//TODO: check online if the plugin is registered
+	
+	util.doCallback(callback, {stdout: {type: 'prod'}});
+	
+};
+
 /******************************************************************************\
  *																			  *
  *							Folder actions									  *

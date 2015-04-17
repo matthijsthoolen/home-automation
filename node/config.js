@@ -37,6 +37,7 @@ module.exports = function(callback) {
 	this.loadCustomConfig = loadCustomConfig;
 	this.getUniqueID = getUniqueID;
 	this.setUniqueID = setUniqueID;
+	this.getDeveloperInfo = getDeveloperInfo;
 	
 	return this;
 };
@@ -199,7 +200,7 @@ setPluginInfo = function(id, info) {
  * @param {string} id
  * @returns {object} returns the plugin info
  */
-getPluginInfo = function(id, type) {
+getPluginInfo = function(id) {
 	var data = nconf.get('plugins:' + id);
 	
 	if (data === undefined) {
@@ -236,7 +237,7 @@ getTempPath = function() {
  * @param {Array} options
  * 		abs {Boolean} Absolute path, default = true
  *		pluginname {string} pluginname (optional)
- * @return {string} returns the path to plugin folder
+ * @return {string} returns the path to plugin folder or false on error
  */
 getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
@@ -251,7 +252,11 @@ getPluginFolder = function(options) {
 	
 	//If a plugin name is given, get the plugin specific folder
 	if (pluginname !== null) {
-		path += nconf.get('plugins:' + pluginname + ':folder');
+		var folder = nconf.get('plugins:' + pluginname + ':folder');
+		if (typeof folder === 'undefined') {
+			return false;
+		}
+		path += folder;
 	}
 	
 	return path;
@@ -395,10 +400,18 @@ removeCustomConfig = function(options) {
 
 
 /*
-* Save the changes to the configuration in a file
-*
-* @param {function} callback
-*/
+ * Get the info about the developer
+ */
+getDeveloperInfo = function() {
+	return nconf.get('developer');
+};
+
+
+/*
+ * Save the changes to the configuration in a file
+ *
+ * @param {function} callback
+ */
 function saveConfiguration(callback) {
 	var message;
 	

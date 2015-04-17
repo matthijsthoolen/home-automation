@@ -31,13 +31,21 @@ exports.test = function() {
 		}
 	};
 	
-	registerPlugin(options, function(err, stdout, stderr) {
+	this.publish('dev-PluginName', function(err, stdout, stderr) {
 		if (err) {
 			console.log('lol, error...' + stderr);
 		}
 		
 		console.log('output: ' + stdout);
 	});
+	
+/* 	registerPlugin(options, function(err, stdout, stderr) {
+		if (err) {
+			console.log('lol, error...' + stderr);
+		}
+		
+		console.log('output: ' + stdout);
+	}); */
 };
 
 
@@ -638,7 +646,7 @@ exports.callFunction = function(plugin, functionname, parameters, info) {
 		return true;
 	}
 	
-	log.info(prelog + 'callPlugin) The function "' + functionname + '" is not valid for the plugin: ' + plugin);
+	log.debug(prelog + ':callPlugin) The function "' + functionname + '" is not valid for the plugin: ' + plugin);
 	
 	return false;
 };
@@ -698,10 +706,34 @@ exports.getPluginInfo = function(filter) {
  */
 exports.publish = function(id, callback) {
 	var folder = config.getPluginFolder({pluginname: id});
+	var info = {};
 	
-	
-	
-	packPlugin(id, folder, function(err, stdout, stderr) {
+	//Check if the plugin is already registered and if it's still valid
+	util.checkPluginID({id: id}, function(err, stdout, stderr) {
+		
+		if (err) {
+			util.doCallback(callback, {err: true, stderr: 'An error occurred while publishing the plugin: ' + stderr});
+			return;
+		}
+		
+		//Get all the plugin info and the developer info
+		info.plugin = config.getPluginInfo(id);
+		info.plugin.id = id;
+		info.developer = config.getDeveloperInfo();
+		
+		//If it's a developer plugin it still has to be registered. Else we can continue to packPlugin
+		if (stdout.type === 'dev') {
+			registerPlugin(info, function(err, stdout, stderr) {
+				if (err) {
+					util.doCallback(callback, {err: true, stderr: stderr});
+					return;
+				}
+				info.plugin.id = stdout.id;
+				packPlugin(info, callback);
+			});
+		} else {
+			packPlugin(info, callback);
+		}
 		
 	});
 };
@@ -747,59 +779,70 @@ function registerPlugin(info, callback) {
 		return;
 	}
 	
-	var plugindescription = util.opt(info.plugin, 'description', null);
-	var pluginversion = util.opt(info.plugin, 'version', '0.1');
-	
-	var developer = util.opt(info.developer, 'name', null);
-	var developerkey = util.opt(info.developer, 'key', null);
-	
-	if (developer === null || developerkey === null) {
-		util.doCallback(callback, {err: true, stderr: 'No developer name or key is specified, both are required!'});
-		return;
-	}
-	
-	//Put all the data in a options object
-	var options = {
-  		uri: portal,
-		method: 'POST',
-		datatype: 'json',
-		data: {
-			plugin: {
-				name: pluginname,
-				description: plugindescription,
-				version: pluginversion
-			},
-			developer: {
-				name: developer,
-				key: developerkey
-			}
-		}
-	};
-	
-	//Do the actual http request
-	util.httpRequest(options, function(err, stdout, stderr) {
-		if (err) {
-			util.doCallback(callback, {err: true, stderr: stderr});
+	//Check if the ID is really a development ID.
+	util.checkPluginID({id: oldID}, function(err, stdout, stderr) {
+		
+		if (err || stdout.type !== 'dev') {
+			util.doCallback(callback, {err: true, stderr: 'Plugin is already registered'});
 			return;
 		}
-		
-		console.log(stdout);
-		
-		//If the server returns an error, do not continue
-		if (stdout.error) {
-			log.error(prelog + ':registerPlugin) Unable to register plugin to central server. ' + stdout.stderr);
-			util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
-			return;
-		}
-		
-		if (!(stdout.hasOwnProperty('data') && stdout.data.hasOwnProperty('id'))) {
-			log.error(prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.');
-			util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
-			return;
-		}
-		var newID = stdout.data.id;
+	
+		var plugindescription = util.opt(info.plugin, 'description', null);
+		var pluginversion = util.opt(info.plugin, 'version', '0.1');
 
-		config.setUniqueID(oldID, newID, callback);
+		var developer = util.opt(info.developer, 'name', null);
+		var developerkey = util.opt(info.developer, 'key', null);
+
+		if (developer === null || developerkey === null) {
+			util.doCallback(callback, {err: true, stderr: 'No developer name or key is specified, both are required!'});
+			return;
+		}
+
+		//Put all the data in a options object
+		var options = {
+			uri: portal,
+			method: 'POST',
+			datatype: 'json',
+			data: {
+				plugin: {
+					name: pluginname,
+					description: plugindescription,
+					version: pluginversion
+				},
+				developer: {
+					name: developer,
+					key: developerkey
+				}
+			}
+		};
+
+		//Do the actual http request
+		util.httpRequest(options, function(err, stdout, stderr) {
+			if (err) {
+				util.doCallback(callback, {err: true, stderr: stderr});
+				return;
+			}
+
+			//If the server returns an error, do not continue
+			if (stdout.error) {
+				log.error(prelog + ':registerPlugin) Unable to register plugin to central server. ' + stdout.stderr);
+				util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+				return;
+			}
+
+			if (!(stdout.hasOwnProperty('data') && stdout.data.hasOwnProperty('id'))) {
+				log.error(prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.');
+				util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+				return;
+			}
+			var newID = stdout.data.id;
+
+			//TODO: reenable this!!
+			//config.setUniqueID(oldID, newID, callback);
+			
+			util.doCallback(callback, {stdout: {id: newID}});
+		});
+		
 	});
 }
 
@@ -809,12 +852,54 @@ function registerPlugin(info, callback) {
  * used for distribution of the app through the plugin store. The folder is checked
  * for all the necessary files. 
  *
- * @param {string} id
- * @param {string} folder
+ * @param {object} info:
+ *		id {string}
+ *		folder {string} folder inside plugindirectory
+ *		version {string}
  * @param {function} callback
  * @return {callback}
  */
-function packPlugin(id, folder, callback) {
+function packPlugin(info, callback) {
+	var id = util.opt(info.plugin, 'id', null);
+	var version = util.opt(info.plugin, 'version', null);
+	
+	if (id === null || version === null) {
+		util.doCallback(callback, {err: true, stderr: 'packPlugin both id and version must be given!'});
+		return;
+	}
+	
+	//TODO: remove this
+	id = 'dev-PluginName';
+	
+	var targz = require('tar.gz');
+	
+	var filename = id + '-' + version + '.tar.gz';
+	
+	var folder = config.getPluginFolder({pluginname: id});
+	var temp = config.getTempPath() + filename;
+	
+	//Check if the folder or temp path are incorrect
+	if (!folder || !temp) {
+		util.doCallback(callback, {err: true, stderr: 'PackPlugin folder or temppath are incorrect'});
+		return;
+	}
+	
+	log.debug(prelog + 'Compressing: ' + folder + ' to: ' + temp);
+	
+	//Do the actual file compression
+	var compress = new targz().compress(folder, temp, function(err){
+		if(err) {
+			var message = prelog + ':packPlugin)' + err;
+			log.error(message);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+		
+		log.debug(prelog + ':packPlugin) Successfully packed the plugin to tempfolder/' + filename);
+		
+		//Continue to the upload step
+		uploadPlugin(info, callback);
+	});
 	
 }
 
@@ -822,11 +907,13 @@ function packPlugin(id, folder, callback) {
 /*
  * Upload the plugin to the central server.
  *
- * @param {string} id
- * @param {string} folder
+ * @param {object} info:
+ *		id {string}
+ *		folder {string} folder inside plugindirectory
+ *		version {string}
  * @param {function} callback
  * @return {callback}
  */
-function uploadPlugin(id, folder, callback) {
-	
+function uploadPlugin(info, callback) {
+	console.log('uploading...');
 }
