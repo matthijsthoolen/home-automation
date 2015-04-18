@@ -67,12 +67,22 @@ function startApplication() {
 	event.askForRegistration();
 
 	plugin.test();
+	
+	keepRunning();
 
 	process.on('SIGINT', function() {
 		log.info('(Main) SIGINT received, stopping plugins.');
 		plugin.stop();
 		process.exit();
 	});
+}
+
+
+/*
+ * Keep the application running even though there are no scheduled tasks
+ */
+function keepRunning() {
+	setTimeout(keepRunning, 5000);
 }
 
 
