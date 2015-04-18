@@ -60,7 +60,7 @@ module.exports = function(callback) {
  *
  * @return {JSON} list of all active plugins
  */
-getActivePlugins = function getActivePlugins() {
+var getActivePlugins = function getActivePlugins() {
 	var plugins = nconf.get('plugins');
 	var tmp = {};
 	
@@ -81,7 +81,7 @@ getActivePlugins = function getActivePlugins() {
  *
  * @return {JSON}
  */
-getPlugins = function() {
+var getPlugins = function() {
 	return nconf.get('plugins');
 };
 
@@ -91,7 +91,7 @@ getPlugins = function() {
  *
  * @param {String} id
  */
-removePlugin = function(id) {
+var removePlugin = function(id) {
 	nconf.clear('plugins:' + id);	
 	log.debug('(Config:RemovePlugin) Removed ' + id + ' from the config');
 	saveConfiguration();
@@ -103,7 +103,7 @@ removePlugin = function(id) {
  *
  * @param {string} id
  */
-deactivatePlugin = function(id) {
+var deactivatePlugin = function(id) {
 	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':active', false);
@@ -117,7 +117,7 @@ deactivatePlugin = function(id) {
  *
  * @param {string} id
  */
-activatePlugin = function(id) {
+var activatePlugin = function(id) {
 	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':active', true);
@@ -138,7 +138,7 @@ activatePlugin = function(id) {
  *		level {Number} (default: 1)
  * @param {function} callback
  */
-addPlugin = function(id, options, callback) {
+var addPlugin = function(id, options, callback) {
 	
 	//Check if id is given and is a valid id
 	if (typeof id === 'undefined' || id === '' || id === null) {
@@ -185,7 +185,7 @@ addPlugin = function(id, options, callback) {
  * @param {string} id
  * @param {object} info 
  */
-setPluginInfo = function(id, info) {
+var setPluginInfo = function(id, info) {
 	var configPlace = 'plugins:' + id;
 	nconf.set(configPlace, info);	
 	log.debug('(Config:setPluginInfo) Changed configuration for plugin ' + id);
@@ -200,7 +200,7 @@ setPluginInfo = function(id, info) {
  * @param {string} id
  * @returns {object} returns the plugin info
  */
-getPluginInfo = function(id) {
+var getPluginInfo = function(id) {
 	var data = nconf.get('plugins:' + id);
 	
 	if (data === undefined) {
@@ -216,7 +216,7 @@ getPluginInfo = function(id) {
 *
 * @return {string} returns path
 */
-getAbsolutePath = function() {
+var getAbsolutePath = function() {
 	return nconf.get('abspath');
 };
 
@@ -226,7 +226,7 @@ getAbsolutePath = function() {
  * 
  * @return {string} returns the path to the temp folder
  */
-getTempPath = function() {
+var getTempPath = function() {
 	return nconf.get('abspath') + nconf.get('tempfolder') + '/';
 };
 
@@ -239,7 +239,7 @@ getTempPath = function() {
  *		pluginname {string} pluginname (optional)
  * @return {string} returns the path to plugin folder or false on error
  */
-getPluginFolder = function(options) {
+var getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
 	var pluginname = util.opt(options, 'pluginname', null);
 	var path = '';
@@ -274,7 +274,7 @@ getPluginFolder = function(options) {
  * @param {function} callback
  * @return {callback}
  */
-getUniqueID = function(options, callback) {
+var getUniqueID = function(options, callback) {
 	
 };
 
@@ -289,7 +289,7 @@ getUniqueID = function(options, callback) {
  * @param {function} callback
  * @return {boolean}
  */
-setUniqueID = function(oldID, newID, callback) {
+var setUniqueID = function(oldID, newID, callback) {
 	if (oldID.indexOf('dev-') !== 0) {
 		util.doCallback(callback, {err: true, stderr: 'This is not a dev plugin, can\'t change unique id!'});
 		return;
@@ -329,7 +329,7 @@ setUniqueID = function(oldID, newID, callback) {
  *
  * @return {mixed} returns the requested configuration
  */
-getConfiguration = function(name) {
+var getConfiguration = function(name) {
 	return nconf.get(name);
 };
 
@@ -342,7 +342,7 @@ getConfiguration = function(name) {
  *		name: setting {mixed}
  * @return {boolean}
  */
-setConfiguration = function(options, callback) {
+var setConfiguration = function(options, callback) {
 	
 	for(var name in options) {
 		var setting = options[name];
@@ -364,7 +364,7 @@ setConfiguration = function(options, callback) {
  *		name {string} Do not use 'file'! (default: temp)
  * @return {string} name
  */
-loadCustomConfig = function(options) {
+var loadCustomConfig = function(options) {
 	var abspath = util.opt(options, 'abspath', null);
 	var name = util.opt(options, 'name', 'temp');
 	
@@ -387,7 +387,7 @@ loadCustomConfig = function(options) {
  *		name {string} Do not use 'file'!
  * @return {boolean}
  */
-removeCustomConfig = function(options) {
+var removeCustomConfig = function(options) {
 	var name = util.opt(options, 'name', null);
 	
 	//Make sure not to remove default
@@ -402,7 +402,7 @@ removeCustomConfig = function(options) {
 /*
  * Get the info about the developer
  */
-getDeveloperInfo = function() {
+var getDeveloperInfo = function() {
 	return nconf.get('developer');
 };
 
@@ -419,7 +419,7 @@ function saveConfiguration(callback) {
 		nconf.save(function (err) {
 			if (err) {
 				message = prelog + ':SaveConfiguration) Error with saving configuration file ' + err.message;
-				callback(true, null, 'Error while saving!');
+				util.doCallback(callback, {err: true, stderr: message});
 				try {
 					log.error(message);
 				} catch (e) {
@@ -429,7 +429,7 @@ function saveConfiguration(callback) {
 			}
 
 			message = prelog + ':SaveConfiguration) Saved configuration without errors';
-			callback(false, 'Configuration saved!');
+			util.doCallback(callback, {stdout: message});
 			try {
 				log.debug(message);
 			} catch (e) {
@@ -438,7 +438,7 @@ function saveConfiguration(callback) {
 		});
 	} catch (e) {
 		message = prelog + ':SaveConfiguration) An error occured while saving!';
-		callback(true, null, 'Error while saving!');
+		util.doCallback(callback, {err: true, stderr: message});
 		try {
 			log.error(message);
 		} catch (e) {

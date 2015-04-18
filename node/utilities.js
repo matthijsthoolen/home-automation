@@ -505,3 +505,33 @@ exports.installDependencies = function(options, callback) {
 	}
 	
 };
+
+
+/*
+ * Remove a file from the temp directory
+ *
+ * @param {string} file
+ * @param {function} callback
+ */
+exports.removeTempFile = function(file, callback) {
+	var fs = require('fs');
+	var prelogFunc = prelog + ':removeTempFile) ';
+	var message;
+	
+	var path = config.getTempPath() + file;
+	
+	log.debug(prelogFunc + 'Trying to remove ' + file + ' from tmp directory');
+	
+	fs.unlink(path, function (err) {
+		if (err) {
+			message = prelogFunc + 'Error with removing temp file: ' + err;
+			log.debug(message);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+		
+		message = prelogFunc + 'Succesfully removed ' + file + ' from tmp directory';
+		log.debug(message);
+		util.doCallback(callback, {stdout: message});
+	});
+};

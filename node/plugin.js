@@ -18,28 +18,7 @@ exports.test = function() {
 	
 	//log.info('version 2.0 = ' + versioninfo.get('pushbullet'));
 	
-	var options = {
-		plugin: {
-			id: 'dev-Pushie',
-			name: 'Pushie',
-			description: 'Push your life',
-			version: '1.0'
-		},
-		developer: {
-			name: 'Matthijsweb',
-			key: '12345'
-		}
-	};
-	
-	this.publish('dev-PluginName', function(err, stdout, stderr) {
-		if (err) {
-			console.log('lol, error...' + stderr);
-		}
-		
-		console.log('output: ' + stdout);
-	});
-	
-/* 	registerPlugin(options, function(err, stdout, stderr) {
+/* 	this.publish('1000045Plugi', function(err, stdout, stderr) {
 		if (err) {
 			console.log('lol, error...' + stderr);
 		}
@@ -712,7 +691,8 @@ exports.publish = function(id, callback) {
 	util.checkPluginID({id: id}, function(err, stdout, stderr) {
 		
 		if (err) {
-			util.doCallback(callback, {err: true, stderr: 'An error occurred while publishing the plugin: ' + stderr});
+			var message = prelog + ':publish) An error occurred while publishing the plugin: ' + stderr;
+			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
 		
@@ -754,16 +734,19 @@ exports.publish = function(id, callback) {
  * @return {callback}
  */
 function registerPlugin(info, callback) {
+	var message;
 	
 	//Make sure that info is available
 	if (info === undefined) {
-		util.doCallback(callback, {err: true, stderr: 'The info parameter is required!'});
+		message = prelog + 'registerPlugin) The info parameter is required!';
+		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
 	
 	//Make sure that info has the properties plugin and developer
 	if (!info.hasOwnProperty('plugin') || !info.hasOwnProperty('developer')) {
-		util.doCallback(callback, {err: true, stderr: 'Not all info is given'});
+		message = prelog + 'registerPlugin) Not all info is given'; 
+		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
 	
@@ -774,8 +757,11 @@ function registerPlugin(info, callback) {
 	var oldID = util.opt(info.plugin, 'id', null);
 	var pluginname = util.opt(info.plugin, 'name', null);
 	
+	console.log(info.plugin);
+	
 	if (pluginname === null || oldID === null) {
-		util.doCallback(callback, {err: true, stderr: 'Plugin name and old ID are required!'});
+		message = prelog + ':registerPlugin) Plugin name and old ID are required!';
+		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
 	
@@ -783,7 +769,8 @@ function registerPlugin(info, callback) {
 	util.checkPluginID({id: oldID}, function(err, stdout, stderr) {
 		
 		if (err || stdout.type !== 'dev') {
-			util.doCallback(callback, {err: true, stderr: 'Plugin is already registered'});
+			message = prelog + ':registerPlugin) Plugin is already registered';
+			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
 	
@@ -794,7 +781,8 @@ function registerPlugin(info, callback) {
 		var developerkey = util.opt(info.developer, 'key', null);
 
 		if (developer === null || developerkey === null) {
-			util.doCallback(callback, {err: true, stderr: 'No developer name or key is specified, both are required!'});
+			message = prelog + ':registerPlugin) No developer name or key is specified, both are required!';
+			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
 
@@ -824,21 +812,22 @@ function registerPlugin(info, callback) {
 			}
 
 			//If the server returns an error, do not continue
-			if (stdout.error) {
-				log.error(prelog + ':registerPlugin) Unable to register plugin to central server. ' + stdout.stderr);
-				util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+			if (stdout.err) {
+				message = prelog + ':registerPlugin) Unable to register plugin to central server.';
+				log.error(message + ' Error: ' + stdout.stderr);
+				util.doCallback(callback, {err: true, stderr: message});
 				return;
 			}
 
-			if (!(stdout.hasOwnProperty('data') && stdout.data.hasOwnProperty('id'))) {
-				log.error(prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.');
-				util.doCallback(callback, {err: true, stderr: 'Error with registering plugin'});
+			if (!(stdout.hasOwnProperty('data') && stdout.stdout.hasOwnProperty('id'))) {
+				message = prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.';
+				log.error(message);
+				util.doCallback(callback, {err: true, stderr: message});
 				return;
 			}
-			var newID = stdout.data.id;
-
-			//TODO: reenable this!!
-			//config.setUniqueID(oldID, newID, callback);
+			var newID = stdout.stdout.id;
+			
+			config.setUniqueID(oldID, newID, callback);
 			
 			util.doCallback(callback, {stdout: {id: newID}});
 		});
@@ -862,14 +851,13 @@ function registerPlugin(info, callback) {
 function packPlugin(info, callback) {
 	var id = util.opt(info.plugin, 'id', null);
 	var version = util.opt(info.plugin, 'version', null);
+	var message;
 	
 	if (id === null || version === null) {
-		util.doCallback(callback, {err: true, stderr: 'packPlugin both id and version must be given!'});
+		message = prelog + ':packPlugin) packPlugin both id and version must be given!';
+		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
-	
-	//TODO: remove this
-	id = 'dev-PluginName';
 	
 	var targz = require('tar.gz');
 	
@@ -880,7 +868,8 @@ function packPlugin(info, callback) {
 	
 	//Check if the folder or temp path are incorrect
 	if (!folder || !temp) {
-		util.doCallback(callback, {err: true, stderr: 'PackPlugin folder or temppath are incorrect'});
+		message = prelog + ':packPlugin) PackPlugin folder or temppath are incorrect';
+		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
 	
@@ -896,6 +885,9 @@ function packPlugin(info, callback) {
 		}
 		
 		log.debug(prelog + ':packPlugin) Successfully packed the plugin to tempfolder/' + filename);
+		
+		info.plugin.tarpath = temp;
+		info.plugin.filename = filename;
 		
 		//Continue to the upload step
 		uploadPlugin(info, callback);
@@ -915,5 +907,56 @@ function packPlugin(info, callback) {
  * @return {callback}
  */
 function uploadPlugin(info, callback) {
-	console.log('uploading...');
+	var filepath = info.plugin.tarpath;
+	var filename = info.plugin.filename;
+	
+	var url = 'http://preview.32urhzqdibxa8aorbk51fcdkq3zestt9us699c13dv64unmi.box.codeanywhere.com/home-automation-server/uploadplugin.php';
+	var message;
+	var prelogFunc = prelog + ':uploadPlugin) ';
+	
+	var request = require('request');
+	
+	var req = request.post(url, function (err, resp, body) {
+		
+		body = JSON.parse(body);
+		
+		//Check for errors in request module
+		if (err) {
+			message = prelogFunc + 'Error with file upload!';
+			log.error(message + ' Error' + error);
+			util.doCallback(callback, {err: true, stderr: message});
+			
+			util.removeTempFile(filename);
+			return;
+		} else {
+			if (body.err) {
+				message = prelogFunc + 'Error on remote server: ' + body.stderr;
+				log.error(message);
+				util.doCallback(callback, {err: true, stderr: message});
+				util.removeTempFile(filename);
+				return;
+			}
+			
+			//If the upload was succesfull
+			message = prelogFunc + body.stdout;
+			log.info(message);
+			util.doCallback(callback, {stdout: message});
+			
+			//Remove the local tar.gz file
+			util.removeTempFile(filename);
+			
+		}
+	});
+	
+	var form = req.form();
+	
+	//Add plugin info
+	form.append('pluginid', info.plugin.id);
+	form.append('pluginname', info.plugin.name);
+	form.append('pluginversion', info.plugin.version);
+	form.append('developername', info.developer.name);
+	form.append('developerkey', info.developer.key);
+	
+	//Add the actual pluginfile
+	form.append('plugin', fs.createReadStream(filepath));
 }
