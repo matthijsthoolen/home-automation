@@ -166,6 +166,7 @@ var addPlugin = function(id, options, callback) {
 	
 	var configPlace = 'plugins:' + id;
 	
+	nconf.set(configPlace + ':id', id);
 	nconf.set(configPlace + ':name', name);
 	nconf.set(configPlace + ':folder', folder);
 	nconf.set(configPlace + ':version', version);
@@ -301,6 +302,8 @@ var setUniqueID = function(oldID, newID, callback) {
 		if (!util.doCallback(callback, {err: true, stderr: 'No plugin found with the oldID!'}))
 			return false;
 	}
+	
+	data.id = newID;
 	
 	//Add the old data with the new plugin. Wait until the callback before continuing
 	this.addPlugin(newID, data, function(err, stdout, stderr) {
