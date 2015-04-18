@@ -245,7 +245,7 @@ exports.delete = function (options, callback) {
 
 				if (stderr.indexOf('No such file or directory')) {
 					callback(null, 'File or directory already removed', null);
-					log.debug(prelog + ':Delete) Can\'t remove from ' + path + ' already removed' + command); 
+					log.debug(prelog + ':Delete) Can\'t remove from ' + path + ' already removed. Command: ' + command); 
 				} else {				
 					callback(true, null, stderr);		
 					log.debug(prelog + ':Delete) Problem with removing ' + stderr);
@@ -372,9 +372,8 @@ exports.runForEach = function(param, functionname, callback) {
 	
 	for (var i in param) {
 		functionname(param[i], callback);
-		if (typeof callback === "function") {
-			callback(false, 'called function', null);
-		}
+		
+		util.doCallback(callback, {stdout: 'called function'});
 	}
 };
 

@@ -38,6 +38,7 @@ module.exports = function(callback) {
 	this.getUniqueID = getUniqueID;
 	this.setUniqueID = setUniqueID;
 	this.getDeveloperInfo = getDeveloperInfo;
+	this.getLatestVersion = getLatestVersion;
 	
 	return this;
 };
@@ -263,6 +264,35 @@ var getPluginFolder = function(options) {
 	return path;
 	
 	//return nconf.get('abspath') + nconf.get('pluginfolder') + '/';
+};
+
+
+/*
+ * Get the latest version from the version.json file
+ *
+ * @param {object} options
+ *		id {string} (required)
+ * @param {function} callback
+ */
+var getLatestVersion = function(options, callback) {
+	var id = util.opt(options, 'id', false);
+	
+	var message;
+	var prelogFunc = prelog + ':getLatestVersion) ';
+	
+	if (!id) {
+		message = prelogFunc + 'ID is required!';
+		if (!util.doCallback(callback, {err: true, stderr: message})) {
+			return false;
+		}
+		
+	}
+	
+	message = nconf.get('server:' + id + ':version');
+	
+	if (!util.doCallback(callback, {stdout: message})) {
+		return message;
+	}
 };
 
 

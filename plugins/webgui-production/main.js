@@ -169,7 +169,8 @@ function setIO() {
 					util.runForEach(msg.list, plugin.deactivate, test);
 					break;
 				case 'update':
-					util.runForEach(msg.list, plugin.update, test);
+					var list = listToObjects(msg.list);
+					util.runForEach(list, plugin.update, test);
 					break;
 				case 'remove':
 					util.runForEach(msg.list, plugin.remove, test);
@@ -180,7 +181,31 @@ function setIO() {
 }
 
 
+/*
+ * Function to add a array with seperate id's to an array with objects with the 
+ * seperate ID's. Input: [plugin1, plugin2] --> Output [{id: plugin1}, {id: plugin2}]
+ *
+ * @param {array} list
+ * @return {array}
+ */
+function listToObjects(list) {
+	var object = [];
+	
+	for (var i in list) {
+		object.push({id: list[i]});
+	}
+	
+	return object;
+}
+
+
 function test(err, stdout, stderr) {
+	if (err) {
+		log.error('Error: ' + stderr);
+	}
+	
+	log.info('STDOUT: ' + stdout);
+	
 	io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day madame!' + stdout + stderr);
 }
 

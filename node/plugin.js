@@ -18,7 +18,7 @@ exports.test = function() {
 	
 	//log.info('version 2.0 = ' + versioninfo.get('pushbullet'));
 	
-/* 	this.publish('1000045Plugi', function(err, stdout, stderr) {
+/* 	this.publish('dev-plug', function(err, stdout, stderr) {
 		if (err) {
 			console.log('lol, error...' + stderr);
 		}
@@ -34,6 +34,7 @@ exports.test = function() {
 exports.start = function() {
 	checkConfig();
 	checkFolder();
+	getVersionList();
 };
 
 
@@ -55,11 +56,11 @@ exports.stop = function() {
 /*
  * Start the plugin.
  *
- * @param {string} plugin: name of the plugin
+ * @param {string} id
  */
-function startPlugin(plugin, callback) {
+function startPlugin(id, callback) {
 	var pluginfolder = config.getPluginFolder({'abs': true});
-	var plugininfo = config.getPluginInfo(plugin);
+	var plugininfo = config.getPluginInfo(id);
 	
 	if (!plugininfo) {
 		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info found'}))
@@ -69,16 +70,16 @@ function startPlugin(plugin, callback) {
 	var pluginmainfile = plugininfo.folder + '/main.js';
 	
 	try {
-		plugins[plugin] = require(pluginfolder + pluginmainfile);
+		plugins[id] = require(pluginfolder + pluginmainfile);
 	} catch (e) {
-		log.info('Plugin not found: ' + plugin);
+		log.info('Plugin not found: ' + plugininfo.name);
 		return;
 	}
 	
-	log.info(prelog + ':startPlugin) Started plugin "' + plugin + '"');
+	log.info(prelog + ':startPlugin) Started plugin "' + plugininfo.name + '"');
 	
 	//Start the plugin and send the name as a parameter
-	plugins[plugin].start(plugin);
+	plugins[id].start(id);
 }
 
 
@@ -203,11 +204,11 @@ function checkFolder(callback) {
 /*
  * Activate the given plugin
  *
- * @param {string} name
+ * @param {string} id
  * @return {boolean}
  */
-exports.activate = function(name, callback) {
-	var info = config.getPluginInfo(name);
+exports.activate = function(id, callback) {
+	var info = config.getPluginInfo(id);
 	
 	if (!info) {
 		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info found'}))
@@ -215,17 +216,17 @@ exports.activate = function(name, callback) {
 	}
 	
 	if (info.active) {
-		log.info(prelog + ':activate) Plugin already activated: ' + name);
+		log.info(prelog + ':activate) Plugin already activated: ' + info.name);
 		
 		if (!util.doCallback(callback, {stdout: true}))
 			return true;
 	}
 	
-	config.activatePlugin(name);
+	config.activatePlugin(id);
 	
-	log.info(prelog + ':activate) Activated the plugin: ' + name);
+	log.info(prelog + ':activate) Activated the plugin: ' + info.name);
 	
-	startPlugin(name);
+	startPlugin(id);
 	
 	if (!util.doCallback(callback, {stdout: true}))
 		return true;
@@ -367,25 +368,41 @@ exports.install = function(id, options, callback) {
 /* 
  * Download updated plugin files and replace the old files, keep the old config. 
  *
- * @param {String} name
  * @param {Array} options
+ *		id {String}
  * 		New version {String} 
  * @param {Function} Callback
  */
-exports.update = function(name, options, callback) {
-	var version = util.opt(options, 'version', '1.0');
-	var pluginconfig = config.getPluginInfo('pushbullet', 'test');
+exports.update = function(options, callback) {	
+	var id = util.opt(options, 'id', false);
+	var version = util.opt(options, 'version', 'latest');
 	
+	var message;
+	var prelogFunc = prelog + ':update) ';
+	
+	if (!id) {
+		message = prelogFunc + 'ID is required!';
+		util.doCallback(callback, {err: true, stderr: message});
+		return;
+	}
+	
+	var pluginconfig = config.getPluginInfo(id);
+	
+	//Check if the plugin is found in the config
 	if (!pluginconfig) {
-		log.debug(prelog + ':update) No plugin info could be found for ' + name);
+		message = prelogFunc + 'No plugin info could be found';
+		log.debug(message + 'for ' + id);
 		
-		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
+		if (!util.doCallback(callback, {err: true, stderr: message}))
 			return false;
 	}
 	
-	var folder = name;
+	//deactivate the plugin
+	plugin.deactivate(id);
+	
+	var folder = id;
 	var tempdir = config.getTempPath();
-	var plugindir = config.getPluginFolder({pluginname: name});
+	var plugindir = config.getPluginFolder({pluginname: id});
 	var backup = false;
 	var backupfolder = tempdir + 'backup/';
 	
@@ -398,26 +415,33 @@ exports.update = function(name, options, callback) {
 		if (!err) {
 			backup = true;
 		} else {
-			log.error(prelog + ':update) Backup plugin failed: ' + err);
+			message = prelogFunc + 'Backup plugin failed: ' + err;
+			log.error(message);
+			util.doCallback(callback, {err: true, stderr: message});
 			backup = 'error';
+			return;
 		}
 		
-		log.debug(prelog + ':update) Backup made before updating for: ' + name);
+		message = prelogFunc + 'Backup made before updating for: ' + pluginconfig.name;
+		log.debug(message);
 		
 	});
 	
+	var params = {folder: folder, version: version, id: id};
+	
 	//Download the file from the server
-	downloadFile(folder, version, function(err, tempfolder, stderr) {
+	downloadFile(params, function(err, tempfolder, stderr) {
 		
 		//Return if there is an error with the download
 		if (err) {
-			log.debug(prelog + ':update) Problem with downloading file');
-			callback(true, null, 'Can\'t download plugin file, please try again later.');
+			message = prelogFunc + 'Problem with downloading update file';
+			log.debug(message);
+			util.doCallback(callback, {stdout: message});
 			return;
 		}
 		
 		//var update = require(tempfolder);
-		var update = require(config.getAbsolutePath() + 'plugins/pushbullet-production/update.js');
+		var update = require(config.getPluginFolder() + '/pushbullet-production/update.js');
 		
 		//Wait until the backup is completed or there is an error with the backup
 		while (backup !== true) {
@@ -445,27 +469,33 @@ exports.update = function(name, options, callback) {
 						log.error(prelog + ':update) Can\'t remove old plugin folder ' + name + '. Abort.');
 						callback(true, null, 'Can\'t remove old plugin folder');
 						return;
-					}	
+					}
 					
 					//Move the new plugin folder to the plugin directory
 					util.move({'old': tempfolder, 'new': oldPlugin, 'type':2, 'root': true}, 
 						function (err, stdout, stderr) 
 					{
 						if (err) {
-							log.debug(prelog + ':update) Error with moving temp to plugin folder' + stderr);
+							log.debug(prelog + ':update) Error with moving temp to plugin folder. Error:' + stderr);
 							callback(true, null, 'can\'t move folder to plugin directory');
 							return;
 						}
 						
-						log.info(prelog + ':update) Plugin ' + name + ' is now updated to ' + version);
-						callback(null, 'Plugin updated', null);
+						log.info(prelogFunc + 'Plugin ' + pluginconfig.name + ' is now updated to ' + version);
+						util.doCallback(callback, {stdout: 'Plugin updated'});
 						
 						//Set configuration file to new version
 						pluginconfig.version = version;	
-						config.setPluginInfo(name, pluginconfig);
+						config.setPluginInfo(id, pluginconfig);
+						
+						//If the plugin was active, now start it again.
+						if (pluginconfig.active) {
+							startPlugin(id);
+							util.doCallback(callback, {stdout: 'Plugin restarted'});
+						}
 						
 						//delete the backup file
-						util.delete({'path': backupfolder + name, 'type':2, 'root':true});
+						util.delete({'path': backupfolder + pluginconfig.folder, 'type':2, 'root':true});
 					});
 				});
 				
@@ -485,48 +515,71 @@ exports.update = function(name, options, callback) {
  * Async function to download a tar file from the server, unpack and remove tar.gz file
  * returns the folder name.
  *
- * @param {string} folder
- * @param {int} version
+ * @param {object} options
+ *		id {string} required
+ *		folder {string} required
+ *		version {string} (default: latest)
  * @param {function} callback
  */
-
-function downloadFile(folder, version, callback) {
+function downloadFile(options, callback) {
+	var id = util.opt(options, 'id', false);
+	var folder = util.opt(options, 'folder', false);
+	var version = util.opt(options, 'version', 'latest');
+	
+	var message;
+	var prelogConf = prelog + ':downloadFile) ';
+	
+	if (!id || !folder) {
+		message = prelogConf + 'ID and folder are required!';
+		log.debug(message);
+		util.doCallback(callback, {err: true, stderr: message});
+		return;
+	}
+	
+	if (version === 'latest') {
+		version = config.getLatestVersion({id: id});
+	}
+	
 	var tempdir = config.getTempPath();
 	var filename = version + '.tar.gz';
 	var downloadserver = config.getConfiguration('downloadserver');
+	
 	var path;
 	var downloadpath = downloadserver + folder + '/' + filename;
 	
 	exec('wget ' + downloadpath, {cwd: tempdir}, function(err, stdout, stderr) {
-    	log.debug(prelog + ':downloadFile) Downloaded file from server: \n' + err + " : "  + stdout);
+    	log.debug(prelogConf + 'Downloaded file from server: \n' + err + " : "  + stdout);
 		
 		if (err) {
-			log.error(prelog + ':downloadFile) Problem with downloading file (' + downloadpath + ') ' + err);
+			log.error(prelogConf + 'Problem with downloading file (' + downloadpath + ') ' + err);
 			callback(true, null, 'Can\'t download plugin file from server. Abort!');
 			return;
 		}
 		
-		exec('tar -zxvf ' + filename, {cwd: tempdir }, function(err, stdout, stderr) {
-			log.debug(prelog + ':downloadFile) Unpacked plugin: ' + err + ' : ' + stdout);
+		exec('tar -zxvf ' + filename, {cwd: tempdir}, function(err, stdout, stderr) {
+			log.debug(prelogConf + 'Unpacked plugin: ' + stdout);
 			
 			//If there is an error, abort and exit function
 			if (err) {
-				log.error(prelog + ':downloadFile) Problem with unpacking file (' + filename + ') ' + stderr);
+				log.error(prelogConf + 'Problem with unpacking file (' + filename + ') ' + stderr);
 				callback(true, null, 'Can\'t unpack plugin file from server. Abort!');
 				return;
-			} 
+			}
+			
+			//Get the actual unpackdir name
+			var unpackDir = stdout.toString().split('/')[0];
 			
 			util.delete({'path':tempdir, 'type':1, 'filename': filename, 'root': true}, 
 				function(err, stdout, stderr) 
 			{	
 				if (err) {
-					log.debug(prelog + ':downloadFile) DownloadFile error with removed tar.gz ' + stderr);
+					log.debug(prelogConf + 'DownloadFile error with removed tar.gz ' + stderr);
 				} else {
-					log.debug(prelog + ':downloadFile) DownloadFile tar.gz removed');
+					log.debug(prelogConf + 'DownloadFile tar.gz removed');
 				}
 			});
 			
-			path = tempdir + folder;
+			path = tempdir + unpackDir;
 			callback(null, path, null);
 		});
 	});
@@ -538,37 +591,52 @@ function downloadFile(folder, version, callback) {
  * Returns nconf file with plugin versions.
  *
  * @param {object} options
+ * @param {function} callback
  */
-function getVersionList(options) {
+function getVersionList(options, callback) {
 	var tempdir = config.getTempPath();
 	var server = config.getConfiguration('downloadserver');
 	var force = util.opt(options, 'force', false);
 	var nconf = require('nconf');
 	
+	var prelogFunc = prelog + ':getVersionList) ';
+	var message;
+	
 	exec('expr $(date +%s) - $(date +%s -r version.json)', {cwd:tempdir}, function(err, stdout, stderr) {
-		log.info(err + ', stdout = ' + stdout + ' ,stderr = ' + stderr);
+		
+		if (err) {
+			message = prelogFunc + 'Error with checking version file. Error: ' + stderr;
+			log.debug(message);
+		}
 		
 		/*
 		Download new version file if:
 		- current file is older then 30 minutes
 		- An error occured (File not available)
 		- If new file download is forced
-		*/
+		*/		
 		if (stdout > 1800 || err || force === true) {
-			exec('wget ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
-				log.info(prelog + ':GetVersionList) Downloaded version file');
+			exec('wget -N ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
+				if (err) {
+					message = prelogFunc + 'Error downloading version file: ' + stderr;
+					log.error(message);
+					util.doCallback(callback, {err: true, stderrr: message});
+					return;
+				}
+				
+				log.info(prelogFunc + 'Downloaded version file');
 				exec('touch version.json', {cwd: tempdir});
 			});	
 		} else {
-			log.debug(prelog + ':GetVersionList) Version file is recent enough'); 
+			log.debug(prelogFunc + 'Version file is recent enough'); 
 		}
 		
+		nconf.file('versions', tempdir + 'version.json');
+		nconf.load();
+		
+		util.doCallback(callback, {stdout: nconf});
+		
 	});
-	
-	nconf.file('versions', tempdir + 'version.json');
-	nconf.load();
-	
-	return nconf;
 	
 }
 
@@ -712,7 +780,7 @@ exports.publish = function(id, callback) {
 				info.plugin.id = stdout.id;
 				packPlugin(info, callback);
 			});
-		} else {
+		} else if (stdout.type === 'prod') {
 			packPlugin(info, callback);
 		}
 		
@@ -757,8 +825,6 @@ function registerPlugin(info, callback) {
 	//Get all the needed info from the input, check if it is required
 	var oldID = util.opt(info.plugin, 'id', null);
 	var pluginname = util.opt(info.plugin, 'name', null);
-	
-	console.log(info.plugin);
 	
 	if (pluginname === null || oldID === null) {
 		message = prelog + ':registerPlugin) Plugin name and old ID are required!';
@@ -820,15 +886,16 @@ function registerPlugin(info, callback) {
 				return;
 			}
 
-			if (!(stdout.hasOwnProperty('data') && stdout.stdout.hasOwnProperty('id'))) {
+			if (!(stdout.hasOwnProperty('stdout') && stdout.stdout.hasOwnProperty('id'))) {
 				message = prelog + ':registerPlugin) Unable to register plugin to central server. The server response was not correct.';
-				log.error(message);
+				log.error(message + ' Response: (see next error log)');
+				log.error(stdout);
 				util.doCallback(callback, {err: true, stderr: message});
 				return;
 			}
 			var newID = stdout.stdout.id;
 			
-			config.setUniqueID(oldID, newID, callback);
+			config.setUniqueID(oldID, newID);
 			
 			util.doCallback(callback, {stdout: {id: newID}});
 		});
