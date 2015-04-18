@@ -649,6 +649,7 @@ exports.getPluginInfo = function(filter) {
 	
 	for(var name in plugins) {
 		tmp = {};
+		tmp.id = plugins[name].id;
 		tmp.name = plugins[name].name;
 		tmp.active = plugins[name].active;
 		tmp.description = plugins[name].description;
