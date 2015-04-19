@@ -139,6 +139,7 @@ function setErrorRouting() {
 
 	// Handle 500
 	app.use(function(error, req, res, next) {
+		console.log(error);
 		res.status(500).render('500', {title:'500: Internal Server Error', error: error});
 	});
 }

@@ -290,6 +290,10 @@ var getLatestVersion = function(options, callback) {
 	
 	message = nconf.get('server:' + id + ':version');
 	
+	if (typeof message === 'undefined') {
+		message = false;
+	}
+	
 	if (!util.doCallback(callback, {stdout: message})) {
 		return message;
 	}

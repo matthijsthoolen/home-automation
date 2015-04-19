@@ -445,7 +445,9 @@ exports.update = function(options, callback) {
 	var params = {folder: folder, version: version, id: id};
 	
 	//Download the file from the server
-	downloadFile(params, function(err, tempfolder, stderr) {
+	downloadFile(params, function(err, opt, stderr) {
+		var tempfolder = util.opt(opt, 'path', null);
+		version = util.opt(opt, 'version', version);
 		
 		//Add the tempfolder to the endoptions if exists
 		if (util.dirExists(tempfolder)) {
@@ -503,7 +505,7 @@ exports.update = function(options, callback) {
 						function (err, stdout, stderr) 
 					{
 						if (err) {
-							log.debug(prelog + ':update) Error with moving temp to plugin folder. Error:' + stderr);
+							log.debug(prelogFunc + 'Error with moving temp to plugin folder. Error:' + stderr);
 							callback(true, null, 'can\'t move folder to plugin directory');
 							restoreBackup(endOptions);
 							return;
@@ -599,8 +601,6 @@ function restoreBackup(options, callback) {
 			util.doCallback(callback, {stdout: message});
 		});
 	}
-	
-	log.info('updatefile = ' + updatefile);
 	
 	//Remove update directory if not null
 	if (updatefile !== null) {
@@ -739,7 +739,7 @@ function downloadFile(options, callback) {
 			});
 			
 			path = tempdir + unpackDir;
-			callback(null, path, null);
+			callback(null, {path: path, version: version}, null);
 		});
 	});
 }
@@ -886,7 +886,13 @@ exports.getPluginInfo = function(filter) {
 		}
 		
 		tmp.version = plugins[name].version;
-		tmp.update = true;
+		tmp.newversion = config.getLatestVersion({id: tmp.id});
+		tmp.update = false;
+		
+		//Check if there is a new version available
+		if (tmp.newversion !== false && tmp.newversion > tmp.version) {
+			tmp.update = true;
+		}
 		
 		info.push(tmp);
 	}
