@@ -404,8 +404,8 @@ exports.update = function(options, callback) {
 			return false;
 	}
 	
-	//deactivate the plugin
-	plugin.deactivate(id);
+	//stop the plugin
+	stopPlugin(id);
 	
 	var folder = id;
 	var tempdir = config.getTempPath();
@@ -442,7 +442,7 @@ exports.update = function(options, callback) {
 		
 	});
 	
-	var params = {folder: folder, version: version, id: id};
+	var params = {folder: folder, version: version, id: id, currentversion: pluginconfig.version};
 	
 	//Download the file from the server
 	downloadFile(params, function(err, opt, stderr) {
@@ -456,7 +456,7 @@ exports.update = function(options, callback) {
 		
 		//Return if there is an error with the download
 		if (err) {
-			message = prelogFunc + 'Problem with downloading update file';
+			message = prelogFunc + stderr;
 			log.debug(message);
 			util.doCallback(callback, {stdout: message});
 			restoreBackup(endOptions);
@@ -620,7 +620,7 @@ function restoreBackup(options, callback) {
 	
 	//Reactivate plugin if no backup and plugin was active before
 	if (!backup && active) {
-		plugin.start(id);
+		startPlugin(id);
 	}
 }
 
@@ -657,7 +657,7 @@ function moveBackup(options, callback) {
 		
 		//Try to restart if the plugin is active
 		if (active) {
-			plugin.start(id);
+			startPlugin(id);
 		}
 	});	
 }
@@ -671,12 +671,14 @@ function moveBackup(options, callback) {
  *		id {string} required
  *		folder {string} required
  *		version {string} (default: latest)
+ *		currentversion {string}
  * @param {function} callback
  */
 function downloadFile(options, callback) {
 	var id = util.opt(options, 'id', false);
 	var folder = util.opt(options, 'folder', false);
 	var version = util.opt(options, 'version', 'latest');
+	var current = util.opt(options, 'currentversion', false);
 	
 	var message;
 	var prelogConf = prelog + ':downloadFile) ';
@@ -691,12 +693,19 @@ function downloadFile(options, callback) {
 	if (version === 'latest' || typeof version === 'undefined') {
 		version = config.getLatestVersion({id: id});
 		
-		if (typeof version === 'undefined') {
+		if (typeof version === 'undefined' || !version) {
 			message = prelogConf + 'Can not find a version for plugin with id ' + id + '. Unable to update!';
 			log.debug(message);
 			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
+	}
+	
+	if (current >= version) {
+		message = prelogConf + 'The requested version (' + version + ') is already installed or the requested version is older then the installed version (' + current + ') for id ' + id + '.';
+		log.debug(message);
+		util.doCallback(callback, {err: true, stderr: message});
+		return;
 	}
 	
 	var tempdir = config.getTempPath();
