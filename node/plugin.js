@@ -376,6 +376,12 @@ exports.install = function(id, options, callback) {
 exports.update = function(options, callback) {	
 	var id = util.opt(options, 'id', false);
 	var version = util.opt(options, 'version', 'latest');
+	var endOptions = {id: id, 
+					  backupfolder: null, 
+					  pluginfolder: null,
+					  updatefile: null,
+					  backup: false,
+					  active: false};
 	
 	var message;
 	var prelogFunc = prelog + ':update) ';
@@ -403,10 +409,17 @@ exports.update = function(options, callback) {
 	var folder = id;
 	var tempdir = config.getTempPath();
 	var plugindir = config.getPluginFolder({pluginname: id});
+	endOptions.pluginfolder = plugindir;
 	var backup = false;
 	var backupfolder = tempdir + 'backup/';
+	endOptions.backupfolder = backupfolder + pluginconfig.folder;
+	endOptions.active = pluginconfig.active;
 	
-	exec('mkdir ' + backupfolder);
+	if (!util.dirExists(backupfolder)) {
+		fs.mkdirSync(backupfolder);
+		message = prelogFunc + 'created backup folder in tmp directory.';
+		log.debug(message);
+	}
 	
 	//Backup folder to temp folder
 	exec('cp -r ' + plugindir + ' ' + backupfolder, 
@@ -414,6 +427,7 @@ exports.update = function(options, callback) {
 	{
 		if (!err) {
 			backup = true;
+			endOptions.backup = true;
 		} else {
 			message = prelogFunc + 'Backup plugin failed: ' + err;
 			log.error(message);
@@ -432,11 +446,17 @@ exports.update = function(options, callback) {
 	//Download the file from the server
 	downloadFile(params, function(err, tempfolder, stderr) {
 		
+		//Add the tempfolder to the endoptions if exists
+		if (util.dirExists(tempfolder)) {
+			endOptions.updatefile = tempfolder;
+		}
+		
 		//Return if there is an error with the download
 		if (err) {
 			message = prelogFunc + 'Problem with downloading update file';
 			log.debug(message);
 			util.doCallback(callback, {stdout: message});
+			restoreBackup(endOptions);
 			return;
 		}
 		
@@ -445,10 +465,10 @@ exports.update = function(options, callback) {
 		
 		//Wait until the backup is completed or there is an error with the backup
 		while (backup !== true) {
-			log.info('waiting');
 			if (backup == 'error') {
-				log.info(prelog + ':update) Stopped plugin update, error in backup!');
+				log.info(prelogFunc + 'Stopped plugin update, error in backup!');
 				callback(true, null, 'Problems with plugin backup');
+				restoreBackup(endOptions);
 				return;
 			} 
 		}
@@ -458,16 +478,19 @@ exports.update = function(options, callback) {
 			function(err, stdout, stderr) 
 		{
 			if (!err) {
-				log.debug(prelog + ':update) Plugin specific update completed.');
+				log.debug(prelogFunc + 'Plugin specific update completed.');
 				
 				var oldPlugin = plugindir;
 				var tempPlugin = tempfolder + folder;
 				
 				//Delete the old plugin folder
 				util.delete({'path': oldPlugin, 'type':2, 'root':true}, function(err, stdout, stderr) {
+					
 					if (err) {
-						log.error(prelog + ':update) Can\'t remove old plugin folder ' + name + '. Abort.');
-						callback(true, null, 'Can\'t remove old plugin folder');
+						message = prelogFunc + 'Can\'t remove old plugin folder for ' + pluginconfig.name + '. Abort.';
+						log.error(message);
+						util.doCallback(callback, {err: true, stderr: message});
+						restoreBackup(endOptions);
 						return;
 					}
 					
@@ -478,6 +501,7 @@ exports.update = function(options, callback) {
 						if (err) {
 							log.debug(prelog + ':update) Error with moving temp to plugin folder. Error:' + stderr);
 							callback(true, null, 'can\'t move folder to plugin directory');
+							restoreBackup(endOptions);
 							return;
 						}
 						
@@ -495,13 +519,14 @@ exports.update = function(options, callback) {
 						}
 						
 						//delete the backup file
-						util.delete({'path': backupfolder + pluginconfig.folder, 'type':2, 'root':true});
+						util.delete({'path': endOptions.backupfolder, 'type':2, 'root':true});
 					});
 				});
 				
 			} else {
 				log.error(prelog + ':update) Error with plugin specific update ' + stderr);
 				callback(true, null, 'Error with plugin specific update see log for more details');
+				restoreBackup(endOptions);
 				return;
 			}
 			
@@ -509,6 +534,112 @@ exports.update = function(options, callback) {
 		
 	});
 };
+
+
+/*
+ * On error restore a backup of the plugin and remove all temp files. Set backup option
+ * to false and the function will only clean up and don't put the backup back.
+ *
+ * @param {object} options:
+ *		id {string}
+ *		backupfolder {string}
+ *		pluginfolder {string}
+ *		updatefile {string}
+ *		backup {boolean} restore the backup (default: true)
+ *		active {boolean} (default: false)
+ * @param {function} callback
+ */
+function restoreBackup(options, callback) {
+	var id = util.opt(options, 'id', null);
+	var backupfolder = util.opt(options, 'backupfolder', null);
+	var pluginfolder = util.opt(options, 'pluginfolder', null);
+	var updatefile = util.opt(options, 'updatefile', null);
+	var backup = util.opt(options, 'backup', true);
+	var active = util.opt(options, 'active', false);
+	
+	var message;
+	var prelogFunc = prelog + ':restoreBackup) ';
+	
+	//If the backup has to be restored to plugin folder
+	if (backup && backupfolder !== null && pluginfolder !== null) {
+		
+		//Check if there is still a folder at the plugin location, if so remove it before moving
+		if (util.dirExists(pluginfolder)) {
+			util.delete({path: pluginfolder, type: 2, root: true}, function (err, stdout, stderr) {
+				if (err) {
+					message = prelogFunc + 'Unable to remove the plugin folder. Please try to restore manually.';
+					log.error(message + ' Error: ' + stderr);
+					util.doCallback(callback, {err: true, stderr: message});
+					return;
+				}
+				
+				moveBackup(options, callback);
+			});
+		} else {
+			moveBackup(options, callback);
+		}
+		
+	}
+	
+	//Remove update directory if not null
+	if (updatefile !== null) {
+		util.delete({path: updatefile, type: 2, root: true}, function (err, stdout, stderr) {
+			if (err) {
+				message = prelogFunc + 'Unable to remove the update directory.';
+				log.error(message + ' Error: ' + stderr);
+				util.doCallback(callback, {err: true, stderr: message});
+				return;
+			}
+			
+			message = prelogFunc + 'Successfully removed the update directory for id: ' + id;
+			log.debug(message);
+			util.doCallback(callback, {stdout: message});
+		});
+	}
+	
+	//Reactivate plugin if no backup and plugin was active before
+	if (!backup && active) {
+		plugin.start(id);
+	}
+}
+
+
+/*
+ * Second step for restoreBackup. Do not use seperately from restoreBackup!
+  * @param {object} options:
+ *		id {string}
+ *		backupfolder {string}
+ *		pluginfolder {string}
+ *		active {boolean} (default: false)
+ * @param {function} callback
+ */
+function moveBackup(options, callback) {
+	var id = util.opt(options, 'id', null);
+	var backupfolder = util.opt(options, 'backupfolder', null);
+	var pluginfolder = util.opt(options, 'pluginfolder', null);
+	var active = util.opt(options, 'active', false);
+	
+	var message;
+	var prelogFunc = prelog + ':moveBackup) ';
+	
+	util.move({old: backupfolder, new: pluginfolder, type: 2, root: true}, function (err, stdout, stderr) {
+		if (err) {
+			message = prelogFunc + 'Unable to move the backupfolder to the plugin folder automatically!';
+			log.error(message + ' Error: ' + stderr);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+		
+		message = prelogFunc + 'The backup has been restored to the original folder for id: ' + id + '!';
+		log.info(message);
+		util.doCallback(callback, {stdout: message});
+		
+		//Try to restart if the plugin is active
+		if (active) {
+			plugin.start(id);
+		}
+	});	
+}
 
 
 /*
@@ -536,7 +667,7 @@ function downloadFile(options, callback) {
 		return;
 	}
 	
-	if (version === 'latest') {
+	if (version === 'latest' || typeof version === 'undefined') {
 		version = config.getLatestVersion({id: id});
 	}
 	

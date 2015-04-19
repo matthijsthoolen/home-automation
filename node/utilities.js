@@ -301,7 +301,7 @@ exports.move = function (options, callback) {
 	//Execute the command
 	exec(command, function(err, stdout, stderr) {
 		if (err) {
-			if (stderr.indexOf('Directory not empty')) {
+			if (stderr.indexOf('Directory not empty') > 0) {
 				callback(true, null, 'The destination directory is not empty. Abort.');
 			} else {
 				callback(true, null, stderr);
