@@ -750,6 +750,7 @@ function downloadFile(options, callback) {
  * Returns nconf file with plugin versions.
  *
  * @param {object} options
+ *		force {boolean} (default: false)
  * @param {function} callback
  */
 function getVersionList(options, callback) {
@@ -869,6 +870,8 @@ exports.getPluginInfo = function(filter) {
 	var plugins = config.getPlugins();
 	var info = [];
 	var tmp = {};
+	
+	getVersionList();
 	
 	//var versions = getVersionList();
 	
