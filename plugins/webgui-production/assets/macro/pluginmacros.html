@@ -11,20 +11,30 @@
 
 		<tbody>
 
+			<!-- For every plugin check for the condition beloging to this tab -->
 			{% for plugin in plugins %}
 			
+				<!-- Active plugins -->
 				{% if condition == 1 %}
 
 					{{plugintablerow(id, plugin.active)}}
 
+				<!-- Deactivated plugins -->
 				{% elseif condition == 2 %}
 			
 					{{plugintablerow(id, not plugin.active)}}
-			
+				
+				<!-- Update available -->
 				{% elseif condition == 3 %}
 			
 					{{plugintablerow(id, plugin.update)}}
 			
+				<!-- Plugins developed by the user -->
+				{% elseif condition == 4 %}
+			
+					{{plugintablerow(id, plugin.me)}}
+			
+				<!-- Else, all plugins -->
 				{% else %}
 			
 					{{plugintablerow(id, 1 === 1)}}
@@ -46,6 +56,10 @@
 						<option value="deactivate">{{ __('Deactivate') }}</option>
 						<option value="update">{{ __('Update') }}</option>
 						<option value="remove">{{ __('Remove') }}</option>
+						<!-- if it's the 'My plugins' tab show the Publish button -->
+						{% if condition == 4 and developer%}
+						<option value="publish">{{ __('Publish') }}</option>
+						{% endif %}
 					</select>
 				</div>
 				
@@ -63,7 +77,7 @@
 
 	{% if condition %}
 
-	<tr>
+	<tr {% if plugin.update %} class="plugin-update" {% endif %}>
 		<td><input type="checkbox" class="row-{{ id }}" value="{{ plugin.id }}"></td>
 		<td>{{ plugin.name }}</td>
 		<td>{{ plugin.description }}</td>

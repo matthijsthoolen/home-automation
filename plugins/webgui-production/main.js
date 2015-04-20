@@ -150,9 +150,9 @@ function setErrorRouting() {
  */
 function setIO() {
 	io.on('connection', function(socket){
-		console.log('a user connected');
+		//console.log('a user connected');
 		socket.on('disconnect', function(){
-			console.log('user disconnected');
+			//console.log('user disconnected');
 		});
 		
 		socket.on('chat message', function(msg){
@@ -175,6 +175,9 @@ function setIO() {
 					break;
 				case 'remove':
 					util.runForEach(msg.list, plugin.remove, test);
+					break;
+				case 'publish':
+					util.runForEach(msg.list, plugin.remove, publishPlugin);
 					break;
 			}
 		});
@@ -200,6 +203,13 @@ function listToObjects(list) {
 }
 
 
+/*
+ *
+ */
+function publishPlugin() {
+	io.emit('askVersion', 'test');
+}
+
 function test(err, stdout, stderr) {
 	if (err) {
 		log.error('Error: ' + stderr);
@@ -215,8 +225,21 @@ function test(err, stdout, stderr) {
  * Render plugin page
  */
 function renderPlugin(req, res) {
+	var prelogFunc = prelog + ':renderPlugin) ';
+	var message;
 	
-	plugins = plugin.getPluginInfo();
+	var data;
 	
-	res.render('plugins', plugins);
+	var plugins = plugin.getPluginInfo();
+	
+	var response = plugin.checkDevPlugins(plugins);
+	
+	if (response.err) {
+		log.info(prelogFunc + 'There was an error with checking for developers');
+		data = {plugins: plugins, developer: false};
+	} else {
+		data = response.stdout.data;
+	}	
+	
+	res.render('plugins', data);
 }

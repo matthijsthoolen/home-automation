@@ -889,6 +889,7 @@ exports.getPluginInfo = function(filter) {
 	for(var name in plugins) {
 		tmp = {};
 		tmp.id = plugins[name].id;
+		tmp.developer = plugins[name].developer;
 		tmp.name = plugins[name].name;
 		tmp.active = plugins[name].active;
 		tmp.description = plugins[name].description;
@@ -918,6 +919,93 @@ exports.getPluginInfo = function(filter) {
  *								Plugin production							  *
  *																			  *
 \******************************************************************************/
+
+
+/*
+ * Get a list with plugins and check for each if the current device is the developer
+ * of that plugin. The key 'me' will be added, if the device is the developer it
+ * will be true else false.
+ *
+ * @param {object} plugins
+ * @param {function} callback
+ * @return {object} plugininfo with a .me added
+ */
+exports.checkDevPlugins = function(plugins, callback) {
+	var message, response;
+	var prelogFunc = prelog + ':checkDeveloper) ';
+	
+	var developer = false;
+	
+	if (typeof plugins !== 'object') {
+		message = prelogFunc + 'Plugininfo must be an object!';
+		response = {err: true, stderr: message};
+		log.debug(message);
+		if (!util.doCallback(callback, response)) {
+			return response;
+		}
+		return;
+	}
+	
+	//Get developer info from config
+	var developerinfo = config.getDeveloperInfo();
+	
+	//First check, if no info given.
+	if (typeof developerinfo === 'undefined') {
+		developer = false;
+		
+	//Send check, do a online check for the developer info
+	} else if (checkDeveloper(developerinfo)) {
+		developer = true;
+	}
+	
+	//Check each plugin if the current device has a valid developer key
+	if (developer) {
+		var devID = developerinfo.id;
+		
+		var id, dev;
+		
+		for (var i in plugins) {
+			id = plugins[i].id;
+			dev = plugins[i].developer;
+
+			if (dev === devID) {
+				plugins[i].me = true;
+			}
+		}
+	}
+	
+	
+	message = {data: {plugins: plugins, developer: true}};
+	response = {stdout: message};
+	if (!util.doCallback(callback, response)) {
+		return response;
+	}
+		
+	
+};
+
+
+/*
+ * Check with the online server if the developer is valid. 
+ *
+ * @param {object} options
+ *		name {string}
+ *		key {string}
+ * @param {function} callback
+ * @return {boolean}
+ */
+function checkDeveloper(options, callback) {
+	var id = util.opt(options, 'id', false);
+	var name = util.opt(options, 'name', false);
+	var key = util.opt(options, 'key', false);
+	
+	if (!id || !name || !key) {
+		return false;
+	}
+	
+	//TODO: do a real check!
+	return true;
+}
 
 
 /*

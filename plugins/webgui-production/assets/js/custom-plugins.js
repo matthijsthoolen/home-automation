@@ -5,6 +5,10 @@ $( document ).ready(function() {
 	socket.on('pluginlistupdate', function(msg) {
 		console.log('We received a message: ' + msg);
 	});
+	
+	socket.on('askVersion', function() {
+		BootstrapDialog.alert('I want banana!');
+	});
 });
 
 
