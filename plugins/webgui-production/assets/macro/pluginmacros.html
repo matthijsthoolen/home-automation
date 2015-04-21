@@ -78,7 +78,7 @@
 	{% if condition %}
 
 	<tr {% if plugin.update %} class="plugin-update" {% endif %}>
-		<td><input type="checkbox" class="row-{{ id }}" value="{{ plugin.id }}"></td>
+		<td><input type="checkbox" class="row-{{ id }}" value="{{ plugin.id }}" version="{{ plugin.version }}"></td>
 		<td>{{ plugin.name }}</td>
 		<td>{{ plugin.description }}</td>
 	</tr>
