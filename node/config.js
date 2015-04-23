@@ -28,7 +28,9 @@ module.exports = function(callback) {
 	this.activatePlugin = activatePlugin;
 	this.addPlugin = addPlugin;
 	this.setPluginInfo = setPluginInfo;
+	this.setPluginVersion = setPluginVersion;
 	this.getPluginInfo = getPluginInfo;
+	this.getPluginName = getPluginName;
 	this.getAbsolutePath = getAbsolutePath;
 	this.getTempPath = getTempPath;
 	this.getPluginFolder = getPluginFolder;
@@ -197,19 +199,88 @@ var setPluginInfo = function(id, info) {
 
 
 /*
+ * Set the plugin version
+ *
+ * @param {string} id
+ * @param {object} options
+ *		version {string}
+ *		check {boolean} check if version is newer (default: true)
+ */
+var setPluginVersion = function(id, options) {
+	var version = util.opt(options, 'version', false);
+	var check = util.opt(options, 'check', true);
+	
+	var prelogFunc = prelog + ':setPluginVersion) ';
+	
+	if (typeof id === undefined || !version) {
+		log.debug(prelogFunc + 'id or version is not given!');
+		return false;
+	}
+	
+	//Check if the new version is higher then the current version
+	if (check) {
+		var curVersion = getPluginInfo(id, {type: 'version'});
+		
+		if (!curVersion) {
+			log.debug(prelogFunc + 'No version is currently set. Set the new version!');
+		} else {
+			if (curVersion >= version) {
+				log.debug(prelogFunc + 'Tried to set version: ' + version + ' for id: ' + id + ' while current version is ' + curVersion);
+				return false;
+			}
+		}
+	}
+	
+	//Save the new version to the config file
+	var configPlace = 'plugins:' + id + ':version';
+	nconf.set(configPlace, version);
+	saveConfiguration();
+	
+	log.debug(prelogFunc + 'Version for id: ' + id + ' set to ' + version);
+	
+	return true;
+};
+
+
+/*
  * Get all the info about a plugin
  *
  * @param {string} id
- * @returns {object} returns the plugin info
+ * @param {object} options
+ *		type {string} type of data (name, version etc)
+ * @return {object} returns the plugin info
  */
-var getPluginInfo = function(id) {
-	var data = nconf.get('plugins:' + id);
+var getPluginInfo = function(id, options) {
+	var type = util.opt(options, 'type', false);
+	
+	//query or location
+	var q = 'plugins:' + id;
+	
+	//If type is set, add the type to the end of the query
+	if (type) {
+		q += ':' + type;
+	}
+	
+	var data = nconf.get(q);
 	
 	if (data === undefined) {
 		data = false;
 	}
 	
 	return data;
+};
+
+
+/*
+ * Get the plugin name with the id
+ *
+ * @param {string} id
+ * @return {string} name
+ */
+var getPluginName = function(id) {
+	var name = nconf.get('plugins:' + id + ':name');
+	
+	return name;
 };
 
 
@@ -351,6 +422,8 @@ var setUniqueID = function(oldID, newID, callback) {
 		
 		util.doCallback(callback, {stdout: 'Succesfully changed the unique id!'});
 	});
+	
+	saveConfiguration();
 };
 
 

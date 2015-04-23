@@ -178,7 +178,7 @@ function checkFolder(callback) {
 		var pluginid = config.getConfiguration('packageconfig:id');
 		
 		if (pluginid === undefined || pluginid === '') {
-			log.debug(prelog + ':checkFolder) The pluginfolder does not contain a pluginid. Plugin can\'t be added!');
+			log.debug(prelog + ':checkFolder) The pluginfolder "' + dif[folder] + '" does not contain a pluginid. Plugin can\'t be added!');
 			util.doCallback(callback, {err: true, stderr: 'pluginid is not available'});
 			return;
 		}
@@ -1052,6 +1052,30 @@ exports.publish = function(id, callback) {
 	});
 };
 
+
+/*
+ * Publish a plugin with a given version number
+ * 
+ * @param {object} options
+ *		id {string} (required)
+ *		version {string} (required)
+ * @param{function} callback
+ */
+exports.publishVersion = function(options, callback) {
+	console.log(options);
+	var id = util.opt(options, 'id', false);
+	var version = util.opt(options, 'version', false);
+	
+	var message;
+	var prelogFunc = prelog + ':publishVersion';
+	
+	if (!id || !version) {
+		message = 'ID or version is not provided';
+		util.doCallback(callback, {err: true, stderr: message});
+	}
+	
+	config.setPluginVersion(id, {version: version});
+};
 
 /*
  * Register a plugin in the pluginstore, plugindata will be send to the central 

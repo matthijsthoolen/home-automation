@@ -57,59 +57,9 @@ function plugin_send(id) {
 	var checkboxes = jQuery('.row-' + id);
 	
 	if (action === 'remove') {
-		BootstrapDialog.confirm({
-			title: 'Please confirm',
-			message: 'Are you sure you want to remove the selected plugins?', 
-			type: BootstrapDialog.TYPE_WARNING,
-			callback: function(result) {
-				if (result) {
-					plugin_emit(id, checkboxes, action);
-				}
-			}
-        });
+		plugin_remove(id, checkboxes);
 	} else if (action === 'publish') {
-		var curVersion, value;
-		
-		var message = 'Please give the new version numbers for each plugin:<br>';
-		
-		checkboxes.each(function( index ) {
-			if (this.checked) {
-				
-				console.log(this);
-				
-				curVersion = jQuery(this).attr("version");
-				value = jQuery(this).val();
-				
-				message += value + '<input type="text" class="form-control" name="' + value + '" placeholder="Current version: ' + curVersion +'">';
-				
-			}
-		});
-		
-/* 		var message = 'Please give the new version numbers for each plugin:<br>' +
-		'<input type="text" class="form-control" name="test1">' +
-			'<input type="text" class="form-control" name="test2">'; */
-		
-		BootstrapDialog.show({
-			title: 'Publish plugins',
-			message: message,
-			buttons: [
-				{
-					label: 'Save',
-					action: function(dialogRef) {
-						var fruit = dialogRef.getModalBody().find('input.form-control').each(function() {
-							console.log(jQuery(this).val());
-						});
-                    	dialogRef.close();
-                	}
-				},
-				{
-					label: 'Cancel',
-					action: function(dialogRef) {
-                    	dialogRef.close();
-                	}
-				}
-			]
-		});
+		plugin_publish(id, checkboxes);
 	} else {
 		plugin_emit(id, checkboxes, action);
 	}
@@ -118,12 +68,97 @@ function plugin_send(id) {
 
 
 /*
+ * Confirmation window before removing plugins
+ */
+function plugin_remove(id, checkboxes) {
+	BootstrapDialog.confirm({
+		title: 'Please confirm',
+		message: 'Are you sure you want to remove the selected plugins?', 
+		type: BootstrapDialog.TYPE_WARNING,
+		callback: function(result) {
+			if (result) {
+				plugin_emit(id, checkboxes, 'remove');
+			}
+		}
+	});
+}
+
+
+/*
+ * Dialog for asking the version numbers
+ */
+function plugin_publish(id, checkboxes) {
+	var curVersion, value, name;
+		
+	var message = 'Please give the new version numbers for each plugin:<br>';
+	
+	message += '<form class="form-horizontal">';
+
+	//Check each checkbox, and if checked add a new form field.
+	checkboxes.each(function( index ) {
+		if (this.checked) {
+
+			curVersion = jQuery(this).attr("version");
+			value = jQuery(this).val();
+			name = jQuery(this).attr("name");
+
+			message += '' +
+				'<div class="form-group"> '+
+					'<label for="' + value + '" class="col-sm-4 control-label">' + name +'</label>' +
+					'<div class="col-sm-6">' +
+						'<input type="text" class="form-control version" id="' + value + '" placeholder="Current version: ' + curVersion + '">' + 
+					'</div>' +
+				'</div>';
+		}
+	});
+	
+	message += '</form>';
+
+	//Show the bootstrap dialog window
+	BootstrapDialog.show({
+		title: 'Publish plugins',
+		message: message,
+		closable: true,
+		closeByBackdrop: false,
+		buttons: [
+			{
+				label: 'Save',
+				action: function(dialogRef) {
+					var plugins = [];
+					var options = {};
+					var tmp, row;
+					
+					var versions = dialogRef.getModalBody().find('input.version').each(function() {
+						row = jQuery(this);
+						tmp = {id: row.attr('id'), version: row.val()};
+						plugins.push(tmp);
+					});
+					
+					options.plugins = plugins;
+					
+					plugin_emit(id, checkboxes, 'publish', options);
+					dialogRef.close();
+				}
+			},
+			{
+				label: 'Cancel',
+				action: function(dialogRef) {
+					dialogRef.close();
+				}
+			}
+		]
+	});
+}
+
+
+/*
  * Do the actual emitting to the server
  *
  * @param {array} list
  * @param {string} action
+ * @param {object} options
  */
-function plugin_emit(id, checkboxes, action) {
+function plugin_emit(id, checkboxes, action, options) {
 	var list = [];
 	
 	//add all the checked checkboxes to an array
@@ -143,6 +178,13 @@ function plugin_emit(id, checkboxes, action) {
 	if (list.length === 0) {
 		return;
 	}
-
-	socket.emit('pluginaction', {list: list, action: action});
+	
+	if (typeof options === 'undefined') {
+		options = {};
+	}
+	
+	options.list = list;
+	options.action = action;
+	
+	socket.emit('pluginaction', options);
 }

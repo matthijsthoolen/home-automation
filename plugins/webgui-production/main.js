@@ -161,7 +161,7 @@ function setIO() {
 		});
 		
 		//socket connection for /plugin 
-		socket.on('pluginaction', function(msg){			
+		socket.on('pluginaction', function(msg){
 			switch(msg.action) {
 				case 'activate':
 					util.runForEach(msg.list, plugin.activate, test);
@@ -177,7 +177,7 @@ function setIO() {
 					util.runForEach(msg.list, plugin.remove, test);
 					break;
 				case 'publish':
-					util.runForEach(msg.list, plugin.remove, publishPlugin);
+					util.runForEach(msg.plugins, plugin.publishVersion, publishPlugin);
 					break;
 			}
 		});

@@ -48,7 +48,7 @@ function startApplication() {
 	actions = [];
 
 	//Start the logger, set the log level and location
-	logger.start('file', 'info');
+	logger.start('file', 'debug');
 
 	//log.info(i18n.__('Hello %s, how are you today?', 'Marcus'));
 
