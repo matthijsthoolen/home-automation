@@ -784,7 +784,7 @@ function getVersionList(options, callback) {
 		- An error occured (File not available)
 		- If new file download is forced
 		*/		
-		if (stdout > 1800 || err || force === true) {
+		if (stdout > 1 || err || force === true) {
 			exec('wget -N ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
 				if (err) {
 					message = prelogFunc + 'Error downloading version file: ' + stderr;
@@ -1074,7 +1074,10 @@ exports.publishVersion = function(options, callback) {
 		util.doCallback(callback, {err: true, stderr: message});
 	}
 	
+	//Set the plugin version in the configuration file
 	config.setPluginVersion(id, {version: version});
+	
+	plugin.publish(id, callback);
 };
 
 /*
@@ -1275,17 +1278,30 @@ function uploadPlugin(info, callback) {
 	
 	var req = request.post(url, function (err, resp, body) {
 		
-		body = JSON.parse(body);
-		
 		//Check for errors in request module
 		if (err) {
 			message = prelogFunc + 'Error with file upload!';
-			log.error(message + ' Error' + error);
+			log.error(message + err);
 			util.doCallback(callback, {err: true, stderr: message});
 			
 			util.removeTempFile(filename);
 			return;
 		} else {
+			var content = util.parseJSON(body);
+			
+			//Check if there were errors with JSON parsing
+			if (content.err) {
+				message = prelogFunc + 'Error while parsing JSON';
+				log.error(message);
+				util.doCallback(callback, {err: true, stderr: message});
+				util.removeTempFile(filename);
+				return;
+			}
+			
+			//If no errors, the return value is an object
+			body = content;
+			
+			//Check for errors on the remote server
 			if (body.err) {
 				message = prelogFunc + 'Error on remote server: ' + body.stderr;
 				log.error(message);

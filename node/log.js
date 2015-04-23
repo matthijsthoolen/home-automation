@@ -9,7 +9,7 @@ exports.start = function(mode, lvl) {
 			streams: [
 				{
 					level: lvl,
-					stream: process.stdout            // log INFO and above to stdout
+					stream: process.stdout // log INFO and above to stdout
 				},
 				{
 					level: 'error',

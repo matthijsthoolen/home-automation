@@ -7,7 +7,7 @@ $( document ).ready(function() {
 	});
 	
 	socket.on('askVersion', function() {
-		BootstrapDialog.alert('I want banana!');
+		//BootstrapDialog.alert('I want banana!');
 	});
 });
 

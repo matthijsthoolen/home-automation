@@ -379,6 +379,46 @@ exports.runForEach = function(param, functionname, callback) {
 
 
 /*
+ * Parse the JSON and return the json content as object
+ *
+ * @param {mixed} json
+ * @param {function} callback
+ * @return {object}
+ */
+exports.parseJSON = function(json, callback) {
+	var message, response;
+	var prelogFunc = prelog + ':parseJSON) ';
+	
+	if (typeof json === 'undefined') {
+		message = prelogFunc + 'no json given';
+		response = {err: true, stderr: message};
+		
+		if (!util.doCallback(callback, response)) {
+			return response;
+		}
+	}
+	
+	var data;
+	
+	try {
+		data = JSON.parse(json);
+	} catch(e) {
+		message = prelogFunc + 'failed to parse JSON!';
+		response = {err: true, stderr: message};
+		
+		log.debug(message + ' Error: ' + e);
+		console.log(json);
+		
+		if (!util.doCallback(callback, response)) {
+			return response;
+		}
+	}
+	
+	return data;
+};
+
+
+/*
  * Do a http request to a remote host
  *
  * @param {object} options:
