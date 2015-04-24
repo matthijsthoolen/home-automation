@@ -51,9 +51,10 @@ exports.checkParam = function(param, def) {
  *		err {boolean}
  *		stdout {mixed}
  *		stderr {mixed}
+ * @param {boolean} debuglog
  * @return {boolean}
  */
-exports.doCallback = function(callback, param) {
+exports.doCallback = function(callback, param, debuglog) {
 	if (typeof callback !== "function") {
 		return false;
 	}
@@ -64,9 +65,17 @@ exports.doCallback = function(callback, param) {
 	
 	try {
 		callback(err, stdout, stderr);
+		
+		//Print to log
+		if (debuglog && err) {
+			log.debug(stderr);
+		} else if (debuglog) {
+			log.debug(stdout);
+		}
+		
 		return true;
 	} catch (e) {
-		log.debug(prelog + ':doCallback) Failed a callback (' + callback +') error: ' + e);
+		log.debug(prelog + ':doCallback) Failed a callback! error: ' + e);
 		return false;
 	}
 };
@@ -350,6 +359,123 @@ exports.listDirectory = function(options, callback) {
 
 /******************************************************************************\
  *																			  *
+ *								File actions								  *
+ *																			  *
+\******************************************************************************/
+
+
+/*
+ * Get the content of a file
+ *
+ * @param {object} options
+ *		file {string} abspath
+ * @param {function} callback
+ */
+exports.getFileContent = function(options, callback) {
+	var file = util.opt(options, 'file', false);
+	
+	var message;
+	var prelogFunc = prelog + ':getFileContent) ';
+	
+	if (!file) {
+		message = prelogFunc + 'Please give a file path!';
+		util.doCallback(callback, {err: true, stderr: message}, true);
+		return;
+	}
+	
+	//Try to open and read the file
+	fs.readFile(file, 'utf8', function (err,data) {
+		if (err) {
+			message = prelogFunc + 'Error with reading file: ' + err;
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+		}
+		
+		//Return the file content
+		util.doCallback(callback, {stdout: data});
+	});
+	
+};
+
+
+/*
+ * Set the file content
+ *
+ * @param {object} options
+ *		file {string} abspath
+ *		content {mixed} content to write to file
+ *		json {boolean}
+ * @param {function} callback
+ */
+exports.setFileContent = function(options, callback) {
+	var file = util.opt(options, 'file', false);
+	var content = util.opt(options, 'content', '');
+	var json = util.opt(options, 'json', false);
+	
+	var message;
+	var prelogFunc = prelog + ':setFileContent) ';
+	
+	if (!file) {
+		message = prelogFunc + 'Please give a file path!';
+		util.doCallback(callback, {err: true, stderr: message}, true);
+		return;
+	}
+	
+	//convert to json string if json is true
+	if (json) {
+		content = JSON.stringify(content);
+	}
+	
+	//Write to the file
+	fs.writeFile(file, content, function(err) {
+		if (err) {
+				message = prelogFunc + 'Error with saving file: ' + err;
+				util.doCallback(callback, {err: true, stderr: message}, true);
+				return;
+			}
+
+		//Return the file content
+		util.doCallback(callback, {stdout: true});
+		
+		message = prelogFunc + 'succesfully saved to ' + file;
+		log.debug(message);
+		
+	}); 
+};
+
+
+/*
+ * Remove a file from the temp directory
+ *
+ * @param {string} file
+ * @param {function} callback
+ */
+exports.removeTempFile = function(file, callback) {
+	var fs = require('fs');
+	var prelogFunc = prelog + ':removeTempFile) ';
+	var message;
+	
+	var path = config.getTempPath() + file;
+	
+	log.debug(prelogFunc + 'Trying to remove ' + file + ' from tmp directory');
+	
+	fs.unlink(path, function (err) {
+		if (err) {
+			message = prelogFunc + 'Error with removing temp file: ' + err;
+			log.debug(message);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+		
+		message = prelogFunc + 'Succesfully removed ' + file + ' from tmp directory';
+		log.debug(message);
+		util.doCallback(callback, {stdout: message});
+	});
+};
+
+
+/******************************************************************************\
+ *																			  *
  *							Diverse Functions								  *
  *																			  *
 \******************************************************************************/
@@ -414,7 +540,10 @@ exports.parseJSON = function(json, callback) {
 		}
 	}
 	
-	return data;
+	//If json is parsed, return
+	if (!util.doCallback(callback, {stdout: data})) {
+		return data;
+	}
 };
 
 
@@ -543,34 +672,4 @@ exports.installDependencies = function(options, callback) {
 		});
 	}
 	
-};
-
-
-/*
- * Remove a file from the temp directory
- *
- * @param {string} file
- * @param {function} callback
- */
-exports.removeTempFile = function(file, callback) {
-	var fs = require('fs');
-	var prelogFunc = prelog + ':removeTempFile) ';
-	var message;
-	
-	var path = config.getTempPath() + file;
-	
-	log.debug(prelogFunc + 'Trying to remove ' + file + ' from tmp directory');
-	
-	fs.unlink(path, function (err) {
-		if (err) {
-			message = prelogFunc + 'Error with removing temp file: ' + err;
-			log.debug(message);
-			util.doCallback(callback, {err: true, stderr: message});
-			return;
-		}
-		
-		message = prelogFunc + 'Succesfully removed ' + file + ' from tmp directory';
-		log.debug(message);
-		util.doCallback(callback, {stdout: message});
-	});
 };

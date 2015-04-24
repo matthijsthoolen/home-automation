@@ -25,6 +25,19 @@ exports.test = function() {
 		
 		console.log('output: ' + stdout);
 	}); */
+ 
+/*  	var options = {
+		file: config.getPluginFolder({pluginname: '1000144Plugi'}) + '/config.json',
+		set: {version: '2.0'}
+	};
+	
+	changePluginConfig(options, function(err, stdout, stderr) {
+		if (err) {
+			console.log(stderr);
+		} else {
+			console.log(stdout);
+		}
+	}); */
 };
 
 
@@ -1021,11 +1034,15 @@ exports.publish = function(id, callback) {
 	var folder = config.getPluginFolder({pluginname: id});
 	var info = {};
 	
+	var message;
+	var prelogFunc = prelog + ':publish) ';
+	
 	//Check if the plugin is already registered and if it's still valid
 	util.checkPluginID({id: id}, function(err, stdout, stderr) {
 		
 		if (err) {
-			var message = prelog + ':publish) An error occurred while publishing the plugin: ' + stderr;
+			message = prelogFunc + ' An error occurred while publishing the plugin: ' + stderr;
+			log.debug(message);
 			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
@@ -1039,6 +1056,8 @@ exports.publish = function(id, callback) {
 		if (stdout.type === 'dev') {
 			registerPlugin(info, function(err, stdout, stderr) {
 				if (err) {
+					message = prelogFunc + 'Problem with registration. Error: ' + stderr;
+					log.debug(message);
 					util.doCallback(callback, {err: true, stderr: stderr});
 					return;
 				}
@@ -1062,23 +1081,46 @@ exports.publish = function(id, callback) {
  * @param{function} callback
  */
 exports.publishVersion = function(options, callback) {
-	console.log(options);
 	var id = util.opt(options, 'id', false);
 	var version = util.opt(options, 'version', false);
+	version = version.trim();
 	
 	var message;
-	var prelogFunc = prelog + ':publishVersion';
+	var prelogFunc = prelog + ':publishVersion) ';
 	
-	if (!id || !version) {
+	if (!id || !version || version === '') {
 		message = 'ID or version is not provided';
+		log.debug(message + ' Received: ' + options);
 		util.doCallback(callback, {err: true, stderr: message});
+		return;
 	}
 	
+	var curVersion = config.getPluginInfo(id, {type: 'version'});
+	
+	//The new version must be bigger then the current version
+	if (curVersion > version) {
+		message = prelogFunc + 'New version (' + version + ') must be newer then the current version (' + curVersion + ') for id: "' + id + '"';
+		log.info(message);
+		util.doCallback(callback, {err: true, stderr: message});
+		return;
+	}
+
 	//Set the plugin version in the configuration file
 	config.setPluginVersion(id, {version: version});
 	
-	plugin.publish(id, callback);
+	//Publish the plugin (version)
+	plugin.publish(id, function(err, stdout, stderr) {
+		
+		if (err) {
+			message = prelogFunc + 'Error while publishing plugin (' + id + ')!';
+			log.debug(message + ' Error: ' + stderr);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+
+	});
 };
+
 
 /*
  * Register a plugin in the pluginstore, plugindata will be send to the central 
@@ -1096,6 +1138,8 @@ exports.publishVersion = function(options, callback) {
  */
 function registerPlugin(info, callback) {
 	var message;
+	
+	console.log(info);
 	
 	//Make sure that info is available
 	if (info === undefined) {
@@ -1211,10 +1255,12 @@ function registerPlugin(info, callback) {
 function packPlugin(info, callback) {
 	var id = util.opt(info.plugin, 'id', null);
 	var version = util.opt(info.plugin, 'version', null);
+	
 	var message;
+	var prelogFunc = prelog + ':packPlugin) ';
 	
 	if (id === null || version === null) {
-		message = prelog + ':packPlugin) packPlugin both id and version must be given!';
+		message = prelogFunc + 'packPlugin both id and version must be given!';
 		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
@@ -1228,31 +1274,119 @@ function packPlugin(info, callback) {
 	
 	//Check if the folder or temp path are incorrect
 	if (!folder || !temp) {
-		message = prelog + ':packPlugin) PackPlugin folder or temppath are incorrect';
+		message = prelogFunc + 'PackPlugin folder or temppath are incorrect';
+		log.debug(message);
 		util.doCallback(callback, {err: true, stderr: message});
 		return;
 	}
 	
-	log.debug(prelog + 'Compressing: ' + folder + ' to: ' + temp);
+	var configfile = folder + '/config.json';
 	
-	//Do the actual file compression
-	var compress = new targz().compress(folder, temp, function(err){
-		if(err) {
-			var message = prelog + ':packPlugin)' + err;
-			log.error(message);
+	var options = {file: configfile, set: {version: version}};
+	
+	//change the config file inside the pluginfolder
+	changePluginConfig(options, function(err, stdout, stderr) {
+		
+		if (err) {
+			message = prelogFunc + 'Plugin config file update failed! Error: ' + stderr;
+			log.debug(message);
 			util.doCallback(callback, {err: true, stderr: message});
 			return;
 		}
 		
-		log.debug(prelog + ':packPlugin) Successfully packed the plugin to tempfolder/' + filename);
+		//Do the actual file compression
+		var compress = new targz().compress(folder, temp, function(err){
+			if(err) {
+				message = prelogFunc + err;
+				log.error(message);
+				util.doCallback(callback, {err: true, stderr: message});
+				return;
+			}
+
+			log.debug(prelogFunc + 'Successfully packed the plugin to tempfolder/' + filename);
+
+			info.plugin.tarpath = temp;
+			info.plugin.filename = filename;
+
+			//Continue to the upload step
+			uploadPlugin(info, callback);
+		});
 		
-		info.plugin.tarpath = temp;
-		info.plugin.filename = filename;
-		
-		//Continue to the upload step
-		uploadPlugin(info, callback);
 	});
 	
+}
+
+
+/*
+ * Change the configuration file inside the pluginfolder
+ *
+ * @param {object} options
+ *		file {string} abs path to file (required)
+ *		set {object} object with data to set example: {version: 1.0} (required)
+ * @param {function} callback
+ */
+function changePluginConfig(options, callback) {
+	var filepath = util.opt(options, 'file', false);
+	var set = util.opt(options, 'set', false);
+	
+	var message;
+	var prelogFunc = prelog + ':changePluginConfig) ';
+	
+	if (!filepath || !set) {
+		message = prelogFunc + 'file or data set is not given!';
+		util.doCallback(callback, {err: true, stderr: message}, true);
+		return;
+	}
+	
+	//Check if the file exists
+	if (!util.fileExists(filepath)) {
+			message = prelogFunc + 'The file (' + filepath + ') does not exist!';
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+	}
+	
+	util.getFileContent({file: filepath}, function(err, stdout, stderr) {
+		if (err) {
+			return;
+		}
+		
+		var data = util.parseJSON(stdout);
+		
+		if (data.err) {
+			message = prelogFunc + 'Error with parsing plugin config file. Error: ' + data.stderr;
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+		}
+		
+		//Check if in the file packageconfig is available
+		if (data.packageconfig === 'undefined') {
+			message = prelogFunc + 'Couldn\'t find the correct config data!';
+			
+			log.debug(message + ' Checking at path: ' + filepath);
+			util.doCallback(callback, {err: true, stderr: message});
+			return;
+		}
+		
+		var config = data.packageconfig;
+		
+		//For each field in 'set' change the config file
+		for(var name in set) {
+			config[name] = set[name];
+		}
+		
+		//Write to the config file
+		util.setFileContent({file: filepath, content: data, json: true}, function(err, stdout, stderr) {
+			if (err) {
+				message = prelogFunc + 'Error while writing to plugin configfile!';
+			
+				log.debug(message + ' Error: ' + stderr);
+				util.doCallback(callback, {err: true, stderr: message});
+				return;
+			}
+			
+			util.doCallback(callback, {stdout: true});
+		});
+	});
 }
 
 
@@ -1287,12 +1421,14 @@ function uploadPlugin(info, callback) {
 			util.removeTempFile(filename);
 			return;
 		} else {
-			var content = util.parseJSON(body);
+			var content;
 			
-			//Check if there were errors with JSON parsing
-			if (content.err) {
-				message = prelogFunc + 'Error while parsing JSON';
-				log.error(message);
+			//Parse the JSON response from the server
+			try {
+				content = util.parseJSON(body);
+			} catch (e) {
+				message = prelogFunc + 'Error while parsing JSON response from server!';
+				log.error(message + ' Error: ' + e);
 				util.doCallback(callback, {err: true, stderr: message});
 				util.removeTempFile(filename);
 				return;

@@ -309,7 +309,7 @@ var getTempPath = function() {
  *
  * @param {Array} options
  * 		abs {Boolean} Absolute path, default = true
- *		pluginname {string} pluginname (optional)
+ *		pluginname {string} pluginid (optional)
  * @return {string} returns the path to plugin folder or false on error
  */
 var getPluginFolder = function(options) {
@@ -449,20 +449,43 @@ var getConfiguration = function(name) {
  * multiple settings at once in a object.
  *
  * @param {object} options:
- *		name: setting {mixed}
+ *		setting {mixed}
+ *		location {string}
  * @return {boolean}
  */
 var setConfiguration = function(options, callback) {
+	var setting = util.opt(options, 'setting', null);
+	var location = util.opt(options, 'location', null);
 	
-	for(var name in options) {
+	console.log(options);
+	
+	var message;
+	var prelogConf = prelog + ':setConfiguration) ';
+	
+	if (!setting || !location) {
+		message = prelogConf + 'setting or location is not given!';
+		log.debug(message);
+		
+		if (!util.doCallback(callback, {err: true, stderr: message})) {
+			return message;
+		}
+	}
+	
+	log.info('setting = ' + setting + ' and location = ' + location);
+	
+	nconf.set(location, setting);
+	
+/* 	for(var name in options) {
 		var setting = options[name];
 		
-		nconf.set(name, setting);
-	}
+		log.info('setting = ' + setting + ' and name = ' + name);
+		
+		nconf.set(location, setting);
+	} */
 	
 	saveConfiguration();
 	
-	callback(false, 'Set configuration succesfull', null);
+	util.doCallback(callback, {stdout: 'Set configuration succesfull'});
 };
 
 
@@ -485,6 +508,9 @@ var loadCustomConfig = function(options) {
 	if (!util.fileExists(abspath)) return;
 
 	nconf.use(name, { type: 'file', file: abspath });
+	
+	console.log(name);
+	console.log(nconf.get(name + ':version'));
 	
 	return name;
 };
