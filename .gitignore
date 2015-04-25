@@ -33,3 +33,6 @@ tmp/
 
 # configuration
 config.json
+
+#production plugins
+plugins/*-production/
