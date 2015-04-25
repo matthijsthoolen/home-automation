@@ -1031,6 +1031,7 @@ function checkDeveloper(options, callback) {
  * @return {callback} default callback
  */
 exports.publish = function(id, callback) {
+	
 	var folder = config.getPluginFolder({pluginname: id});
 	var info = {};
 	
@@ -1062,6 +1063,7 @@ exports.publish = function(id, callback) {
 					return;
 				}
 				info.plugin.id = stdout.id;
+				
 				packPlugin(info, callback);
 			});
 		} else if (stdout.type === 'prod') {
@@ -1138,8 +1140,6 @@ exports.publishVersion = function(options, callback) {
  */
 function registerPlugin(info, callback) {
 	var message;
-	
-	console.log(info);
 	
 	//Make sure that info is available
 	if (info === undefined) {

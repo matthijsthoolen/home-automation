@@ -37,6 +37,7 @@ module.exports = function(callback) {
 	this.getConfiguration = getConfiguration;
 	this.setConfiguration = setConfiguration;
 	this.loadCustomConfig = loadCustomConfig;
+	this.removeCustomConfig = removeCustomConfig;
 	this.getUniqueID = getUniqueID;
 	this.setUniqueID = setUniqueID;
 	this.getDeveloperInfo = getDeveloperInfo;
@@ -136,9 +137,12 @@ var activatePlugin = function(id) {
  * @param {Array} options:
  *		folder {String} (required)
  *		name {String} (required)
+ *		developer {String}
+ *		description {String}
  *		version {String} (default: 0.0.1)
  * 		active {Boolean} (default: true)
  *		level {Number} (default: 1)
+ *		production {boolean} false
  * @param {function} callback
  */
 var addPlugin = function(id, options, callback) {
@@ -162,20 +166,24 @@ var addPlugin = function(id, options, callback) {
 	}
 	
 	var name = util.opt(options, 'name', id);
+	var developer = util.opt(options, 'developer', developer);
 	var version = util.opt(options, 'version', '0.0.1');
 	var active = util.opt(options, 'active', true);
 	var level = util.opt(options, 'level', '1');
 	var description = util.opt(options, 'description', 'No description available');
+	var production = util.opt(options, 'production', false);
 	
 	var configPlace = 'plugins:' + id;
 	
 	nconf.set(configPlace + ':id', id);
 	nconf.set(configPlace + ':name', name);
+	nconf.set(configPlace + ':developer', developer);
 	nconf.set(configPlace + ':folder', folder);
 	nconf.set(configPlace + ':version', version);
 	nconf.set(configPlace + ':active', active);
 	nconf.set(configPlace + ':level', level);
-	nconf.set(configPlace + ':level', description);
+	nconf.set(configPlace + ':description', description);
+	nconf.set(configPlace + ':production', production);
 	
 	log.debug(prelog + ':AddPlugin) Added ' + name + ' ' + version + ' to the config');
 	
@@ -401,7 +409,7 @@ var setUniqueID = function(oldID, newID, callback) {
 		return;
 	}
 	
-	var data = this.getPluginInfo(oldID);
+	var data = config.getPluginInfo(oldID);
 	
 	if (!data) {
 		if (!util.doCallback(callback, {err: true, stderr: 'No plugin found with the oldID!'}))
@@ -418,12 +426,12 @@ var setUniqueID = function(oldID, newID, callback) {
 		}
 		
 		//Now we can safely remove the old record
-		this.removePlugin(oldID);
+		config.removePlugin(oldID);
+		
+		saveConfiguration();
 		
 		util.doCallback(callback, {stdout: 'Succesfully changed the unique id!'});
 	});
-	
-	saveConfiguration();
 };
 
 
