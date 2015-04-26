@@ -797,7 +797,7 @@ function getVersionList(options, callback) {
 		- An error occured (File not available)
 		- If new file download is forced
 		*/		
-		if (stdout > 1 || err || force === true) {
+		if (stdout > 1800 || err || force === true) {
 			exec('wget -N ' + server + 'version.json', {cwd: tempdir}, function(err, stdout, stderr) {
 				if (err) {
 					message = prelogFunc + 'Error downloading version file: ' + stderr;
@@ -813,8 +813,9 @@ function getVersionList(options, callback) {
 			log.debug(prelogFunc + 'Version file is recent enough'); 
 		}
 		
-		nconf.file('versions', tempdir + 'version.json');
-		nconf.load();
+		if (!config.loadCustomConfig({abspath: tempdir + 'version.json', name: 'versions'})) {
+			util.doCallback(callback, {err: true, stderr: 'Couldn\'t load custom config!'});
+		}
 		
 		util.doCallback(callback, {stdout: nconf});
 		

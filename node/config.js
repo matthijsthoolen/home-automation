@@ -509,16 +509,22 @@ var loadCustomConfig = function(options) {
 	var abspath = util.opt(options, 'abspath', null);
 	var name = util.opt(options, 'name', 'temp');
 	
+	var message;
+	var prelogFunc = prelog + 'loadCustomConfig) ';
+	
 	//Make sure not to overwrite
 	if (name === 'file') name = 'temp';
 	
 	//Make sure the file exists, else just return
 	if (!util.fileExists(abspath)) return;
 
-	nconf.use(name, { type: 'file', file: abspath });
-	
-	console.log(name);
-	console.log(nconf.get(name + ':version'));
+	try {
+		nconf.use(name, { type: 'file', file: abspath });
+	} catch (e) {
+		message = prelogFunc + 'Error with loading custom config. ' + e;
+		log.debug(message);
+		return false;
+	}
 	
 	return name;
 };
