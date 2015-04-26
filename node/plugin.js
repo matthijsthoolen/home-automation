@@ -184,9 +184,10 @@ function checkFolder(callback) {
 	
 	var dif = util.arrayDif(foldersDir, foldersConf);
 	var pluginsfolder = config.getPluginFolder();
+	var confName;
 	
 	for (var folder in dif) {
-		var confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
+		confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
 		
 		var pluginid = config.getConfiguration('packageconfig:id');
 		
@@ -223,16 +224,31 @@ function checkFolder(callback) {
 exports.activate = function(id, callback) {
 	var info = config.getPluginInfo(id);
 	
+	//Build a response message
+	var response = {
+		id: id,
+		action: 'activate'
+	};
+	
 	if (!info) {
-		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info found'}))
+		response.status = 'failed';
+		response.message = 'No plugin could be found!';
+		if (!util.doCallback(callback, {err: true, stderr: response}))
 			return false;
+		
+		return;
 	}
 	
 	if (info.active) {
 		log.info(prelog + ':activate) Plugin already activated: ' + info.name);
 		
-		if (!util.doCallback(callback, {stdout: true}))
+		response.status = 'done';
+		response.message = 'Plugin was already activated!';
+		
+		if (!util.doCallback(callback, {stdout: response}))
 			return true;
+		
+		return;
 	}
 	
 	config.activatePlugin(id);
@@ -241,7 +257,10 @@ exports.activate = function(id, callback) {
 	
 	startPlugin(id);
 	
-	if (!util.doCallback(callback, {stdout: true}))
+	response.status = 'done';
+	response.message = 'Succesfully Activated plugin!';
+	
+	if (!util.doCallback(callback, {stdout: response}))
 		return true;
 };
 
@@ -252,28 +271,48 @@ exports.activate = function(id, callback) {
  * @param {string} name
  * @return {boolean}
  */
-exports.deactivate = function(name, callback) {
-	var info = config.getPluginInfo(name);
+exports.deactivate = function(id, callback) {
+	var info = config.getPluginInfo(id);
+	
+	//Build a response message
+	var response = {
+		id: id,
+		action: 'deactivate',
+	};
 	
 	if (!info) {
-		log.debug(prelog + ':deactivate) Requested the information of ' + name + ' but nothing found');
-		if (!util.doCallback(callback, {err: true, stderr: 'No plugin info could be found'}))
-			return;
+		log.debug(prelog + ':deactivate) Requested the information of ' + id + ' but nothing found');
+		
+		response.message = 'No plugin info could be found';
+		response.status = 'failed';
+		
+		util.doCallback(callback, {err: true, stderr: response});
+		
+		return;
 	}
 	
 	if (!info.active) {
-		log.info(prelog + ':deactivate) Plugin already deactivated: ' + name);
-		if (!util.doCallback(callback, {stdout: true}))
+		log.info(prelog + ':deactivate) Plugin already deactivated: ' + info.name);
+		
+		response.message = 'Plugin already deactivated';
+		response.status = 'done';
+		
+		if (!util.doCallback(callback, {stdout: response}))
 			return true;
+		
+		return;
 	}
 	
-	stopPlugin(name);
+	stopPlugin(id);
 
-	config.deactivatePlugin(name);
+	config.deactivatePlugin(id);
 	
-	log.info(prelog + ':deactivate) Deactivated the plugin: ' + name);
+	log.info(prelog + ':deactivate) Deactivated the plugin: ' + id);
 	
-	if (!util.doCallback(callback, {stdout: true}))
+	response.message = 'Succesfully deactivated the plugin!';
+	response.status = 'done';
+	
+	if (!util.doCallback(callback, {stdout: response}))
 		return true;
 };
 
@@ -291,29 +330,50 @@ exports.deactivate = function(name, callback) {
  * @param {string} name: plugin name
  * @return {boolean}
  */
-exports.remove = function(name) {
-	var plugindir = config.getPluginFolder({pluginname: name}); 
+exports.remove = function(id, callback) {
+	var plugindir = config.getPluginFolder({pluginname: id}); 
+	
+	var message;
+	var prelogFunc = prelog + ':remove) ';
+	
+	//Build a response message
+	var response = {
+		id: id,
+		action: 'remove',
+	};
 	
 	//If the plugin is unremovable only deactivate it
-	if (!pluginRemovable(name)) {
-		return plugin.deactivate(name);
+	if (!pluginRemovable(id)) {
+		response.status = 'failed';
+		response.message = 'Plugin can\'t be removed, plugin will be deactivated instead!';
+		util.doCallback(callback, {err: true, stderr: response});
+		return plugin.deactivate(id);
 	}
 	
-	stopPlugin(name);	
+	stopPlugin(id);	
 	
-	uninstall(name);
+	uninstall(id);
 	
 	util.delete({'path': plugindir, type: 2, 'root': true}, 
 		function(err, stdout, stderr) 
 	{
 		console.log(stdout);
 		if (!err) {
-			config.removePlugin(name);
-			log.info(prelog + ':remove) Plugin ' + name + ' removed from plugin directory');
+			config.removePlugin(id);
+			log.info(prelogFunc + 'Plugin ' + id + ' removed from plugin directory');
+			
+			response.status = 'done';
+			response.message = 'Succesfully removed this plugin!';
+			util.doCallback(callback, {stdout: response});
 			return true;
 		}
 		
-		log.error(prelog + ':Remove) Not removed ' + stderr);
+		log.error(prelogFunc + 'Not removed plugin with id ' + id + '! Error: ' + stderr);
+		
+		response.status = 'failed';
+		response.message = 'Plugin can\'t be removed, check the error log!';
+		util.doCallback(callback, {err: true, stderr: response});
+		
 		return false;
 		
 	});
@@ -397,12 +457,19 @@ exports.update = function(options, callback) {
 					  active: false,
 					  changed: false};
 	
+	var response = {
+		id: id,
+		action: 'update',
+	};
+	
 	var message;
 	var prelogFunc = prelog + ':update) ';
 	
 	if (!id) {
-		message = prelogFunc + 'ID is required!';
-		util.doCallback(callback, {err: true, stderr: message});
+		response.message = prelogFunc + 'ID is required!';
+		response.status = 'failed';
+		
+		util.doCallback(callback, {err: true, stderr: response});
 		return;
 	}
 	
@@ -410,10 +477,11 @@ exports.update = function(options, callback) {
 	
 	//Check if the plugin is found in the config
 	if (!pluginconfig) {
-		message = prelogFunc + 'No plugin info could be found';
-		log.debug(message + 'for ' + id);
+		response.message = prelogFunc + 'No plugin info could be found';
+		response.status = 'failed';
+		log.debug(response.message + 'for ' + id);
 		
-		if (!util.doCallback(callback, {err: true, stderr: message}))
+		if (!util.doCallback(callback, {err: true, stderr: response}))
 			return false;
 	}
 	
@@ -443,9 +511,11 @@ exports.update = function(options, callback) {
 			backup = true;
 			endOptions.backup = true;
 		} else {
-			message = prelogFunc + 'Backup plugin failed: ' + err;
-			log.error(message);
-			util.doCallback(callback, {err: true, stderr: message});
+			response.message = prelogFunc + 'Backup plugin failed!';
+			response.status = 'failed';
+			
+			log.error(response.message + ' Error: ' + stderr);
+			util.doCallback(callback, {err: true, stderr: response});
 			backup = 'error';
 			return;
 		}
@@ -468,10 +538,12 @@ exports.update = function(options, callback) {
 		}
 		
 		//Return if there is an error with the download
-		if (err) {
-			message = prelogFunc + stderr;
-			log.debug(message);
-			util.doCallback(callback, {stdout: message});
+		if (err) {			
+			response.message = prelogFunc + 'Backup plugin failed!';
+			response.status = 'failed';
+			
+			log.error(response.message + ' Error: ' + stderr);
+			util.doCallback(callback, {err: true, stderr: response});
 			restoreBackup(endOptions);
 			return;
 		}
@@ -482,9 +554,12 @@ exports.update = function(options, callback) {
 		//Wait until the backup is completed or there is an error with the backup
 		while (backup !== true) {
 			if (backup == 'error') {
-				log.info(prelogFunc + 'Stopped plugin update, error in backup!');
-				callback(true, null, 'Problems with plugin backup');
+				response.message = prelogFunc + 'Stopped plugin update, error in backup!';
+				response.status = 'failed';
+				
+				log.error(response.message);
 				restoreBackup(endOptions);
+				util.doCallback(callback, {err: true, stderr: response});
 				return;
 			} 
 		}
@@ -506,9 +581,11 @@ exports.update = function(options, callback) {
 				util.delete({'path': oldPlugin, 'type':2, 'root':true}, function(err, stdout, stderr) {
 					
 					if (err) {
-						message = prelogFunc + 'Can\'t remove old plugin folder for ' + pluginconfig.name + '. Abort.';
-						log.error(message);
-						util.doCallback(callback, {err: true, stderr: message});
+						response.message = prelogFunc + 'Can\'t remove old plugin folder for ' + pluginconfig.name + '. Abort.';
+						response.status = 'failed';
+						log.error(response.message);
+						
+						util.doCallback(callback, {err: true, stderr: response});
 						restoreBackup(endOptions);
 						return;
 					}
@@ -518,14 +595,21 @@ exports.update = function(options, callback) {
 						function (err, stdout, stderr) 
 					{
 						if (err) {
-							log.debug(prelogFunc + 'Error with moving temp to plugin folder. Error:' + stderr);
-							callback(true, null, 'can\'t move folder to plugin directory');
+							response.message = prelogFunc + 'Error with moving temp to plugin folder!';
+							response.status = 'failed';
+							
+							log.debug(response.message + ' Error:' + stderr);
+							util.doCallback(callback, {err: true, stderr: response});
 							restoreBackup(endOptions);
 							return;
 						}
 						
-						log.info(prelogFunc + 'Plugin ' + pluginconfig.name + ' is now updated to ' + version);
-						util.doCallback(callback, {stdout: 'Plugin updated'});
+						response.message = prelogFunc + 'Plugin ' + pluginconfig.name + ' is now updated to ' + version;
+						response.status = 'done';
+						
+						log.info(response.message);
+						
+						util.doCallback(callback, {stdout: response});
 						
 						//Set configuration file to new version
 						pluginconfig.version = version;	
@@ -543,8 +627,12 @@ exports.update = function(options, callback) {
 				});
 				
 			} else {
-				log.error(prelog + ':update) Error with plugin specific update ' + stderr);
-				callback(true, null, 'Error with plugin specific update see log for more details');
+				response.message = prelogFunc + 'Error with plugin specific update!';
+				response.status = 'failed';
+				
+				log.error(response.message + ' ' + stderr);
+				
+				util.doCallback(callback, {err: true, stderr: response});
 				restoreBackup(endOptions);
 				return;
 			}

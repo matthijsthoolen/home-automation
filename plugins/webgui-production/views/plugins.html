@@ -50,23 +50,23 @@
 	</ul>
 
 	<div class="tab-content">
-		<div role="tabpanel" class="tab-pane active" id="all">
+		<div role="tabpanel" class="tab-pane active" id="all" row="1">
 			{{ macros.plugintable(1) }}
 		</div>
 		
-		<div role="tabpanel" class="tab-pane" id="active">
+		<div role="tabpanel" class="tab-pane" id="active" row="2">
 			
 			{{ macros.plugintable(2, 1) }}
 			
 		</div>
 		
-		<div role="tabpanel" class="tab-pane" id="inactive">
+		<div role="tabpanel" class="tab-pane" id="inactive" row="3">
 			
 			{{ macros.plugintable(3, 2) }}
 			
 		</div>
 		
-		<div role="tabpanel" class="tab-pane" id="update">
+		<div role="tabpanel" class="tab-pane" id="update" row="4">
 			
 			{{ macros.plugintable(4, 3) }}
 			
@@ -74,7 +74,7 @@
 		
 		{% if developer %}
 		
-		<div role="tabpanel" class="tab-pane" id="developer">
+		<div role="tabpanel" class="tab-pane" id="developer" row="5">
 
 			{{ macros.plugintable(5, 4) }}
 

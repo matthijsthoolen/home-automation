@@ -3,9 +3,9 @@
 
 		<thead>
 			<tr>
-				<th><input type="checkbox" value="all" onchange="checkAll(this)" name="chk[]" id="{{ id }}" title="{{ __('Select all') }}"></th>
-				<th>{{ __('Plugin') }}</th>
-				<th>{{ __('Description') }}</th>
+				<th class="col-md-1"><input class="col-xs-4" type="checkbox" value="all" onchange="checkAll(this)" name="chk[]" id="{{ id }}" title="{{ __('Select all') }}"></th>
+				<th class="col-md-3">{{ __('Plugin') }}</th>
+				<th class="col-md-8">{{ __('Description') }}</th>
 			</tr>
 		</thead>
 
@@ -78,7 +78,10 @@
 	{% if condition %}
 
 	<tr {% if plugin.update %} class="plugin-update" {% endif %}>
-		<td><input type="checkbox" class="row-{{ id }}" value="{{ plugin.id }}" version="{{ plugin.version }}" name="{{ plugin.name }}"></td>
+		<td class="notification-{{ plugin.id }}">
+			<input type="checkbox" class="row-{{ id }} col-xs-4" value="{{ plugin.id }}" version="{{ plugin.version }}" name="{{ plugin.name }}">
+			<div class="col-xs-4"><i></i></div>
+		</td>
 		<td>{{ plugin.name }}</td>
 		<td>{{ plugin.description }}</td>
 	</tr>

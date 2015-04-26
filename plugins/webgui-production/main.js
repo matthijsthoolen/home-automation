@@ -161,23 +161,23 @@ function setIO() {
 		});
 		
 		//socket connection for /plugin 
-		socket.on('pluginaction', function(msg){
+		socket.on('pluginaction', function(msg){			
 			switch(msg.action) {
 				case 'activate':
-					util.runForEach(msg.list, plugin.activate, test);
+					util.runForEach(msg.list, plugin.activate, updateTable);
 					break;
 				case 'deactivate':
-					util.runForEach(msg.list, plugin.deactivate, test);
+					util.runForEach(msg.list, plugin.deactivate, updateTable);
 					break;
 				case 'update':
 					var list = listToObjects(msg.list);
-					util.runForEach(list, plugin.update, test);
+					util.runForEach(list, plugin.update, updateTable);
 					break;
 				case 'remove':
-					util.runForEach(msg.list, plugin.remove, test);
+					util.runForEach(msg.list, plugin.remove, updateTable);
 					break;
 				case 'publish':
-					util.runForEach(msg.plugins, plugin.publishVersion, publishPlugin);
+					util.runForEach(msg.plugins, plugin.publishVersion, updateTable);
 					break;
 			}
 		});
@@ -210,14 +210,16 @@ function publishPlugin() {
 	io.emit('askVersion', 'test');
 }
 
-function test(err, stdout, stderr) {
+function updateTable(err, stdout, stderr) {
 	if (err) {
-		log.error('Error: ' + stderr);
+		log.error('Error: ' + stderr.message);
+		io.emit('pluginlistupdate', stderr);
+		return;
 	}
 	
-	log.info('STDOUT: ' + stdout);
+	log.info('STDOUT: ' + stdout.message);
 	
-	io.emit('pluginlistupdate', 'Hi there, thank you for your message. Have a good day madame!' + stdout + stderr);
+	io.emit('pluginlistupdate', stdout);
 }
 
 

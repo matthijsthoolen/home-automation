@@ -3,13 +3,150 @@
  */
 $( document ).ready(function() {
 	socket.on('pluginlistupdate', function(msg) {
-		console.log('We received a message: ' + msg);
+		console.log(msg);
+		
+		var id = msg.id;
+		
+		updateTableRows(id, msg);
 	});
 	
 	socket.on('askVersion', function() {
 		//BootstrapDialog.alert('I want banana!');
 	});
 });
+
+
+/*
+ * Update the notification area
+ *
+ * @param {string} id
+ * @param {object} options
+ *		status {string} (required)
+ *		message {string}
+ */
+function updateTableRows(id, options) {
+	var status = options.status;
+	var message = options.message;
+	var action = options.action;
+	
+	var element = $( '.notification-' + id);
+		
+	if (status === 'start') {
+		element.each(function() {
+			$(this).children('input').attr("disabled", true);
+			$(this).children('div').html('<i class="fa fa-spinner fa-spin" title="' + message + '"></i>');
+		});
+	} else if (status === 'done') {
+		//Loop through all the elements with the specified id on all the tabs
+		element.each(function() {
+			
+			$(this).children('input').removeAttr("disabled");
+			$(this).children('div').html('<i class="fa fa-check" title="' + message + '"></i>');
+			
+			//Check what to do with each action
+			switch(action) {
+				case 'activate':
+					
+					switch($(this).closest('div').attr('id')) {
+						case 'inactive':	
+							//Move from deactivated tab to activated tab
+							moveBetweenTable($(this).parent(), $('#inactive'), $('#active'));
+							break;
+					}
+					
+					break;
+				
+				case 'deactivate':
+					
+					switch($(this).closest('div').attr('id')) {
+						case 'active':	
+							//Move from activated tab to deactivated tab
+							moveBetweenTable($(this).parent(), $('#active'), $('#inactive'));
+							break;
+					}
+					
+					break;
+					
+				case 'update':
+					switch($(this).closest('div').attr('id')) {
+						case 'update':	
+							//Remove from update tab
+							$(this).parent().remove();
+							break;
+					}
+					
+					break;
+					
+				case 'remove':
+					$(this).parent().remove();
+					break;
+			}
+		});
+	} else if (status === 'failed') {
+		element.each(function() {
+			$(this).children('input').removeAttr("disabled");
+			$(this).children('div').html('<i class="fa fa-exclamation" title="' + message + '"></i>');
+		});
+	}
+}
+
+
+/*
+ * Move a row between two tables
+ *
+ * @param {jQuery} row: element to be replaced
+ * @param {jQuery} tbl1: from table
+ * @param {jQuery} tbl2: to table
+ */
+function moveBetweenTable(row, tbl1, tbl2) {
+	
+	//Get the tbody of the tables
+	var table1 = tbl1.children().find('tbody');
+	var table2 = tbl2.children().find('tbody');
+	
+	//Get the row ids
+	var oldID = tbl1.attr('row');
+	var newID = tbl2.attr('row');
+	
+	//To make sure that the checkboxes work, replace the row-* with the new ID
+	row.children().find('input').removeClass('row-' + oldID).addClass('row-' + newID);
+	
+	//Clone the row to the other table
+	row.clone().prependTo(table2);
+	row.remove();
+	
+	sortTable(table2);
+}
+
+
+/*
+ * Sort the table 
+ *
+ * @param {jQuery} tbl
+ * @param {string} sort: asc or desc (default: asc)
+ */
+function sortTable(tbl, sort) {
+	if (typeof sort === 'undefined') sort = 'asc';
+	
+	var rows = $('tr', tbl); 
+	
+	rows.sort(function(a, b) {
+
+        var keyA = $('td:nth-child(2)',a).text();
+        var keyB = $('td:nth-child(2)',b).text();
+
+        if (sort === 'asc') {
+            return (keyA > keyB) ? 1 : 0;     // A bigger than B, sorting ascending
+        } else {
+            return (keyA < keyB) ? 1 : 0;     // B bigger than A, sorting descending
+        }
+    });
+
+	rows.each(function(index, row){
+		console.log(row);
+		tbl.append(row);                    // append rows after sort
+	});
+}
 
 
 /*
@@ -165,6 +302,13 @@ function plugin_emit(id, checkboxes, action, options) {
 	checkboxes.each(function( index ) {
 		if (this.checked) {
 			this.checked = false;
+			
+			var pluginID = $(this).val();
+			
+			updateTableRows(pluginID, {status: 'start'});
+			
+			//Disable the checkboxes and add a spinner icon
+			
 			list.push(this.value);
 		}
 	});
