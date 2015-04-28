@@ -13,6 +13,8 @@ $( document ).ready(function() {
 	socket.on('askVersion', function() {
 		//BootstrapDialog.alert('I want banana!');
 	});
+	
+	sortTableRowsAll();
 });
 
 
@@ -156,8 +158,19 @@ function sortTable(tbl, sort) {
     });
 
 	rows.each(function(index, row){
-		console.log(row);
 		tbl.append(row);                    // append rows after sort
+	});
+}
+
+
+/*
+ * 
+ */
+function sortTableRowsAll() {
+	var table = $('.sort');
+	
+	table.each(function() {
+		sortTable($(this));
 	});
 }
 
