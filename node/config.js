@@ -230,6 +230,13 @@ var setPluginVersion = function(id, options) {
 		var curVersion = getPluginInfo(id, {type: 'version'});
 		
 		if (!curVersion) {
+			var tmp = getPluginInfo(id);
+			
+			if (!tmp) {
+				log.debug(prelogFunc + 'The plugin with ID "' + id + '" couldn\'t be found!');
+				return;
+			}
+			
 			log.debug(prelogFunc + 'No version is currently set. Set the new version!');
 		} else {
 			if (curVersion >= version) {
