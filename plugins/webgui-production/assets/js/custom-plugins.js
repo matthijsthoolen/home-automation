@@ -36,6 +36,15 @@ function updateTableRows(id, options) {
 			$(this).children('input').attr("disabled", true);
 			$(this).children('div').html('<i class="fa fa-spinner fa-spin" title="' + message + '"></i>');
 		});
+	} else if (status === 'newid') {
+		var newid = options.newid;
+		
+		//For each element add the new class for the new id, old also remains. And change the input value.
+		element.each(function() {
+			$(this).addClass('notification-' + newid);
+			$(this).children('input').val(newid);
+		});
+		
 	} else if (status === 'done') {
 		//Loop through all the elements with the specified id on all the tabs
 		element.each(function() {
@@ -79,6 +88,10 @@ function updateTableRows(id, options) {
 					
 				case 'remove':
 					$(this).parent().remove();
+					break;
+					
+				case 'publish':
+					$(this).children('input').attr('version', options.version);
 					break;
 			}
 		});

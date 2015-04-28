@@ -51,7 +51,7 @@ function startStream(pusher, stream) {
 	});
 
 	stream.on('nop', function() {
-		log.debug(prelog + ":startStream) nop...");
+		//log.debug(prelog + ":startStream) nop...");
 	});
 
 	stream.on('tickle', function(type) {

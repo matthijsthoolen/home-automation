@@ -277,7 +277,7 @@ exports.deactivate = function(id, callback) {
 	//Build a response message
 	var response = {
 		id: id,
-		action: 'deactivate',
+		action: 'deactivate'
 	};
 	
 	if (!info) {
@@ -339,7 +339,7 @@ exports.remove = function(id, callback) {
 	//Build a response message
 	var response = {
 		id: id,
-		action: 'remove',
+		action: 'remove'
 	};
 	
 	//If the plugin is unremovable only deactivate it
@@ -459,7 +459,7 @@ exports.update = function(options, callback) {
 	
 	var response = {
 		id: id,
-		action: 'update',
+		action: 'update'
 	};
 	
 	var message;
@@ -539,10 +539,10 @@ exports.update = function(options, callback) {
 		
 		//Return if there is an error with the download
 		if (err) {			
-			response.message = prelogFunc + 'Backup plugin failed!';
+			response.message = prelogFunc + ' ' + stderr;
 			response.status = 'failed';
 			
-			log.error(response.message + ' Error: ' + stderr);
+			log.error(response.message);
 			util.doCallback(callback, {err: true, stderr: response});
 			restoreBackup(endOptions);
 			return;
@@ -1127,6 +1127,11 @@ exports.publish = function(id, callback) {
 	var message;
 	var prelogFunc = prelog + ':publish) ';
 	
+	var response = {
+		id: id,
+		action: 'publish',
+	};
+	
 	//Check if the plugin is already registered and if it's still valid
 	util.checkPluginID({id: id}, function(err, stdout, stderr) {
 		
@@ -1153,6 +1158,14 @@ exports.publish = function(id, callback) {
 				}
 				info.plugin.id = stdout.id;
 				
+				//If ID is changed send back a in process callback
+				response.status = 'newid';
+				response.message = stdout.id;
+				response.oldid = id;
+				response.id = stdout.id;
+
+				util.doCallback(callback, {stdout: response});
+				
 				packPlugin(info, callback);
 			});
 		} else if (stdout.type === 'prod') {
@@ -1178,11 +1191,17 @@ exports.publishVersion = function(options, callback) {
 	
 	var message;
 	var prelogFunc = prelog + ':publishVersion) ';
+	var response = {
+		id: id,
+		action: 'publish'
+	};
 	
 	if (!id || !version || version === '') {
-		message = 'ID or version is not provided';
-		log.debug(message + ' Received: ' + options);
-		util.doCallback(callback, {err: true, stderr: message});
+		response.message = 'ID or version is not provided';
+		response.status = 'failed';
+		
+		log.debug(response.message + ' Received: ' + options);
+		util.doCallback(callback, {err: true, stderr: response});
 		return;
 	}
 	
@@ -1190,9 +1209,11 @@ exports.publishVersion = function(options, callback) {
 	
 	//The new version must be bigger then the current version
 	if (curVersion > version) {
-		message = prelogFunc + 'New version (' + version + ') must be newer then the current version (' + curVersion + ') for id: "' + id + '"';
-		log.info(message);
-		util.doCallback(callback, {err: true, stderr: message});
+		response.message = prelogFunc + 'New version (' + version + ') must be newer then the current version (' + curVersion + ') for id: "' + id + '"';
+		response.status = 'failed';
+		
+		log.info(response.message);
+		util.doCallback(callback, {err: true, stderr: response});
 		return;
 	}
 
@@ -1203,12 +1224,33 @@ exports.publishVersion = function(options, callback) {
 	plugin.publish(id, function(err, stdout, stderr) {
 		
 		if (err) {
-			message = prelogFunc + 'Error while publishing plugin (' + id + ')!';
-			log.debug(message + ' Error: ' + stderr);
-			util.doCallback(callback, {err: true, stderr: message});
+			response.message = prelogFunc + 'Error while publishing plugin (' + id + ')!';
+			log.debug(response.message + ' Error: ' + stderr);
+			util.doCallback(callback, {err: true, stderr: response});
 			return;
-		}
+		} 
+		
+		//Only do something if stdout is a object. Else we don't have to handle it here
+		if (typeof stdout === 'object') {
 
+			//If status is newid, the plugin id has changed. Do a callback so the gui can be updated
+			if (stdout.status === 'newid') {
+				response.id = id;
+				response.newid = stdout.message;
+				response.status = 'newid';
+				util.doCallback(callback, {stdout: response});
+				
+				//Set for next response
+				response.id = stdout.message;
+				return;
+			}
+
+			response.message = prelogFunc + 'Succesfully published version ' + version + ' of the plugin!';
+			response.version = version;
+			response.status = 'done';
+
+			util.doCallback(callback, {stdout: response});
+		}
 	});
 };
 
@@ -1497,6 +1539,11 @@ function uploadPlugin(info, callback) {
 	var message;
 	var prelogFunc = prelog + ':uploadPlugin) ';
 	
+	var response = {
+		id: info.plugin.id,
+		action: 'publish'
+	};
+	
 	var request = require('request');
 	
 	var req = request.post(url, function (err, resp, body) {
@@ -1536,9 +1583,11 @@ function uploadPlugin(info, callback) {
 			}
 			
 			//If the upload was succesfull
-			message = prelogFunc + body.stdout;
-			log.info(message);
-			util.doCallback(callback, {stdout: message});
+			response.message = prelogFunc + body.stdout;
+			response.status = 'done';
+			
+			log.info(response.message);
+			util.doCallback(callback, {stdout: response});
 			
 			//Remove the local tar.gz file
 			util.removeTempFile(filename);
