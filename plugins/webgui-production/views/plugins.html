@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block pagetitle %}
-	Plugin configuration <a class="btn btn-default" href="/plugin-new" role="button">{{ __('New plugin') }}</a>
+	Plugin configuration <a class="btn btn-default" href="/plugin-new" role="button">{# __('New plugin') #}</a>
 {% endblock %}
 
 {% block pagetitle-sub %}
-	{{ __('Manage your plugins')}}
+	{# __('Manage your plugins')#}
 {% endblock %}
 
 {% block activePlugins %}
@@ -28,22 +28,22 @@
 
 	<ul class="nav nav-tabs" role="tablist" id="plugintab">
 		<li role="presentation" class="active">
-			<a href="#all" aria-controls="all" role="tab" data-toggle="tab">{{ __('All') }}</a>
+			<a href="#all" aria-controls="all" role="tab" data-toggle="tab">{# __('All') #}</a>
 		</li>
 		<li role="presentation">
-			<a href="#active" aria-controls="active" role="tab" data-toggle="tab">{{ __('Active') }}</a>
+			<a href="#active" aria-controls="active" role="tab" data-toggle="tab">{# __('Active') #}</a>
 		</li>
 		<li role="presentation">
-			<a href="#inactive" aria-controls="inactive" role="tab" data-toggle="tab">{{ __('Inactive') }}</a>
+			<a href="#inactive" aria-controls="inactive" role="tab" data-toggle="tab">{# __('Inactive') #}</a>
 		</li>
 		<li role="presentation">
-			<a href="#update" aria-controls="update" role="tab" data-toggle="tab">{{ __('Update Available') }}</a>
+			<a href="#update" aria-controls="update" role="tab" data-toggle="tab">{# __('Update Available') #}</a>
 		</li>
 		
 		{% if developer %}
 		
 		<li role="presentation">
-			<a href="#developer" aria-controls="developer" role="tab" data-toggle="tab">{{ __('My plugins') }}</a>
+			<a href="#developer" aria-controls="developer" role="tab" data-toggle="tab">{# __('My plugins') #}</a>
 		</li>
 		
 		{% endif %}
@@ -51,24 +51,24 @@
 
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane active" id="all" row="1">
-			{{ macros.plugintable(1) }}
+			{# macros.plugintable(1) #}
 		</div>
 		
 		<div role="tabpanel" class="tab-pane" id="active" row="2">
 			
-			{{ macros.plugintable(2, 1) }}
+			{# macros.plugintable(2, 1) #}
 			
 		</div>
 		
 		<div role="tabpanel" class="tab-pane" id="inactive" row="3">
 			
-			{{ macros.plugintable(3, 2) }}
+			{# macros.plugintable(3, 2) #}
 			
 		</div>
 		
 		<div role="tabpanel" class="tab-pane" id="update" row="4">
 			
-			{{ macros.plugintable(4, 3) }}
+			{# macros.plugintable(4, 3) #}
 			
 		</div>
 		
@@ -76,7 +76,7 @@
 		
 		<div role="tabpanel" class="tab-pane" id="developer" row="5">
 
-			{{ macros.plugintable(5, 4) }}
+			{# macros.plugintable(5, 4) #}
 
 		</div>
 		

@@ -3,9 +3,9 @@
 
 		<thead>
 			<tr>
-				<th class="col-md-1"><input class="col-xs-4" type="checkbox" value="all" onchange="checkAll(this)" name="chk[]" id="{{ id }}" title="{{ __('Select all') }}"></th>
-				<th class="col-md-3">{{ __('Plugin') }}</th>
-				<th class="col-md-8">{{ __('Description') }}</th>
+				<th class="col-md-1"><input class="col-xs-4" type="checkbox" value="all" onchange="checkAll(this)" name="chk[]" id="{# id #}" title="{# __('Select all') #}"></th>
+				<th class="col-md-3">{# __('Plugin') #}</th>
+				<th class="col-md-8">{# __('Description') #}</th>
 			</tr>
 		</thead>
 
@@ -17,27 +17,27 @@
 				<!-- Active plugins -->
 				{% if condition == 1 %}
 
-					{{plugintablerow(id, plugin.active)}}
+					{#plugintablerow(id, plugin.active)#}
 
 				<!-- Deactivated plugins -->
 				{% elseif condition == 2 %}
 			
-					{{plugintablerow(id, not plugin.active)}}
+					{#plugintablerow(id, not plugin.active)#}
 				
 				<!-- Update available -->
 				{% elseif condition == 3 %}
 			
-					{{plugintablerow(id, plugin.update)}}
+					{#plugintablerow(id, plugin.update)#}
 			
 				<!-- Plugins developed by the user -->
 				{% elseif condition == 4 %}
 			
-					{{plugintablerow(id, plugin.me)}}
+					{#plugintablerow(id, plugin.me)#}
 			
 				<!-- Else, all plugins -->
 				{% else %}
 			
-					{{plugintablerow(id, 1 === 1)}}
+					{#plugintablerow(id, 1 === 1)#}
 			
 				{% endif %}
 
@@ -50,21 +50,21 @@
 			<div class="form-group">
 				
 				<div class="col-sm-9 action-button">
-					<select id="action-{{ id }}" class="form-control" required>
-						<option value="" disabled selected>{{ __('Select action') }}</option>
-						<option value="activate">{{ __('Activate') }}</option>
-						<option value="deactivate">{{ __('Deactivate') }}</option>
-						<option value="update">{{ __('Update') }}</option>
-						<option value="remove">{{ __('Remove') }}</option>
+					<select id="action-{# id #}" class="form-control" required>
+						<option value="" disabled selected>{# __('Select action') #}</option>
+						<option value="activate">{# __('Activate') #}</option>
+						<option value="deactivate">{# __('Deactivate') #}</option>
+						<option value="update">{# __('Update') #}</option>
+						<option value="remove">{# __('Remove') #}</option>
 						<!-- if it's the 'My plugins' tab show the Publish button -->
 						{% if condition == 4 and developer%}
-						<option value="publish">{{ __('Publish') }}</option>
+						<option value="publish">{# __('Publish') #}</option>
 						{% endif %}
 					</select>
 				</div>
 				
 				<div class="col-sm-3">
-					<button class="btn btn-default" type="button" onClick="plugin_send({{ id }})">Go!</button>
+					<button class="btn btn-default" type="button" onClick="plugin_send({# id #})">Go!</button>
 				</div>
 				
 			</div>
@@ -78,12 +78,12 @@
 	{% if condition %}
 
 	<tr {% if plugin.update %} class="plugin-update" {% endif %}>
-		<td class="notification-{{ plugin.id }}">
-			<input type="checkbox" class="row-{{ id }} col-xs-4" value="{{ plugin.id }}" version="{{ plugin.version }}" name="{{ plugin.name }}">
+		<td class="notification-{# plugin.id #}">
+			<input type="checkbox" class="row-{# id #} col-xs-4" value="{# plugin.id #}" version="{# plugin.version #}" name="{# plugin.name #}">
 			<div class="col-xs-4"><i></i></div>
 		</td>
-		<td>{{ plugin.name }}</td>
-		<td>{{ plugin.description }}</td>
+		<td>{# plugin.name #}</td>
+		<td>{# plugin.description #}</td>
 	</tr>
 
 	{% endif %}

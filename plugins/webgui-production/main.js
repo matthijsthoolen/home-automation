@@ -39,7 +39,7 @@ exports.start = function(name) {
 	// that and use Express's caching instead, if you like:
 	app.set('view cache', false);
 	// To disable Swig's cache, do the following:
-	swig.setDefaults({ cache: false });
+	swig.setDefaults({ cache: false, varControls: ['{#', '#}'] });
 	// Don't leave both of these to `false` in production!
 	
 	app.use('/assets', express.static(__dirname + '/assets'));
