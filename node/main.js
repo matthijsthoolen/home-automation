@@ -28,8 +28,9 @@ function requireFiles(callback) {
 	config = require('./config')(childCallback);
 	
 	util = require('./utilities');
+	logger = require('./log')(childCallback);
+	
 	plugin = require('./plugin');
-	logger = require('./log');
 
 	event = require('./event');
 	eventstream = require('./eventstream');

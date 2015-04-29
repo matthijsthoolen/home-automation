@@ -117,6 +117,10 @@ function setRouting() {
 		renderPlugin(req, res);
 	});
 	
+	app.get('/plugin-new', function(req, res) {
+		renderPluginNew(req, res);	
+	});
+	
 	app.get('/chat', function(req, res) {
 		res.render('chat', content);
 	});
@@ -244,4 +248,15 @@ function renderPlugin(req, res) {
 	}	
 	
 	res.render('plugins', data);
+}
+
+
+/*
+ * Render the new plugin page
+ */
+function renderPluginNew(req, res) {
+	var prelogFunc = prelog + ':renderPluginNew) ';
+	var message;
+	
+	res.render('plugins-new');
 }

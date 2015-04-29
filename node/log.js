@@ -1,7 +1,19 @@
-var bunyan = require('bunyan');
+var bunyan,
+	prelog,
+	parentCallback;
 
+module.exports = function(callback) {
+	parentCallback = callback;
+	prelog = '(log';
+	
+	bunyan = require('bunyan');
+	
+	this.start = start;
+	
+	return this;
+};
 
-exports.start = function(mode, lvl) {
+var start = function start(mode, lvl) {
 	
 	if (mode == 'file') {
 		log = bunyan.createLogger({
