@@ -1,22 +1,38 @@
-var prelog = '(Event';
-var nrEventSub = 0;
+var prelog,
+	parentCallback,
+	nrEventSub = 0;
+
+module.exports = function(callback) {
+	parentCallback = callback;
+	prelog = '(Event';
+	
+	this.start = start;
+	this.askForRegistration = askForRegistration;
+	this.registerEvent = registerEvent;
+	this.subscribeToEvent = subscribeToEvent;
+	this.unsubscribeFromEvent = unsubscribeFromEvent;
+	this.registerAction = registerAction;
+	
+	return this;
+};
+
 
 /*
  * Start the event registration, defaults will be added automatically. Plugins can regitrate new events. 
  */
-exports.start = function() {
+var start = function start() {
 	
 	registerDefaultEvents();
 	registerDefaultActions();
 	
-	log.info(prelog + ':start) Events can now be registered');
+	//log.info(prelog + ':start) Events can now be registered');
 };
 
 
 /*
  * After all the plugins have registrated there events, ask the other plugins to registrate for events
  */
-exports.askForRegistration = function() {
+var askForRegistration = function askForRegistration() {
 	var plugins = config.getActivePlugins();
 	
 	log.info(prelog + ':askForRegistration) Ask all active plugins for registration to events and tasks');
@@ -36,7 +52,7 @@ exports.askForRegistration = function() {
  * @param {string} description
  * @param {array} callback: [pluginname, function, parameters]
  */
-exports.registerEvent = function(name, description, callback) {
+var registerEvent = function registerEvent(name, description, callback) {
 	var event = {eventname: name, description: description, callback: callback, registered: []};
 	
 	events[name] = event;
@@ -51,7 +67,7 @@ exports.registerEvent = function(name, description, callback) {
  * @param {object} timeconfig: {0: (for all days) [{f: starttime, t: endtime}, ...], 1: till 7: from monday till sunday}
  * @return {int} id
  */
-exports.subscribeToEvent = function(name, callback, timeconfig) {
+var subscribeToEvent = function subscribeToEvent(name, callback, timeconfig) {
 
 	//check if the event (still) exists
 	if (!events.hasOwnProperty(name)) {
@@ -78,7 +94,7 @@ exports.subscribeToEvent = function(name, callback, timeconfig) {
  * @param {int} id
  * @return {boolean}
  */
-exports.unsubscribeFromEvent = function(name, id) {
+var unsubscribeFromEvent = function unsubscribeFromEvent(name, id) {
 	var registered = events[name].registered; 
 	
 	for (var i = 0; i < registered.length; i++) {
@@ -99,7 +115,7 @@ exports.unsubscribeFromEvent = function(name, id) {
  * @param {string} description
  * @param {array} callfunction: The function to call on the action [pluginname, function, parameters]
  */
-exports.registerAction = function(name, description, callfunction) {
+var registerAction = function registerAction(name, description, callfunction) {
 	var action = {actionname: name, description: description, callfunction: callfunction};
 	
 	actions[name] = action;	

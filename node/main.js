@@ -28,11 +28,11 @@ function requireFiles(callback) {
 	config = require('./config')(childCallback);
 	
 	util = require('./utilities');
-	logger = require('./log')(childCallback);
+	logger = require('./log');
 	
 	plugin = require('./plugin');
 
-	event = require('./event');
+	event = require('./event')(childCallback);
 	eventstream = require('./eventstream');
 
 	i18nclass = require('./i18n');
