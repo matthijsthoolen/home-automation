@@ -258,5 +258,7 @@ function renderPluginNew(req, res) {
 	var prelogFunc = prelog + ':renderPluginNew) ';
 	var message;
 	
-	res.render('plugins-new');
+	var plugins = plugin.getPluginList();
+	
+	res.render('plugins-new', {plugins: plugins});
 }

@@ -278,7 +278,7 @@ var getPluginInfo = function(id, options) {
 	
 	var data = nconf.get(q);
 	
-	if (data === undefined) {
+	if (typeof data === 'undefined') {
 		data = false;
 	}
 	
@@ -293,7 +293,13 @@ var getPluginInfo = function(id, options) {
  * @return {string} name
  */
 var getPluginName = function(id) {
+	
 	var name = nconf.get('plugins:' + id + ':name');
+	
+	//If plugin is not available return false
+	if (typeof name === 'undefined') {
+		return false;
+	}
 	
 	return name;
 };

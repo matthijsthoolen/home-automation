@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+	Plugins
+{% endblock %}
+
+{% block head %}
+	{% parent %}
+	<link href="assets/css/custom-newplugin.css" rel="stylesheet" />
+{% endblock %}
+
+{% block pagetitle %}
+	New plugin <a class="btn btn-default" href="/plugin" role="button">{# __('Manage plugins') #}</a>
+{% endblock %}
+
+{% block pagetitle-sub %}
+	{# __('Manage your plugins') #}
+{% endblock %}
+
+{% block activePlugins %}
+	class="active-menu"
+{% endblock %}
+
+{% block content %}
+	<div ng-app="store">
+		
+		{% for row in plugins %}
+		
+		<div class="row">
+			
+			{% for plugin in row %}
+
+			<pluginnew-item details="{# plugin | json #}"></pluginnew-item>
+
+			{% endfor %}
+			
+		</div>
+
+		{% endfor %}
+			
+		</div>
+		
+	</div>
+{% endblock %}
+
+{% block footer %}
+	{% parent %}
+	<script src="assets/js/angular.min.js"></script>
+	<script src="assets/js/angular/app.js"></script>
+{% endblock %}

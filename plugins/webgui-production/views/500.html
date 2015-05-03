@@ -15,12 +15,12 @@
 
 {% block content %}
 
-<p>{{ __("We are sorry for this error! If you think this error has to be resolved, please contact us. Include the errormessage on this page and a short description about what you where trying to do at the moment of the error") }}</p>
+<p>{# __("We are sorry for this error! If you think this error has to be resolved, please contact us. Include the errormessage on this page and a short description about what you where trying to do at the moment of the error") #}</p>
 
 <p>
 	{% for err in error %}
 	
-		{{ err }}
+		{# err #}
 	
 	{% endfor %}
 </p>

@@ -1,0 +1,26 @@
+.plugin-block {
+	width: 100%;
+}
+
+.pluginnew-top {
+	border: 1px solid grey;
+	padding: 5px;
+	background-color: grey;
+	height: 170px;
+}
+
+.pluginnew-image {
+	padding: 10px;
+}
+
+.pluginnew-bottom {
+	border: 1px solid grey;
+	padding: 5px;
+	background-color: lightgrey;
+	height: 60px;
+	width: 100%;
+}
+
+.no-padding {
+	padding: 0;
+}

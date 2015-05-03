@@ -867,7 +867,6 @@ function getVersionList(options, callback) {
 	var tempdir = config.getTempPath();
 	var server = config.getConfiguration('downloadserver');
 	var force = util.opt(options, 'force', false);
-	var nconf = require('nconf');
 	
 	var prelogFunc = prelog + ':getVersionList) ';
 	var message;
@@ -896,19 +895,43 @@ function getVersionList(options, callback) {
 				
 				log.info(prelogFunc + 'Downloaded version file');
 				exec('touch version.json', {cwd: tempdir});
+				
+				reloadVersionList();
 			});	
 		} else {
 			log.debug(prelogFunc + 'Version file is recent enough'); 
 		}
 		
-		if (!config.loadCustomConfig({abspath: tempdir + 'version.json', name: 'versions'})) {
+		//Load the version file into NCONF
+		if (!reloadVersionList()) {
 			util.doCallback(callback, {err: true, stderr: 'Couldn\'t load custom config!'});
+			return;
 		}
 		
-		util.doCallback(callback, {stdout: nconf});
+		util.doCallback(callback, {stdout: true});
 		
 	});
 	
+}
+
+
+/*
+ * Reload the version list into NCONF
+ *
+ * @param {object} options
+ * @param {function} callback
+ */
+function reloadVersionList(options, callback) {
+	var tempdir = config.getTempPath();
+	
+	if (!config.loadCustomConfig({abspath: tempdir + 'version.json', name: 'versions'})) {
+		util.doCallback(callback, {err: true, stderr: 'Couldn\'t load custom config!'});
+		return false;
+	}
+	
+	util.doCallback(callback, {stdout: true});
+	return true;
+
 }
 
 
@@ -1013,6 +1036,81 @@ exports.getPluginInfo = function(filter) {
 	}
 	
 	return info;
+};
+
+
+/*
+ * Check if a plugin is installed
+ * 
+ * @param {string} id
+ * @param {object} options
+ * @param {function} callback
+ * @return {boolean}
+ */
+exports.checkInstalled = function(id, options, callback) {
+	
+	//If the plugin name is not available, we assume that the plugin is not installed
+	if (!config.getPluginName(id)) {
+		util.doCallback(callback, {stdout: false});
+		return false;
+	}
+	
+	//Else the plugin is installed
+	util.doCallback(callback, {stdout: true});
+	return true;
+	
+};
+
+
+/******************************************************************************\
+ *																			  *
+ *								Plugin store								  *
+ *																			  *
+\******************************************************************************/
+
+
+/*
+ * Get a list of all the online plugins, flag the plugins which are installed already
+ *
+ * @param {object} options
+ *		order {string} asc/desc (default asc)
+ *		perRow {int} number of items per row (default 4)
+ * @param {function} callback
+ * @return {object} pluginlist
+ */
+exports.getPluginList = function(options, callback) {
+	var data = config.getConfiguration('server');
+	
+	var order = util.opt(options, 'order', 'asc');
+	var perRow = util.opt(options, 'perRow', 4);
+	
+	var plugin;
+	var i = 0;
+	
+	var list = [];
+	var tmpRow = [];
+	
+	//For each plugin check if it's installed.
+	for (var id in data) {
+		
+		//If the row is full, push the row to the list
+		if (i % perRow === 0 && i !== 0) {
+			list.push(tmpRow);
+			tmpRow = [];
+		}
+		data[id].installed = exports.checkInstalled(id);
+		
+		tmpRow.push(data[id]);
+		i++;
+	}
+	
+	//Check if the tmpRow contains partly filled rows, and push them to the list.
+	if (tmpRow.length > 0) {
+		list.push(tmpRow);
+	}
+	
+	util.doCallback(callback, {stdout: list});
+	return list;
 };
 
 
