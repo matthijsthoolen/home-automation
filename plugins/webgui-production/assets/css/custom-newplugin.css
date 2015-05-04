@@ -13,12 +13,34 @@
 	padding: 10px;
 }
 
+.pluginnew-content {
+	height: 100%;
+}
+
+.pluginnew-title {
+	margin-top: 5px;
+}
+
+.pluginnew-paragraph {
+	padding-top: 5px;
+	font-size: 13px;
+}
+
+.pluginnew-author {
+	position: absolute;
+	bottom: 0;
+}
+
 .pluginnew-bottom {
 	border: 1px solid grey;
 	padding: 5px;
 	background-color: lightgrey;
 	height: 60px;
 	width: 100%;
+}
+
+.pluginnew-button {
+	float: right;
 }
 
 .no-padding {

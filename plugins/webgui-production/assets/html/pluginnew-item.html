@@ -6,10 +6,28 @@
 			<div class="col-md-5 pluginnew-image">
 				<img src="/assets/img/no_logo.gif" alt="No logo available" class="img-thumbnail img-responsive">
 			</div>
+			
+			<div class="col-md-7 pluginnew-content">
+				<h3 class="pluginnew-title">{{ details.name }}</h3>
+				
+				<p class="pluginnew-paragraph">
+					{{details.description}}
+				</p>
+				
+				<p class="pluginnew-paragraph pluginnew-author">
+					By: {{ details.developer }}
+				</p>
+			</div>
 		</div>
 
 		<div class="col-md-12 pluginnew-bottom">
-			{{ details.name }}
+			<div class="col-md-8">
+			</div>
+			
+			<div class="col-md-4">
+				<button class="btn btn-default pluginnew-button" ng-if="details.installed" disabled title="Plugin is already installed!">Installed</button>
+				<button class="btn btn-default pluginnew-button" ng-if="!details.installed" title="Install this plugin!">Install</button>
+			</div>
 		</div>
 	</div>
 
