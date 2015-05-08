@@ -1075,6 +1075,7 @@ exports.checkInstalled = function(id, options, callback) {
  * @param {object} options
  *		order {string} asc/desc (default asc)
  *		perRow {int} number of items per row (default 4)
+ *		dev {boolean} add a 'add new dev-plugin' button
  * @param {function} callback
  * @return {object} pluginlist
  */
@@ -1083,12 +1084,28 @@ exports.getPluginList = function(options, callback) {
 	
 	var order = util.opt(options, 'order', 'asc');
 	var perRow = util.opt(options, 'perRow', 4);
+	var dev = util.opt(options, 'dev', false);
 	
 	var plugin;
 	var i = 0;
 	
 	var list = [];
 	var tmpRow = [];
+	
+	//Add a dev item to the first row. 
+	if (dev) {
+		var devItem = {
+			'name': 'Dev-plugin template',
+			'description': 'Generate a new developer plugin template',
+			'stars': false,
+			'dev': true,
+			'button': 'Add',
+			'buttonTitle': 'Add a new developer plugin template!'
+		};
+		
+		tmpRow.push(devItem);
+		i++;
+	}
 	
 	//For each plugin check if it's installed.
 	for (var id in data) {

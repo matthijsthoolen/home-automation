@@ -221,8 +221,6 @@ function updateTable(err, stdout, stderr) {
 		return;
 	}
 	
-	log.info('STDOUT: ' + stdout.message);
-	
 	io.emit('pluginlistupdate', stdout);
 }
 
@@ -258,7 +256,7 @@ function renderPluginNew(req, res) {
 	var prelogFunc = prelog + ':renderPluginNew) ';
 	var message;
 	
-	var plugins = plugin.getPluginList();
+	var plugins = plugin.getPluginList({dev: true});
 	
 	res.render('plugins-new', {plugins: plugins});
 }

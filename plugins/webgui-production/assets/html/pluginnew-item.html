@@ -2,19 +2,23 @@
 	<div class="col-md-1"></div>
 
 	<div class="col-md-10 plugin-block no-padding">
-		<div class="col-md-12 pluginnew-top">
+		
+		<div class="col-md-12 pluginnew-titleRow">
+			<h3 class="pluginnew-title">{{ details.name }}</h3>
+		</div>
+		
+		<div class="col-md-12 pluginnew-content">
 			<div class="col-md-5 pluginnew-image">
 				<img src="/assets/img/no_logo.gif" alt="No logo available" class="img-thumbnail img-responsive">
 			</div>
 			
-			<div class="col-md-7 pluginnew-content">
-				<h3 class="pluginnew-title">{{ details.name }}</h3>
+			<div class="col-md-7 pluginnew-details">
 				
 				<p class="pluginnew-paragraph">
-					{{details.description}}
+					{{ details.description }}
 				</p>
 				
-				<p class="pluginnew-paragraph pluginnew-author">
+				<p class="pluginnew-paragraph pluginnew-author" ng-show="!details.dev">
 					By: {{ details.developer }}
 				</p>
 			</div>
@@ -22,11 +26,19 @@
 
 		<div class="col-md-12 pluginnew-bottom">
 			<div class="col-md-8">
+				<div class="col-md-9 pluginnew-stars" ng-show="!details.dev || details.stars > 0">
+ 					<input id="input-id-{{ details.id }}" class="rating-loading" value="{{ details.stars }}">
+				</div>
+				
+				<div class="col-md-3 pluginnew-points" ng-show="!details.dev || details.stars > 0">
+					{{ details.stars}}/5
+				</div>
 			</div>
 			
 			<div class="col-md-4">
-				<button class="btn btn-default pluginnew-button" ng-if="details.installed" disabled title="Plugin is already installed!">Installed</button>
-				<button class="btn btn-default pluginnew-button" ng-if="!details.installed" title="Install this plugin!">Install</button>
+				<button class="btn btn-default pluginnew-button" ng-if="details.installed && !details.button" disabled title="Plugin is already installed!">Installed</button>
+				<button class="btn btn-default pluginnew-button" ng-if="!details.installed && !details.button" title="Install this plugin!">Install</button>
+				<button class="btn btn-default pluginnew-button" ng-if="details.button" title="{{ details.buttonTitle }}">{{ details.button }}</button>
 			</div>
 		</div>
 	</div>

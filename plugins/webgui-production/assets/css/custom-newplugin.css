@@ -1,24 +1,35 @@
 .plugin-block {
 	width: 100%;
+	margin-bottom:30px;
 }
 
-.pluginnew-top {
+.pluginnew-titleRow {
 	border: 1px solid grey;
 	padding: 5px;
-	background-color: grey;
+	background-color: #C90000;
+	height: 45px;
+	color: #fff;
+}
+
+.pluginnew-content {
+	border: 1px solid grey;
+	padding: 5px;
+	background-color: #4D4D4D;
 	height: 170px;
+	color: #fff;
 }
 
 .pluginnew-image {
 	padding: 10px;
 }
 
-.pluginnew-content {
+.pluginnew-details {
 	height: 100%;
 }
 
 .pluginnew-title {
-	margin-top: 5px;
+	text-align: center;
+	margin-top: 2px;
 }
 
 .pluginnew-paragraph {
@@ -35,8 +46,28 @@
 	border: 1px solid grey;
 	padding: 5px;
 	background-color: lightgrey;
-	height: 60px;
+	height: 45px;
 	width: 100%;
+}
+
+.pluginnew-stars {
+	margin-top: -5px;
+	margin-left: -20px;
+}
+
+.rating-disabled{
+	cursor: default !important;
+}
+
+.pluginnew-points {
+	font-size: 15px;
+	padding-top: 9px;
+	padding-left: 12px;
+	font-weight: bold;
+}
+
+.rating-loading {
+	margin-top: 15px;
 }
 
 .pluginnew-button {
