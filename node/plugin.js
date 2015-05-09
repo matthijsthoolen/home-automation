@@ -38,6 +38,8 @@ exports.test = function() {
 			console.log(stdout);
 		}
 	}); */
+	
+	//plugin.newDevPlugin({name: 'tester'});
 };
 
 
@@ -1144,6 +1146,47 @@ exports.getPluginList = function(options, callback) {
  *								Plugin production							  *
  *																			  *
 \******************************************************************************/
+
+
+/*
+ * Create a new folder inside plugin directory for a new development plugin.
+ *
+ * @param {object} options:
+ *		name {string} (required)
+ *		description {string}
+ *		version {int} (default: 0.0.1)
+ * @param {function} callback
+ */
+exports.newDevPlugin = function(options, callback) {
+	var name = util.opt(options, 'name', false);
+	var description = util.opt(options, 'description', 'No description available');
+	var version = util.opt(options, 'version', '0.0.1');
+	
+	var prelogFunc = prelog + ':newDevPlugin) ';
+	var message, response;
+	
+	//Name is required
+	if (!name) {
+		message = prelogFunc + 'you have to give a name for the plugin!';
+		response = {err: true, stderr: message};
+		util.doCallback(callback, response);
+		return response;
+	}
+	
+	var ncp = require('ncp').ncp;
+	
+	var destination = config.getPluginFolder() + name + '-production';
+	var source = config.getPluginFolder() + 'plugin-default';
+	
+	ncp(source, destination, function(err) {
+		if (err) {
+			return log.error(err);
+		}
+		console.log(prelogFunc + 'Succesfully created a new developer template plugin inside ' + name + '-production');
+	});
+	
+	var pluginDir = config.getPluginFolder();
+};
 
 
 /*
