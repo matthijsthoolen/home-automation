@@ -1175,14 +1175,40 @@ exports.newDevPlugin = function(options, callback) {
 	
 	var ncp = require('ncp').ncp;
 	
-	var destination = config.getPluginFolder() + name + '-production';
+	var id, folder = name + '-production';
+	var developer = config.getDeveloperInfo();
+	
+	var destination = config.getPluginFolder() + folder;
 	var source = config.getPluginFolder() + 'plugin-default';
 	
+	//Copy the default plugin template to a new folder
 	ncp(source, destination, function(err) {
 		if (err) {
 			return log.error(err);
 		}
-		console.log(prelogFunc + 'Succesfully created a new developer template plugin inside ' + name + '-production');
+		
+		message = prelogFunc + 'Succesfully created a new developer template plugin inside ' + folder;
+		log.debug(message);
+		
+		var data = {name: name,
+					folder: folder,
+					developer: developer.name,
+					version: version,
+					description: description,
+					production: true
+				   };
+		
+		//Add the new plugin to the global config file
+		config.addPlugin(id, data);
+		
+		var configfile = destination + 'config.json';
+		
+		//Some more data for the plugin config file
+		data.main = 'main.js';
+		data.updatescript = 'update.js';
+		
+		//Set the plugin config file
+		changePluginConfig({file: configfile, set: data});
 	});
 	
 	var pluginDir = config.getPluginFolder();
