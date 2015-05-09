@@ -1,10 +1,40 @@
 (function() {
 	var app = angular.module('store', []);
 	
-	app.controller('StoreController', function() {
-		
-	});
 	
+	/*
+	 * On click of the add or install button, start the functions needed for the action
+	 */
+	app.controller('InstallController', ['$scope', function($scope) {
+		var details = $scope.$parent.details;
+		
+		$scope.click = function(action) {
+			details.disabled = true;
+			details.working = true;
+			var data = {
+				id: details.id,
+				action: action
+			};
+			
+			//Send socket request to server, and after response change button or reeanble
+			socket.emit('pluginStoreButton', data, function(data) {
+				
+				if (action === 'install') {
+					details.installed = true;
+				}
+				
+				details.disabled = false;
+				details.working = false;
+				
+				$scope.$apply();
+			});
+		};
+	}]);
+	
+	
+	/*
+	 * Add the grid-blocks for the plugins
+	 */
 	app.directive('pluginnewItem', ['$timeout', function($timeout) {		
 		return {
 			restrict: 'E',
@@ -15,7 +45,8 @@
 			link: function (scope, element, attrs) {
 				var details = scope.details;
 				
-				function doDomStuff(tries) {
+				//ADD rating stars to the box after everything is loaded
+				function addRating(tries) {
 					// a sanity check, just in case we reuse this function as a handler, 
 					// e.g. for `orientationchange`
 					if (isNaN(+tries)) {
@@ -34,8 +65,9 @@
 									showClear: false,
 									showCaption: false
 								});
+								$('[data-toggle="tooltip"]').tooltip();
 							} else {
-								doDomStuff(tries - 1);
+								addRating(tries - 1);
 							}
 						}, attrs.msDelay || 100);
 					} else {
@@ -44,21 +76,9 @@
 					}
 				}
 
-				doDomStuff(attrs.maxTries);
+				addRating(attrs.maxTries);
         	}
 		};
 	}]);
-	
-	function stuffController($scope) {
-    	$scope.$on('$viewContentLoaded', test);
-	}
-	
-	function test() {
-		alert('hello!');
-	}
-	
-	this.selectTab = function (setTab) {
-		this.tab = setTab;
-	};
 	
 })();

@@ -35,10 +35,41 @@
 				</div>
 			</div>
 			
-			<div class="col-md-4">
-				<button class="btn btn-default pluginnew-button" ng-if="details.installed && !details.button" disabled title="Plugin is already installed!">Installed</button>
-				<button class="btn btn-default pluginnew-button" ng-if="!details.installed && !details.button" title="Install this plugin!">Install</button>
-				<button class="btn btn-default pluginnew-button" ng-if="details.button" title="{{ details.buttonTitle }}">{{ details.button }}</button>
+			<div class="col-md-4" ng-controller="InstallController">
+				
+				<!-- If the plugin is already available show this button, not further actions -->
+				<button class="btn btn-default pluginnew-button" 
+						ng-if="details.installed && !details.button" 
+						ng-disabled="true"
+						data-toggle="tooltip"
+						title="Plugin is already installed!">
+					Installed
+				</button>
+				
+				<!-- This button is for not yet installd plugins. Action to install plugin -->
+				<button class="btn btn-default pluginnew-button" 
+						ng-if="!details.installed && !details.button"
+						ng-click="click('install')"
+						ng-disabled="details.disabled"
+						data-toggle="tooltip"
+						title="Install this plugin!" >
+					Install
+					<i class="fa fa-cog fa-spin"
+					   ng-show="details.working"></i>
+				</button>
+				
+				<!-- shown for custom buttons with a custom title and buttontext -->
+				<button class="btn btn-default pluginnew-button" 
+						ng-if="details.button"
+						ng-click="click('add')"
+						ng-disabled="details.disabled"
+						data-toggle="tooltip"
+						title="{{ details.buttonTitle }}" >
+					{{ details.button }}
+					<i class="fa fa-cog fa-spin"
+					   ng-show="details.working"></i>
+				</button>
+				
 			</div>
 		</div>
 	</div>

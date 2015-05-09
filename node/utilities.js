@@ -626,6 +626,54 @@ exports.arrayDif = function(arr1, arr2, options) {
 
 
 /*
+ * From javascript object to array
+ *
+ * @param {object} input
+ * @param {function} callback
+ * @return {array}
+ */
+exports.objectToArray = function(obj, callback) {
+	var array = [];
+	for ( var data in obj ) {
+    	array.push( obj[data] );
+	}	
+	
+	util.doCallback(callback, {stdout: data});
+	
+	return array;
+};
+
+
+/*
+ * Sort an array
+ *
+ * @param {array} array: sortable array
+ * @param {object} options
+ * 		todo...
+ * @param {function} callback
+ */
+exports.sortArray = function(array, options, callback) {
+	
+	//TODO order on ASC/DESC and more
+	
+	array.sort(function(a, b) {
+		var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase();
+		
+		if (nameA < nameB) //sort string ascending
+			return -1;
+		if (nameA > nameB)
+			return 1;
+		
+		return 0; //default return value (no sorting)
+	});
+	
+	if (!util.doCallback(callback, {stdout: array})) {
+		return array;
+	}
+};
+
+
+/*
  * Install the dependencies with npm from package.json
  *
  * @param {object} options:

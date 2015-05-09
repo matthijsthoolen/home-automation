@@ -45,6 +45,7 @@ var socket = io();
 
     $(document).ready(function () {
         mainApp.main_fun();
+		$('[data-toggle="tooltip"]').tooltip();
     });
 
 }(jQuery));

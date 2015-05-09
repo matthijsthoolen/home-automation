@@ -1092,6 +1092,12 @@ exports.getPluginList = function(options, callback) {
 	var list = [];
 	var tmpRow = [];
 	
+	//From object to array for easy sorting
+	var array = util.objectToArray(data);
+	
+	//Sort the array
+	array = util.sortArray(array, {});
+	
 	//Add a dev item to the first row. 
 	if (dev) {
 		var devItem = {
@@ -1108,18 +1114,20 @@ exports.getPluginList = function(options, callback) {
 	}
 	
 	//For each plugin check if it's installed.
-	for (var id in data) {
+	array.forEach(function(plugin) {
+	//for (var id in data) {
 		
 		//If the row is full, push the row to the list
 		if (i % perRow === 0 && i !== 0) {
 			list.push(tmpRow);
 			tmpRow = [];
 		}
-		data[id].installed = exports.checkInstalled(id);
 		
-		tmpRow.push(data[id]);
+		plugin.installed = exports.checkInstalled(plugin.id);
+		
+		tmpRow.push(plugin);
 		i++;
-	}
+	});
 	
 	//Check if the tmpRow contains partly filled rows, and push them to the list.
 	if (tmpRow.length > 0) {

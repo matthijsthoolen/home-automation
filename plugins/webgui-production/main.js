@@ -155,6 +155,7 @@ function setErrorRouting() {
 function setIO() {
 	io.on('connection', function(socket){
 		//console.log('a user connected');
+		
 		socket.on('disconnect', function(){
 			//console.log('user disconnected');
 		});
@@ -184,6 +185,10 @@ function setIO() {
 					util.runForEach(msg.plugins, plugin.publishVersion, updateTable);
 					break;
 			}
+		});
+		
+		socket.on('pluginStoreButton', function(msg, fn) {
+			fn('Joe je kan verder!');
 		});
 	});
 }
