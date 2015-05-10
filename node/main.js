@@ -69,6 +69,8 @@ function startApplication() {
 
 	plugin.test();
 	
+	util.test();
+	
 	keepRunning();
 
 	process.on('SIGINT', function() {

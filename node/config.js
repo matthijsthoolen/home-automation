@@ -335,7 +335,7 @@ var getTempPath = function() {
  */
 var getPluginFolder = function(options) {
 	var abs = util.opt(options, 'abs', true);
-	var pluginname = util.opt(options, 'pluginname', null);
+	var pluginid = util.opt(options, 'pluginname', null);
 	var path = '';
 	
 	if (abs) {
@@ -345,8 +345,8 @@ var getPluginFolder = function(options) {
 	path += nconf.get('pluginfolder') + '/';
 	
 	//If a plugin name is given, get the plugin specific folder
-	if (pluginname !== null) {
-		var folder = nconf.get('plugins:' + pluginname + ':folder');
+	if (pluginid !== null) {
+		var folder = nconf.get('plugins:' + pluginid + ':folder');
 		if (typeof folder === 'undefined') {
 			return false;
 		}

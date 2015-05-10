@@ -1204,6 +1204,7 @@ exports.newDevPlugin = function(options, callback) {
 		var configfile = destination + 'config.json';
 		
 		//Some more data for the plugin config file
+		data.id = id;
 		data.main = 'main.js';
 		data.updatescript = 'update.js';
 		
@@ -1463,6 +1464,7 @@ exports.publishVersion = function(options, callback) {
  */
 function registerPlugin(info, callback) {
 	var message;
+	var prelogFunc = prelog + ':registerPlugin) ';
 	
 	//Make sure that info is available
 	if (info === undefined) {
@@ -1554,7 +1556,24 @@ function registerPlugin(info, callback) {
 			}
 			var newID = stdout.stdout.id;
 			
+			var folder = config.getPluginFolder({pluginname: oldID});
+			
+			//Set the new id in the global config
 			config.setUniqueID(oldID, newID);
+			
+			var configfile = folder + '/config.json';
+	
+			//Set the new ID in the plugin config file!
+			var options = {file: configfile, set: {id: newID}};
+
+			//change the config file inside the pluginfolder
+			changePluginConfig(options, function(err, stdout, stderr) {
+				if (err) {
+					log.debug(prelogFunc + 'Error with setting ID in plugin config file for ' + newID + ' inside folder: ' + folder);
+				}
+				
+				log.debug (prelogFunc + 'Succesfully changed ID from ' + oldID + ' to ' + newID + ' inside folder: ' + folder);
+			});
 			
 			util.doCallback(callback, {stdout: {id: newID}});
 		});
