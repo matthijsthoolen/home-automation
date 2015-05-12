@@ -366,17 +366,43 @@ exports.listDirectory = function(options, callback) {
 exports.test = function() {
 	var file = config.getAbsolutePath() + 'test.html';
 	
-	//console.log('hello there!!');
-	
- 	util.getFileContent({file: file, lock: true}, function(err, stdout, stderr) {
+/*   	util.getFileContent({file: file, lock: true}, function(err, stdout, stderr) {
 		util.getFileContent({file: file, lock: true}, function(err, stdout, stderr) {
 		
 		});
+	});  */
+	
+/* 	util.checkFileLock({file: file}, function(err, stdout, stderr) {
+		if (err) {
+			console.log(stderr);
+			return;
+		}
+		
+		console.log(stdout);
+	}); */
+	
+/* 	util.getFileContent({file: file, lock: false, keeplock: true}, function(err, stdout, stderr) {
 	});
 	
- 	util.getFileContent({file: file, lock: true}, function(err, stdout, stderr) {
+ 	util.getFileContent({file: file, keeplock: true, openmode: 'w'}, function(err, stdout, stderr) {
+		if (!err) {
+			var fd = stdout.fd;
+			var content = 'This is a good test! I think so at least!';
+			
+			console.log(stdout);
+			
+			util.setFileContent({fd: fd, content: content}, function(err, stdout, stderr) {
+				if (err) {
+					console.log(stderr);
+					return;
+				}
+				console.log(stdout);
+			});
+			return;
+		}
 		
-	});
+		console.log(stderr);
+	}); */
 };
 
 /*
@@ -386,6 +412,7 @@ exports.test = function() {
  *		file {string} abspath
  *		lock {boolean} (default: true)
  * 		keeplock {boolean} do not unlock, return fs object (default: false)
+ *		openmode {string} r, a, rw etc. (default r (read))
  * @param {function} callback
  * @callback {object}
  *		content {mixed} the file content
@@ -395,6 +422,7 @@ exports.getFileContent = function(options, callback) {
 	var file = util.opt(options, 'file', false);
 	var lock = util.opt(options, 'lock', true);
 	var keeplock = util.opt(options, 'keeplock', false);
+	var openmode = util.opt(options, 'openmode', 'r');
 	
 	var message;
 	var response = [];
@@ -410,9 +438,15 @@ exports.getFileContent = function(options, callback) {
 	if (lock) {
 		
 		//Lock the file
-		flockFile({file: file, action: 'exnb'}, function(err, stdout, stderr) {
+		util.lockFile({filename: file, openmode: openmode}, function(err, stdout, stderr) {
 			
-			var fd = stdout;
+			if (err) {
+				log.debug(prelogFunc + 'Error with locking file "' + file + '": ' + stderr);
+				util.callback(callback, {err: true, stderr: stderr});
+				return;
+			}
+			
+			var fd = stdout.fd;
 			
 			//Read content from the file
 			readFromFile(file, function(err, stdout, stderr) {
@@ -429,8 +463,11 @@ exports.getFileContent = function(options, callback) {
 			
 				//Unlock the file 
 				if (!keeplock) {
-					flockFile({file: file, fd: fd, action: 'un'}, function(err, stdout, stderr) {
+					flockFile({file: file, fd: false, action: 'un'}, function(err, stdout, stderr) {
 						util.doCallback(callback, {stdout: response});
+						
+						//Close the file object
+						fs.closeSync(fd);
 					});
 					return;
 				}
@@ -438,7 +475,7 @@ exports.getFileContent = function(options, callback) {
 				response.fd = fd;
 				
 				//DOING: good return, and check all old functions which are using this function. 
-				//Also the writefile hasn't been updated yet, and we need a public lock and unlock file
+				//Also the writefile hasn't been updated yet, and we need a public lock and unlock function
 				
 				//If file has to keep locked, return content and fd
 				util.doCallback(callback, {stdout: response});
@@ -458,14 +495,156 @@ exports.getFileContent = function(options, callback) {
 
 
 /*
+ * Lock a file
+ *
+ * @param {object} options:
+ *		filename {string}
+ *		fd {object} fs.open() object 
+ * 		openmode {string} r, a, rw etc. (default r (read))
+ * @param {function} callback
+ * @callback {object}:
+ *		fd {object} fs.open() object
+ */
+exports.lockFile = function(options, callback) {
+	var fd = util.opt(options, 'fd', false);
+	var file, openmode;
+	
+	var message;
+	var response= [];
+	var prelogFunc = prelog + ':lockFile) ';
+	
+	if (!fd) {
+		file = util.opt(options, 'filename', false);
+		openmode = util.opt(options, 'openmode', 'r');
+		
+		if (!file) {
+			return;
+		}
+		
+		fd = fs.openSync(file, openmode);
+	}
+	
+	response.fd = fd;
+	
+	flockFile({file: file, fd: fd, action: 'exnb'}, function(err, stdout, stderr) {
+		response.status = stdout;
+		util.doCallback(callback, {stdout: response});
+	});
+};
+
+
+/*
+ * Unlock a locked file
+ *
+ * @param {object} options:
+ *		fd {object} fs.open() object (required)
+ * @param {function} callback
+ * @callback {boolean}
+ */
+exports.unlockFile = function(options, callback) {
+	var fd = util.opt(options, 'fd', false);
+	
+	var message = '';
+	var response= [];
+	var prelogFunc = prelog + ':unlockFile) ';
+	
+	if (!fd) {
+		message = prelogFunc + 'Please give a file object!';
+		util.doCallback(callback, {err: true, stderr: message}, true);
+		return;
+	}
+	
+	flockFile({fd: fd, action: 'un'}, function(err, stdout, stderr) {
+		util.doCallback(callback, {stdout: true});
+		
+		//Close the file object
+		fs.close(fd, function(err) {
+			if (err) {
+				log.debug(prelogFunc + 'Error with closing file. Error: ' + err);
+			}
+		});
+	});	
+};
+
+
+/*
+ * Check if a file is locked
+ *
+ * @param {object} options:
+ *		fd {object} fs.open() object
+ *		file {string} filename
+ *		wait {boolean} wait until lock released (default: true)
+ *		keepopen {boolean} keep fd open (default true if fd given, else close);
+ * @param {function} callback
+ * @callback {object}:
+ *		status {boolean}
+ *		fd {object} if keeplock is true
+ */
+exports.checkFileLock = function(options, callback) {
+	var fd = util.opt(options, 'fd', false);
+	var keepopen = util.opt(options, 'keepopen', null);
+	
+	var message;
+	var response= [];
+	var prelogFunc = prelog + ':checkFileLock) ';
+	
+	//If fd is not given, try to open the file. 
+	if (!fd) {
+		var file = util.opt(options, 'file', false);
+		
+		if (!file) {
+			message = prelogFunc + 'No fd object or filename given, at least one is required';
+		}
+		
+		//Open file in readmode
+		fd = fs.openSync(file, 'r');
+		
+		//Close the keep lock if no preference is given
+		if (keepopen === null) {
+			keepopen = false;
+		}
+	} else {
+		//If the fd is already open, and if keeplock = null we have to keep the lock open
+		if (keepopen === null) {
+			keepopen = true;
+		}
+	}
+	
+	var wait = util.opt(options, 'wait', true);
+	
+	flockFile({fd: fd, wait: wait, action: 'exnb'}, function(err, stdout, stderr) {
+	
+		if (err) {
+			util.doCallback(callback, {err: true, stderr: stderr});
+			log.debug(prelogFunc + 'Error while checking for file lock');
+			response.status = false;
+		} else {
+			response.status = true;
+		}
+		
+		if (keepopen) {
+			response.fd = fd;
+			util.doCallback(callback, {stdout: response});
+			return;
+		}
+
+		util.doCallback(callback, {stdout: response});
+		
+	});
+	
+};
+
+
+/*
  * Do a flock action on a file
  *
  * @param {object} options:
  * 		fd {object} fn.opensync() object
  *		file {string} path to file
- *		wait {boolean} wait on already locked?
+ *		wait {boolean} wait on already locked? (default: true)
  *		action {string} 'exnb', 'ex', or 'un' (default: unnb)
  * @param {function} callback
+ * @callback {boolean}
  */
 function flockFile(options, callback) {
 	var fd = util.opt(options, 'fd', false);
@@ -486,10 +665,8 @@ function flockFile(options, callback) {
 
 			return log.debug(message);
 		}
-	}
-	
-	//If no file link is specified, get one with the filename
-	if (!fd) {
+		
+		//If no file link is specified, get one with the filename
 		fd = fs.openSync(file, 'r');
 	}
 	
@@ -500,28 +677,58 @@ function flockFile(options, callback) {
 
 /*
  * Execute the actual flock action. Do not use this function, use flockFile() instead!!
+ *
+ * @param {object} options:
+ * 		fd {object} fn.opensync()/fs.open() object
+ *		file {string} path to file
+ *		wait {boolean} wait on already locked? (default: true)
+ *		action {string} 'exnb', 'ex', or 'un' (default: unnb)
+ *		i {int} #try
+ *		timeout {int} (default: 50)
+ *		wait {boolean} (default: true)
+ *		justcheck {boolean} (default: true)
+ * @param {function} callback
  */
 function flockFileDo(options, callback) {
 	var fd = util.opt(options, 'fd', false);
 	var action = util.opt(options, 'action', false);
-	var i = util.opt(options, 'i', 0);
 	
-	var prelogFunc = prelog + 'flockFileDo) ';
+	var prelogFunc = prelog + ':flockFileDo) ';
+	var message;
 	
 	fs.flock(fd, action, function(err) {
 		if (err) {
+			
+			var timeout = util.opt(options, 'timeout', 50);
+			var i = util.opt(options, 'i', 0);
 			
 			//Retry until file can be blocked. Max of i = 10
 			setTimeout(function() {
 				i++;
 				
+				//If i is max, no longer try and fail
 				if (i >= 10) {
-					 return log.debug(prelogFunc + 'Flock operation "' + action + '" failed!');
+					var message = prelogFunc + 'Flock operation "' + action + '" failed!';
+					util.doCallback(callback, {stdout: false});
+					return log.debug(message);
 				}
 				
-				flockFileDo({fd: fd, action: 'exnb', i: i} , callback);
-			}, 100);
+				//Wait longer every step
+				options.timeout = timeout * 1.2;
+				options.i = i;
+				
+				flockFileDo(options , callback);
+			}, timeout);
 			
+			return;
+		}
+		
+		var justcheck = util.opt(options, 'justcheck', false);
+		
+		//If justcheck, directly unlock the file and return true
+		if (justcheck) {
+			util.unlockFile({fd: fd});
+			util.doCallback(callback, {stdout: true});
 			return;
 		}
 		
@@ -557,27 +764,95 @@ function readFromFile(file, callback) {
 
 
 /*
+ * Write to a file. Only for internal use, use setFileContent() instead
+ * 
+ * @param {object} options:
+ * 		fd {object} fn.opensync() object
+ *		content {string} file content to set
+ * @param {function} callback
+ */
+function writeToFile(options, callback) {
+	var fd = util.opt(options, 'fd', false);
+	var content = util.opt(options, 'content', false);
+	
+	var prelogFunc = prelog + ':writeToFile) ';
+	var message;
+	
+	if (!fd) {
+		message = prelogFunc + 'no fd object given!';
+		util.doCallback(callback, message);
+		log.debug(message);
+		return;
+	}
+	
+	//We can only write to the file if it's not locked. So check first.
+	util.checkFileLock({fd: fd}, function(err, stdout, stderr) {
+	
+		if (err || !stdout.status) {
+			message = prelogFunc + 'we can only write to file if not locked!';
+			log.debug(message);
+			return;
+		}
+		
+		//Do the actual writing to the file
+		fs.write(fd, content, 0, 0, function(err, written, string) {
+
+			if (err) {
+				message = prelogFunc + 'Error with saving file: ' + err;
+				log.debug(message);
+				util.doCallback(callback, {err: true, stderr: message}, true);
+				return;
+			}
+
+			//Return the file content
+			util.doCallback(callback, {stdout: written});
+
+			message = prelogFunc + 'succesfully saved ' + written + ' characters to file';
+			log.debug(message);
+		}); 
+		
+	});
+}
+
+/*
  * Set the file content
  *
  * @param {object} options
+ *		fd {object} fs.open() object
  *		file {string} abspath
  *		content {mixed} content to write to file
  *		json {boolean}
  *		lock {boolean} if not locked lock, and after write unlock (default: true)
+ *		keeplock {boolean} keep the lock after finished? (default: false)
+ *		openmode {string} r, a, rw etc. (default w (write/replace))
  * @param {function} callback
+ * @callback {object}:
+ *		fd {object} fs.open() object (if keeplock = true)
  */
 exports.setFileContent = function(options, callback) {
-	var file = util.opt(options, 'file', false);
 	var content = util.opt(options, 'content', '');
 	var json = util.opt(options, 'json', false);
+	var fd = util.opt(options, 'fd', false);
+	var lock = util.opt(options, 'lock', true);
 	
 	var message;
+	var response= [];
 	var prelogFunc = prelog + ':setFileContent) ';
 	
-	if (!file) {
-		message = prelogFunc + 'Please give a file path!';
-		util.doCallback(callback, {err: true, stderr: message}, true);
-		return;
+	//If no fd is given, open a file with the file name
+	if (!fd) {
+		
+		var file = util.opt(options, 'file', false);
+		var openmode = util.opt(options, 'openmode', 'w');
+		
+		if (!file) {
+			message = prelogFunc + 'Please give a file path or fd object!';
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+		}
+		
+		//Open file in sync with the requested openmode
+		fd = fs.openSync(file, openmode);
 	}
 	
 	//convert to json string if json is true
@@ -585,21 +860,53 @@ exports.setFileContent = function(options, callback) {
 		content = JSON.stringify(content);
 	}
 	
-	//Write to the file
-	fs.writeFile(file, content, function(err) {
-		if (err) {
-				message = prelogFunc + 'Error with saving file: ' + err;
-				util.doCallback(callback, {err: true, stderr: message}, true);
+	//If the file must be locked first
+	if (lock) {
+		util.lockFile({fd: fd}, function(err, stdout, stderr) {
+			//If error or the file couldn't be locked (within time)
+			if (err || !stdout.status) {
+				if (!stdout.status) {
+					message = prelogFunc + 'Unable to save to file! Couldnt lock the file in time!';
+				} else {
+					message = prelogFunc + 'Unable to save to file! Error with locking file. Error: ' + err;
+				}
+				
+				log.debug(message);
+				util.doCallback(callback, {err: true, stderr: stderr});
+				fs.close(fd);
 				return;
 			}
-
-		//Return the file content
-		util.doCallback(callback, {stdout: true});
-		
-		message = prelogFunc + 'succesfully saved to ' + file;
-		log.debug(message);
-		
-	}); 
+			
+			//Do the actual writing to the file.
+			writeToFile({fd: fd, content: content}, function(err, stdout, stderr) {
+				if (err) {
+					util.doCallback(callback, {err: true, stderr: stderr});
+					util.unlockFile({fd: fd});
+					
+					log.debug(prelogFunc + 'Error with writing to file, file is unlocked!');
+					return;
+				}
+				
+				response.written = stdout;
+				
+				var keeplock = util.opt(options, 'keeplock', false);
+				
+				//If keeplocked, return the fd with the callback
+				if (keeplock) {
+					response.fd = fd;
+					
+					util.doCallback(callback, {stdout: response});
+					return;
+				}
+				
+				//Else we can do a callback and unlock the file
+				util.doCallback(callback, {stdout: response});
+				util.unlockFile({fd: fd});
+			});
+		});
+	} else {
+		writeToFile({fd: fd, content: content}, callback);
+	}
 };
 
 
