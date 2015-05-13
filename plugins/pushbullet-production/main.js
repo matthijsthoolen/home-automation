@@ -1,15 +1,24 @@
 var PushBullet = require('./lib/pushbullet.js');
 var prelog = '(Plugin:Pushbullet:main';
 var pluginname = '';
+var stream;
 
 exports.start = function(name) {
 	pluginname = name;
 	var pusher = new PushBullet('JCSXJO6dn5sKyGD9sAVU8zZPS8mUDatA');
-	var stream = pusher.stream();
+	stream = pusher.stream();
 	
 	event.registerEvent('new-message', 'Sends a notification on a new push message on the stream', null);
 	
 	startStream(pusher, stream);
+};
+
+
+exports.stop = function(callback) {
+	stopStream();
+	log.info(prelog + ':stop) Succesfully stopped pushbullet');	
+	
+	util.doCallback(callback, {stdout: true});
 };
 
 
@@ -65,6 +74,14 @@ function startStream(pusher, stream) {
 /* 	pusher.devices(options, function(error, response) {
 		log.debug(response);
 	}); */
+}
+
+
+/*
+ * Close the pushbullet stream
+ */
+function stopStream() {
+	stream.close();
 }
 
 

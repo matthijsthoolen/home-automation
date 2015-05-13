@@ -99,7 +99,7 @@ function startPlugin(id, callback) {
 
 
 /*
- * Start the plugin.
+ * Stop the plugin.
  *
  * @param {string} plugin: name of the plugin
  * @return {boolean}
@@ -211,8 +211,6 @@ function checkFolder(callback) {
 			}
 			
 			var data = stdout.content.packageconfig;
-			
-			//var pluginid = config.getConfiguration('packageconfig:id');
 			
 			var pluginid = data.id;
 		
