@@ -532,7 +532,7 @@ var loadCustomConfig = function(options) {
 	if (!util.fileExists(abspath)) return;
 
 	try {
-		nconf.use(name, { type: 'file', file: abspath });
+		nconf.add(name, { type: 'file', file: abspath });
 		message = prelogFunc + 'Loaded custom config with name: ' + name;
 		log.debug(message);
 	} catch (e) {
