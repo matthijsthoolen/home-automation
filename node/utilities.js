@@ -413,6 +413,7 @@ exports.test = function() {
  *		lock {boolean} (default: true)
  * 		keeplock {boolean} do not unlock, return fs object (default: false)
  *		openmode {string} r, a, rw etc. (default r (read))
+ *		json {boolean} convert json to object (default: false)
  * @param {function} callback
  * @callback {object}
  *		content {mixed} the file content
@@ -458,8 +459,21 @@ exports.getFileContent = function(options, callback) {
 					return;
 				}
 				
-				//Add the content to the response
-				response.content = stdout;
+				var json = util.opt(options, 'json', false);
+				
+				//If json is true, convert json string to object
+				if (json) {
+					try {
+						var temp = JSON.parse(stdout.content);
+						response.content = temp;
+					} catch (e) {
+						log.debug(prelogFunc + 'Error with parsing JSON!');
+						response = stdout;
+					}
+				} else {
+					//Add the content to the response
+					response = stdout;	
+				}
 			
 				//Unlock the file 
 				if (!keeplock) {
@@ -473,9 +487,6 @@ exports.getFileContent = function(options, callback) {
 				}
 				
 				response.fd = fd;
-				
-				//DOING: good return, and check all old functions which are using this function. 
-				//Also the writefile hasn't been updated yet, and we need a public lock and unlock function
 				
 				//If file has to keep locked, return content and fd
 				util.doCallback(callback, {stdout: response});

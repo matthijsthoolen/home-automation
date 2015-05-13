@@ -175,6 +175,9 @@ function checkConfig() {
 function checkFolder(callback) {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
 	
+	var message;
+	var prelogFunc = prelog + ':checkFolder) ';
+	
 	if (typeof foldersDir === 'undefined') return;
 	
 	var foldersConf = [];
@@ -189,27 +192,50 @@ function checkFolder(callback) {
 	var confName;
 	
 	for (var folder in dif) {
-		confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
+		//confName = config.loadCustomConfig({abspath: pluginsfolder + dif[folder] + '/config.json'});
+		var file = pluginsfolder + dif[folder] + '/config.json';
 		
-		var pluginid = config.getConfiguration('packageconfig:id');
+		util.getFileContent({file: file, json: true}, function (err, stdout, stderr) {
+			if (err) {
+				log.debug(prelogFunc + 'problem with receiving content from plugin config file.');
+				util.doCallback(callback, {err: true, stderr: stderr});
+				return;
+			}
+			
+			//If packageconfig is not defined
+			if (!stdout.content.hasOwnProperty("packageconfig")) {
+				message = prelogFunc + 'getFileContent returned wrong data, cant find plugin info!';
+				util.doCallback(callback, {err: true, stderr: message});
+				log.debug(message);
+				return;
+			}
+			
+			var data = stdout.content.packageconfig;
+			
+			//var pluginid = config.getConfiguration('packageconfig:id');
+			
+			var pluginid = data.id;
 		
-		if (pluginid === undefined || pluginid === '') {
-			log.debug(prelog + ':checkFolder) The pluginfolder "' + dif[folder] + '" does not contain a pluginid. Plugin can\'t be added!');
-			util.doCallback(callback, {err: true, stderr: 'pluginid is not available'});
-			return;
-		}
-		
-		var options = {
-			folder: dif[folder],
-			name: config.getConfiguration('packageconfig:name'),
-			version: config.getConfiguration('packageconfig:version'),
-			level: config.getConfiguration('packageconfig:level'),
-			description: config.getConfiguration('packageconfig:description'),
-			active: false
-		};
-		
-		config.addPlugin(pluginid, options);
-		log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginid);
+			if (pluginid === undefined || pluginid === '') {
+				log.debug(prelog + ':checkFolder) The pluginfolder "' + dif[folder] + '" does not contain a pluginid. Plugin can\'t be added!');
+				util.doCallback(callback, {err: true, stderr: 'pluginid is not available'});
+				return;
+			}
+
+			var options = {
+				folder: dif[folder],
+				name: data.name,
+				version: data.version,
+				level: data.level,
+				description: data.description,
+				active: false
+			};
+
+			config.addPlugin(pluginid, options);
+			log.info(prelog + ':checkFolder) Found a new plugin inside the plugin directory. Added to config: ' + pluginid);
+			
+			
+		});
 	}
 	
 	config.removeCustomConfig({name: confName});
@@ -1687,12 +1713,14 @@ function changePluginConfig(options, callback) {
 			return;
 	}
 	
-	util.getFileContent({file: filepath}, function(err, stdout, stderr) {
+	util.getFileContent({file: filepath, lock: true, keeplock: true}, function(err, stdout, stderr) {
 		if (err) {
+			message = prelogFunc + 'Error while receiving file content!';
+			util.doCallback(callback, {err: true, stderr: message}, true);
 			return;
 		}
 		
-		var data = util.parseJSON(stdout);
+		var data = util.parseJSON(stdout.content);
 		
 		if (data.err) {
 			message = prelogFunc + 'Error with parsing plugin config file. Error: ' + data.stderr;
@@ -1717,7 +1745,7 @@ function changePluginConfig(options, callback) {
 		}
 		
 		//Write to the config file
-		util.setFileContent({file: filepath, content: data, json: true}, function(err, stdout, stderr) {
+		util.setFileContent({fd: stdout.fd, content: data, json: true, lock: true}, function(err, stdout, stderr) {
 			if (err) {
 				message = prelogFunc + 'Error while writing to plugin configfile!';
 			

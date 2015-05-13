@@ -186,8 +186,8 @@ var addPlugin = function(id, options, callback) {
 	nconf.set(configPlace + ':production', production);
 	
 	log.debug(prelog + ':AddPlugin) Added ' + name + ' ' + version + ' to the config');
-	
-	saveConfiguration(callback);
+
+	saveConfiguration();
 };
 
 
@@ -523,7 +523,7 @@ var loadCustomConfig = function(options) {
 	var name = util.opt(options, 'name', 'temp');
 	
 	var message;
-	var prelogFunc = prelog + 'loadCustomConfig) ';
+	var prelogFunc = prelog + ':loadCustomConfig) ';
 	
 	//Make sure not to overwrite
 	if (name === 'file') name = 'temp';
@@ -533,6 +533,8 @@ var loadCustomConfig = function(options) {
 
 	try {
 		nconf.use(name, { type: 'file', file: abspath });
+		message = prelogFunc + 'Loaded custom config with name: ' + name;
+		log.debug(message);
 	} catch (e) {
 		message = prelogFunc + 'Error with loading custom config. ' + e;
 		log.debug(message);
@@ -553,10 +555,16 @@ var loadCustomConfig = function(options) {
 var removeCustomConfig = function(options) {
 	var name = util.opt(options, 'name', null);
 	
+	var message;
+	var prelogFunc = prelog + ':removeCustomConfig) ';
+	
 	//Make sure not to remove default
 	if (name === 'file' || name === null) return;
 	
 	nconf.remove(name);
+	
+	message = prelogFunc + 'Removed custom config with name: ' + name;
+	log.debug(message);
 	
 	return true;
 };
