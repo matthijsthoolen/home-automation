@@ -67,7 +67,7 @@ function findBridge() {
 		} 
 		
 		if (result.length <= 0) {
-			log.error(prelog + ':findBridge) No bridge found, entering demo mode!');
+			log.warn(prelog + ':findBridge) No bridge found, entering demo mode!');
 			demo = true;
 			return false;
 		}

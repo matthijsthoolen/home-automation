@@ -30,7 +30,7 @@ function requireFiles(callback) {
 	util = require('./utilities');
 	logger = require('./log');
 	
-	plugin = require('./plugin');
+	plugin = require('./plugin')(childCallback);
 
 	event = require('./event')(childCallback);
 	eventstream = require('./eventstream');
@@ -49,7 +49,7 @@ function startApplication() {
 	actions = [];
 
 	//Start the logger, set the log level and location
-	logger.start('file', 'debug');
+	logger.start('file', 'trace');
 
 	//log.info(i18n.__('Hello %s, how are you today?', 'Marcus'));
 
@@ -62,7 +62,7 @@ function startApplication() {
 
 	//plugin.test();
 
-	plugin.startAll();
+	plugin.action.startAll();
 
 	//Ask all the plugins to registrate for events
 	event.askForRegistration();
@@ -94,7 +94,11 @@ function keepRunning() {
  */
 function childCallback(err, stdout, stderr) {
 	if (err && stderr === 1) {
-		console.log('Critical error, will shutdown now!');
+		try {
+			log.fatal('Critical error, will shutdown now!');
+		} catch (e) {
+			console.log('Critical error, will shutdown now!');
+		}
 		process.exit();
 	}
 }

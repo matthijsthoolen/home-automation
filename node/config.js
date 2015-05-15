@@ -602,7 +602,7 @@ function saveConfiguration(callback) {
 			message = prelog + ':SaveConfiguration) Saved configuration without errors';
 			util.doCallback(callback, {stdout: message});
 			try {
-				log.debug(message);
+				log.trace(message);
 			} catch (e) {
 				console.log(message);
 			}

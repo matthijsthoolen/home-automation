@@ -746,7 +746,7 @@ function flockFileDo(options, callback) {
 		//If no errors return the fd so we can use it to unlock again
 		util.doCallback(callback, {stdout: fd});
 		
-		log.debug(prelogFunc + 'Flock operation "' + action + '" succeeded!');
+		log.trace(prelogFunc + 'Flock operation "' + action + '" succeeded!');
 	});
 }
 
