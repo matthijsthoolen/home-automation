@@ -805,8 +805,10 @@ function writeToFile(options, callback) {
 			return;
 		}
 		
+		var buf = new Buffer(content);
+		
 		//Do the actual writing to the file
-		fs.write(fd, content, 0, 0, 1, function(err, written, string) {
+		fs.write(fd, buf, 0, buf.length, 0, function(err, written, string) {
 
 			if (err) {
 				message = prelogFunc + 'Error with saving file: ' + err;
@@ -864,6 +866,10 @@ exports.setFileContent = function(options, callback) {
 		
 		//Open file in sync with the requested openmode
 		fd = fs.openSync(file, openmode);
+	} else {
+		//Else make sure that the file is completely empty before writing something to the file
+		fs.truncateSync(fd, '');
+		console.log('emptied file?');
 	}
 	
 	//convert to json string if json is true
@@ -887,6 +893,8 @@ exports.setFileContent = function(options, callback) {
 				fs.close(fd);
 				return;
 			}
+			
+			
 			
 			//Do the actual writing to the file.
 			writeToFile({fd: fd, content: content}, function(err, stdout, stderr) {
