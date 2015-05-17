@@ -3,26 +3,55 @@ module.exports = function(callback) {
 	prelog = '(Pluginmodule';
 	parentCallback = callback;
 	
-	//Export functions in this file
-	this.start = start;
-	this.stop = stop;
+	var ext = [];
+	int = {};
 	
 	//Export other files
- 	this.general 		= require('./plugin-general.js');
-	this.action 		= require('./plugin-action.js');
-	this.check			= require('./plugin-check.js');
-	this.install 		= require('./plugin-install.js');
-	this.production 	= require('./plugin-production.js');
-	this.store			= require('./plugin-store.js');
+ 	var general			= require('./plugin-general.js')(parentCallback);
+	ext					= merge_options(ext, general.ext);
+	int 				= merge_options(int, general.int);
 	
-	return this;
+	var action			= require('./plugin-action.js')(parentCallback);
+	ext					= merge_options(ext, action.ext);
+	int 				= merge_options(int, action.int);
+	
+	var check			= require('./plugin-check.js')(parentCallback);
+	ext					= merge_options(ext, check.ext);
+	int 				= merge_options(int, check.int);
+	
+	var install			= require('./plugin-install.js')(parentCallback);
+	ext					= merge_options(ext, install.ext);
+	int 				= merge_options(int, install.int);
+	
+	var production			= require('./plugin-production.js')(parentCallback);
+	ext					= merge_options(ext, production.ext);
+	int 				= merge_options(int, production.int);
+	
+	var store			= require('./plugin-store.js')(parentCallback);
+	ext					= merge_options(ext, store.ext);
+	int 				= merge_options(int, store.int);
+	
+	//Export functions in this file
+	ext.start = start;
+	ext.stop = stop;
+	ext.test = test;
+	
+	return ext;
 	
 	//@Me when you have more energy, try to find a way to have private functions inside the mother module.\
 	//Something like this.p(rivate).general and this.g(lobal).general and then return this.g(lobal)
 	
 };
 
+function merge_options(obj1,obj2){
+    var obj3 = {};
+    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+    return obj3;
+}
+
 var test = function() {
+	
 	//plugin.check();
 	//checkFolder();
 	//plugin.getVersionList();
@@ -65,9 +94,10 @@ var test = function() {
  * Start the plugin script, and set some variables.
  */
 var start = function start() {
-	checkConfig();
-	checkFolder();
-	this.install.getVersionList();
+	int.checkConfig();
+	int.checkFolder();
+	int.getVersionList();
+	log.warn(prelog + ':start) Pluginmodule started!');
 };
 
 
@@ -75,5 +105,5 @@ var start = function start() {
  * On exit
  */
 var stop = function stop() {
-	stopAll();
+	this.action.stopAll();
 };

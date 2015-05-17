@@ -4,7 +4,23 @@
  *																			  *
 \******************************************************************************/
 
-prelog = 'PluginModule:install';
+var prelog = '(Pluginmodule:install';
+
+module.exports = function(callback) {
+	
+	parentCallback = callback;
+	
+	var ext = [];
+	var int = [];
+	
+	ext.remove = remove;
+	ext.install = install;
+	ext.update = update;
+	
+	int.getVersionList = getVersionList;
+	
+	return {ext: ext, int: int};
+};
 
 
 /*
@@ -13,7 +29,7 @@ prelog = 'PluginModule:install';
  * @param {string} name: plugin name
  * @return {boolean}
  */
-exports.remove = function(id, callback) {
+var remove = function remove(id, callback) {
 	var plugindir = config.getPluginFolder({pluginname: id}); 
 	
 	var message;
@@ -26,14 +42,14 @@ exports.remove = function(id, callback) {
 	};
 	
 	//If the plugin is unremovable only deactivate it
-	if (!pluginRemovable(id)) {
+	if (!int.pluginRemovable(id)) {
 		response.status = 'failed';
 		response.message = 'Plugin can\'t be removed, plugin will be deactivated instead!';
 		util.doCallback(callback, {err: true, stderr: response});
 		return plugin.deactivate(id);
 	}
 	
-	stopPlugin(id);	
+	int.stopPlugin(id);	
 	
 	uninstall(id);
 	
@@ -93,7 +109,7 @@ function uninstall(name) {
  *		version {string}
  * @param {function} callback
  */
-exports.install = function(id, options, callback) {
+var install = function install(id, options, callback) {
 	var name = util.opt(options, 'name', id);
 	var version = util.opt(options, 'version', '0.0.1');
 	var folder = id;
@@ -129,7 +145,7 @@ exports.install = function(id, options, callback) {
  * 		New version {String} 
  * @param {Function} Callback
  */
-exports.update = function(options, callback) {	
+var update = function update(options, callback) {	
 	var id = util.opt(options, 'id', false);
 	var version = util.opt(options, 'version', 'latest');
 	var endOptions = {id: id, 
@@ -139,6 +155,9 @@ exports.update = function(options, callback) {
 					  backup: false,
 					  active: false,
 					  changed: false};
+	
+	var exec = require('child_process').exec;
+	var fs = require('fs');
 	
 	var response = {
 		id: id,
@@ -169,7 +188,7 @@ exports.update = function(options, callback) {
 	}
 	
 	//stop the plugin
-	stopPlugin(id);
+	int.stopPlugin(id);
 	
 	var folder = id;
 	var tempdir = config.getTempPath();
@@ -300,7 +319,7 @@ exports.update = function(options, callback) {
 						
 						//If the plugin was active, now start it again.
 						if (pluginconfig.active) {
-							startPlugin(id);
+							int.startPlugin(id);
 							util.doCallback(callback, {stdout: 'Plugin restarted'});
 						}
 						
@@ -404,7 +423,7 @@ function restoreBackup(options, callback) {
 	
 	//Reactivate plugin if no backup and plugin was active before
 	if (!backup && active) {
-		startPlugin(id);
+		int.startPlugin(id);
 	}
 }
 
@@ -441,7 +460,7 @@ function moveBackup(options, callback) {
 		
 		//Try to restart if the plugin is active
 		if (active) {
-			startPlugin(id);
+			int.startPlugin(id);
 		}
 	});	
 }
@@ -463,6 +482,8 @@ function downloadFile(options, callback) {
 	var folder = util.opt(options, 'folder', false);
 	var version = util.opt(options, 'version', 'latest');
 	var current = util.opt(options, 'currentversion', false);
+	
+	var exec = require('child_process').exec;
 	
 	var message;
 	var prelogConf = prelog + ':downloadFile) ';
@@ -546,7 +567,7 @@ function downloadFile(options, callback) {
  *		force {boolean} (default: false)
  * @param {function} callback
  */
-exports.getVersionList = function(options, callback) {
+var getVersionList = function getVersionList(options, callback) {
 	var tempdir = config.getTempPath();
 	var server = config.getConfiguration('downloadserver');
 	var force = util.opt(options, 'force', false);

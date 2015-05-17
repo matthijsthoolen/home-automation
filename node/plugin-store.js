@@ -4,8 +4,20 @@
  *																			  *
 \******************************************************************************/
 
+var prelog = '(Pluginmodule:store';
 
-prelog = 'PluginModule:store';
+module.exports = function(callback) {
+	
+	parentCallback = callback;
+	
+	var ext = [];
+	var int = [];
+	
+	ext.getPluginList = getPluginList;
+	
+	return {ext: ext, int: int};
+};
+
 
 /*
  * Get a list of all the online plugins, flag the plugins which are installed already
@@ -17,7 +29,7 @@ prelog = 'PluginModule:store';
  * @param {function} callback
  * @return {object} pluginlist
  */
-exports.getPluginList = function(options, callback) {
+var getPluginList = function getPluginList(options, callback) {
 	var data = config.getConfiguration('server');
 	
 	var order = util.opt(options, 'order', 'asc');

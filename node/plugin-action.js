@@ -4,13 +4,34 @@
  *																			  *
 \******************************************************************************/
 
+var prelog = '(Pluginmodule:action';
+
+module.exports = function(callback) {
+	
+	parentCallback = callback;
+	
+	var ext = [];
+	var int = [];
+	
+	ext.startAll = startAll;
+	ext.stopAll = stopAll;
+	ext.callFunction = callFunction;
+	ext.getPluginInfo = getPluginInfo;
+	ext.activate = activate;
+	ext.deactivate = deactivate;
+	
+	int.startPlugin = startPlugin;
+	int.stopPlugin = stopPlugin;
+	
+	return {ext: ext, int: int};
+};
 
 /*
  * Start the plugin.
  *
  * @param {string} id
  */
-function startPlugin(id, callback) {
+var startPlugin = function startPlugin(id, callback) {
 	var pluginfolder = config.getPluginFolder({'abs': true});
 	var plugininfo = config.getPluginInfo(id);
 	
@@ -32,7 +53,7 @@ function startPlugin(id, callback) {
 	
 	//Start the plugin and send the name as a parameter
 	plugins[id].start(id);
-}
+};
 
 
 /*
@@ -57,7 +78,7 @@ function stopPlugin(plugin) {
 /*
  * Start all the active plugins
  */
-exports.startAll = function() {	
+var startAll = function startAll() {	
 	var plugins = config.getActivePlugins();
 	
 	log.info(prelog + ':startAll) Starting all plugins');
@@ -71,7 +92,7 @@ exports.startAll = function() {
 /*
  * Start all the active plugins
  */
-function stopAll() {
+var stopAll = function stopAll() {
 	var plugins = config.getActivePlugins();
 	
 	log.info(prelog + ':stopAll) Stopping all plugins');
@@ -79,7 +100,7 @@ function stopAll() {
 	for(var name in plugins) {
 		stopPlugin(name);
 	}
-}
+};
 
 
 /*
@@ -91,7 +112,7 @@ function stopAll() {
  * @param {object} info
  * @return {boolean}
  */
-exports.callFunction = function(plugin, functionname, parameters, info) {
+var callFunction = function callFunction(plugin, functionname, parameters, info) {
 	//TODO: Check if parameters and info can be combined	
 	
 	//return false if the plugin is not loaded (doesn't exist in the array)
@@ -115,13 +136,13 @@ exports.callFunction = function(plugin, functionname, parameters, info) {
  * @param {object} filter
  * @return {object} 
  */
-exports.getPluginInfo = function(filter) {
+var getPluginInfo = function getPluginInfo(filter) {
 	//TODO filter
 	var plugins = config.getPlugins();
 	var info = [];
 	var tmp = {};
 	
-	getVersionList();
+	int.getVersionList();
 	
 	//var versions = getVersionList();
 	
@@ -161,7 +182,7 @@ exports.getPluginInfo = function(filter) {
  * @param {string} id
  * @return {boolean}
  */
-exports.activate = function(id, callback) {
+var activate = function activate(id, callback) {
 	var info = config.getPluginInfo(id);
 	
 	//Build a response message
@@ -211,7 +232,7 @@ exports.activate = function(id, callback) {
  * @param {string} name
  * @return {boolean}
  */
-exports.deactivate = function(id, callback) {
+var deactivate = function deactivate(id, callback) {
 	var info = config.getPluginInfo(id);
 	
 	//Build a response message

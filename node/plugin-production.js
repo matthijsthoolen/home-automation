@@ -4,7 +4,23 @@
  *																			  *
 \******************************************************************************/
 
-prelog = 'PluginModule:production';
+var prelog = '(Pluginmodule:production';
+
+module.exports = function(callback) {
+	
+	parentCallback = callback;
+	
+	var ext = [];
+	var int = [];
+	
+	ext.newDevPlugin = newDevPlugin;
+	ext.checkDevPlugins = checkDevPlugins;
+	ext.publish = publish;
+	ext.publishVersion = publishVersion;
+	
+	return {ext: ext, int: int};
+};
+
 
 /*
  * Create a new folder inside plugin directory for a new development plugin.
@@ -15,7 +31,7 @@ prelog = 'PluginModule:production';
  *		version {int} (default: 0.0.1)
  * @param {function} callback
  */
-exports.newDevPlugin = function(options, callback) {
+var newDevPlugin = function newDevPlugin(options, callback) {
 	var name = util.opt(options, 'name', false);
 	var description = util.opt(options, 'description', 'No description available');
 	var version = util.opt(options, 'version', '0.0.1');
@@ -83,7 +99,7 @@ exports.newDevPlugin = function(options, callback) {
  * @param {function} callback
  * @return {object} plugininfo with a .me added
  */
-exports.checkDevPlugins = function(plugins, callback) {
+var checkDevPlugins = function checkDevPlugins(plugins, callback) {
 	var message, response;
 	var prelogFunc = prelog + ':checkDeveloper) ';
 	
@@ -170,7 +186,7 @@ function checkDeveloper(options, callback) {
  * @param {function} callback
  * @return {callback} default callback
  */
-exports.publish = function(id, callback) {
+var publish = function publish(id, callback) {
 	
 	var folder = config.getPluginFolder({pluginname: id});
 	var info = {};
@@ -235,7 +251,7 @@ exports.publish = function(id, callback) {
  *		version {string} (required)
  * @param{function} callback
  */
-exports.publishVersion = function(options, callback) {
+var publishVersion = function publishVersion(options, callback) {
 	var id = util.opt(options, 'id', false);
 	var version = util.opt(options, 'version', false);
 	version = version.trim();
@@ -545,7 +561,7 @@ function changePluginConfig(options, callback) {
 			return;
 	}
 	
-	util.getFileContent({file: filepath, lock: true, keeplock: true}, function(err, stdout, stderr) {
+	util.getFileContent({file: filepath, lock: true, keeplock: true, openmode: 'a+'}, function(err, stdout, stderr) {
 		if (err) {
 			message = prelogFunc + 'Error while receiving file content!';
 			util.doCallback(callback, {err: true, stderr: message}, true);
@@ -616,6 +632,7 @@ function uploadPlugin(info, callback) {
 	};
 	
 	var request = require('request');
+	var fs = require('fs');
 	
 	var req = request.post(url, function (err, resp, body) {
 		

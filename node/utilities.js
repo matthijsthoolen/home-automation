@@ -806,7 +806,7 @@ function writeToFile(options, callback) {
 		}
 		
 		//Do the actual writing to the file
-		fs.write(fd, content, 0, 0, function(err, written, string) {
+		fs.write(fd, content, 0, 0, 1, function(err, written, string) {
 
 			if (err) {
 				message = prelogFunc + 'Error with saving file: ' + err;
@@ -835,7 +835,7 @@ function writeToFile(options, callback) {
  *		json {boolean}
  *		lock {boolean} if not locked lock, and after write unlock (default: true)
  *		keeplock {boolean} keep the lock after finished? (default: false)
- *		openmode {string} r, a, rw etc. (default w (write/replace))
+ *		openmode {string} r, a, rw, w etc. (default w (write/replace))
  * @param {function} callback
  * @callback {object}:
  *		fd {object} fs.open() object (if keeplock = true)

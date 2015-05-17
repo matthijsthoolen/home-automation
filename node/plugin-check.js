@@ -4,6 +4,24 @@
  *																			  *
 \******************************************************************************/
 
+var prelog = '(Pluginmodule';
+
+module.exports = function(callback) {
+
+	parentCallback = callback;
+	
+	var ext = [];
+	var int = [];
+	
+	int.pluginRemovable = pluginRemovable;
+	int.checkInstalled = checkInstalled;
+	int.checkConfig = checkConfig;
+	int.checkFolder = checkFolder;
+	
+	return {ext: ext, int: int};
+	
+};
+
 
 /*
  * Check if a plugin is removable (production apps are not removable). 
@@ -11,7 +29,7 @@
  * @param {string} name
  * @return {boolean}
  */
-function pluginRemovable(name, callback) {
+var pluginRemovable = function pluginRemovable(name, callback) {
 	var info = config.getPluginInfo(name);
 	
 	if (!info) {
@@ -26,7 +44,7 @@ function pluginRemovable(name, callback) {
 	
 	if (!util.doCallback(callback, {stdout: true}))
 		return true;
-}
+};
 
 
 /*
@@ -37,7 +55,7 @@ function pluginRemovable(name, callback) {
  * @param {function} callback
  * @return {boolean}
  */
-exports.checkInstalled = function(id, options, callback) {
+var checkInstalled = function checkInstalled(id, options, callback) {
 	
 	//If the plugin name is not available, we assume that the plugin is not installed
 	if (!config.getPluginName(id)) {
@@ -55,9 +73,11 @@ exports.checkInstalled = function(id, options, callback) {
 /*
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
-exports.checkConfig = function() {
+var checkConfig = function checkConfig() {
 	var plugins = config.getActivePlugins();
 	var plugindir = config.getPluginFolder();
+	
+	var fs = require('fs');
 	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
@@ -72,7 +92,7 @@ exports.checkConfig = function() {
  * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
  * the config file, but do not activate them.
  */
-exports.checkFolder = function(callback) {
+var checkFolder = function checkFolder(callback) {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});
 	
 	var message;

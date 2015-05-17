@@ -62,7 +62,7 @@ function startApplication() {
 
 	//plugin.test();
 
-	plugin.action.startAll();
+	plugin.startAll();
 
 	//Ask all the plugins to registrate for events
 	event.askForRegistration();
