@@ -105,6 +105,7 @@ exports.checkPath = function (path, callback) {
  * Check if file exists
  * 
  * @param {string} abspath
+ * @returns {boolean}
  */
 exports.fileExists = function(abspath) {
 	return checkExists(abspath, 2);
@@ -115,6 +116,7 @@ exports.fileExists = function(abspath) {
  * Check if directory exists
  *
  * @param {string} abspath
+ * @returns {boolean}
  */
 exports.dirExists = function(abspath) {
 	return checkExists(abspath, 1);
@@ -129,7 +131,7 @@ exports.dirExists = function(abspath) {
  *		1: folder
  *		2: file (default)
  *
- * @return {boolean}
+ * @returns {boolean}
  */
 function checkExists(abspath, type) {
 	abspath = util.checkParam(abspath, null);
@@ -500,6 +502,14 @@ exports.getFileContent = function(options, callback) {
 		return;
 	}
 	
+	if (!util.fileExists(file)) {
+		message = prelogFunc + 'File (' + file +') doesn\'t exists (anymore)';
+		util.doCallback(callback, {err: true, stderr: message}, true);
+		return;
+	}
+	
+	//DOING: check for getFileContent and setFileContent if file exists. Also catch any exceptions.
+	
 	//If lock: first lock the file
 	if (lock) {
 		
@@ -597,6 +607,12 @@ exports.lockFile = function(options, callback) {
 			return;
 		}
 		
+		if (!util.fileExists(file)) {
+			message = prelogFunc + 'File (' + file +') doesn\'t exists (anymore)';
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+		}
+		
 		fd = fs.openSync(file, openmode);
 	}
 	
@@ -670,6 +686,13 @@ exports.checkFileLock = function(options, callback) {
 		
 		if (!file) {
 			message = prelogFunc + 'No fd object or filename given, at least one is required';
+		}
+		
+		//Check if file still exists before trying to open
+		if (!util.fileExists(file)) {
+			message = prelogFunc + 'File (' + file +') doesn\'t exists (anymore)';
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
 		}
 		
 		//Open file in readmode
@@ -925,6 +948,13 @@ exports.setFileContent = function(options, callback) {
 		
 		if (!file) {
 			message = prelogFunc + 'Please give a file path or fd object!';
+			util.doCallback(callback, {err: true, stderr: message}, true);
+			return;
+		}
+		
+		//Check if file still exists before trying to open the file!
+		if (!util.fileExists(file)) {
+			message = prelogFunc + 'File (' + file +') doesn\'t exists (anymore)';
 			util.doCallback(callback, {err: true, stderr: message}, true);
 			return;
 		}

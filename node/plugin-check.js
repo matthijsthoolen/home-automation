@@ -91,6 +91,8 @@ var checkConfig = function checkConfig() {
 /*
  * Check the plugin folder for plugins who are not added to the config file. Add the plugins to
  * the config file, but do not activate them.
+ *
+ * @param {function} callback
  */
 var checkFolder = function checkFolder(callback) {
 	var foldersDir = util.listDirectory({abspath: config.getPluginFolder(), folders: true, files: false});

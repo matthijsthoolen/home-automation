@@ -86,7 +86,7 @@ var test = function() {
 		}
 	}); */
 	
-	//plugin.newDevPlugin({name: 'tester'});
+	plugin.newDevPlugin({name: 'tester'});
 };
 
 
@@ -97,7 +97,7 @@ var start = function start() {
 	int.checkConfig();
 	int.checkFolder();
 	int.getVersionList();
-	log.warn(prelog + ':start) Pluginmodule started!');
+	log.info(prelog + ':start) Pluginmodule started!');
 };
 
 
@@ -105,5 +105,5 @@ var start = function start() {
  * On exit
  */
 var stop = function stop() {
-	this.action.stopAll();
+	this.stopAll();
 };

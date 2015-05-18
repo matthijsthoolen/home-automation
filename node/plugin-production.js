@@ -49,11 +49,20 @@ var newDevPlugin = function newDevPlugin(options, callback) {
 	
 	var ncp = require('ncp').ncp;
 	
-	var id, folder = name + '-production';
+	var id = name + '-production';
+	var folder = name + '-production';
 	var developer = config.getDeveloperInfo();
 	
 	var destination = config.getPluginFolder() + folder;
 	var source = config.getPluginFolder() + 'plugin-default';
+	
+	//Check if the folder already exists
+	if (util.dirExists(destination)) {
+		message = prelogFunc + 'A pluginfolder for this name (' + name + ') already exists! Try another name.';
+		log.warn(message);
+		util.doCallback(callback, {err: true, stderr: message});
+		return;
+	}
 	
 	//Copy the default plugin template to a new folder
 	ncp(source, destination, function(err) {
@@ -73,9 +82,10 @@ var newDevPlugin = function newDevPlugin(options, callback) {
 				   };
 		
 		//Add the new plugin to the global config file
+		log.trace(prelogFunc + 'Adding new plugin to config file');
 		config.addPlugin(id, data);
 		
-		var configfile = destination + 'config.json';
+		var configfile = destination + '/config.json';
 		
 		//Some more data for the plugin config file
 		data.id = id;
@@ -83,10 +93,19 @@ var newDevPlugin = function newDevPlugin(options, callback) {
 		data.updatescript = 'update.js';
 		
 		//Set the plugin config file
-		changePluginConfig({file: configfile, set: data});
+		log.trace(prelogFunc + 'Set plugin data to plugin specific config file');
+		changePluginConfig({file: configfile, set: data}, function(err, stdout, stderr) {
+			if (err) {
+				message = prelogFunc + 'Problem with changing plugin configuration';
+				util.doCallback(callback, {err: true, stderr: message}, true);
+				return;
+			}
+			
+			//If everything is succesfull, give a callback!
+			message = prelogFunc + 'Created new developer plugin with name: "' + name + '" inside folder: "' + folder + '"!';
+			util.doCallback(callback, {stdout: message}, true);
+		});
 	});
-	
-	var pluginDir = config.getPluginFolder();
 };
 
 
