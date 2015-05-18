@@ -165,7 +165,7 @@ var getPluginInfo = function getPluginInfo(filter) {
 		tmp.update = false;
 		
 		//Check if there is a new version available
-		if (tmp.newversion !== false && tmp.newversion > tmp.version) {
+		if (tmp.newversion !== false && util.versionCompare(tmp.newversion, tmp.version) > 0) {
 			tmp.update = true;
 		}
 		

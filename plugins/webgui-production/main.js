@@ -187,9 +187,7 @@ function setIO() {
 			}
 		});
 		
-		socket.on('pluginStoreButton', function(msg, fn) {
-			fn('Joe je kan verder!');
-		});
+		socket.on('pluginStoreButton', pluginStoreButton);
 	});
 }
 
@@ -219,6 +217,10 @@ function publishPlugin() {
 	io.emit('askVersion', 'test');
 }
 
+	
+/*
+ *
+ */
 function updateTable(err, stdout, stderr) {
 	if (err) {
 		log.error('Error: ' + stderr.message);
@@ -227,6 +229,35 @@ function updateTable(err, stdout, stderr) {
 	}
 	
 	io.emit('pluginlistupdate', stdout);
+}
+	
+	
+/*
+ * On click of the 'add' or 'install' button on the new plugin page, run this function
+ *
+ * @param {object} msg
+ *		action {string}
+ * @param {function} callback
+ */
+function pluginStoreButton(msg, callback) {
+	var action = util.opt(msg, 'action', false);
+	var name = util.opt(msg, 'name', false);
+	
+	var prelogFunc = prelog + ':pluginStoreButton) ';
+	
+	if (action === 'add') {
+		plugin.newDevPlugin({name: name}, function(err, stdout, stderr) {
+			if (err) {
+				log.warn(prelogFunc + 'Couldn\'t create newDevPlugin!');
+				util.doCallback(callback, {err: true, stderr: 'Couldn\'t create newDevPlugin!'});
+				return;
+			}
+			
+			console.log('working!');
+			
+			callback('Joe je kan verder!');
+		});
+	}
 }
 
 

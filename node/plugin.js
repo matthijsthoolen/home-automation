@@ -86,7 +86,7 @@ var test = function() {
 		}
 	}); */
 	
-	plugin.newDevPlugin({name: 'tester'});
+	//plugin.newDevPlugin({name: 'tester'});
 };
 
 

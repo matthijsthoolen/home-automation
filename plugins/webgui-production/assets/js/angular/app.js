@@ -11,13 +11,15 @@
 		$scope.click = function(action) {
 			details.disabled = true;
 			details.working = true;
+			var name = 'NewPluginYeah';
 			var data = {
 				id: details.id,
-				action: action
+				action: action,
+				name: name
 			};
 			
 			//Send socket request to server, and after response change button or reeanble
-			socket.emit('pluginStoreButton', data, function(data) {
+			socket.emit('pluginStoreButton', data, function(err, stdout, stderr) {
 				
 				if (action === 'install') {
 					details.installed = true;

@@ -36,7 +36,7 @@ var getPluginList = function getPluginList(options, callback) {
 	var perRow = util.opt(options, 'perRow', 4);
 	var dev = util.opt(options, 'dev', false);
 	
-	var plugin;
+	var plugindata;
 	var i = 0;
 	
 	var list = [];
@@ -64,7 +64,7 @@ var getPluginList = function getPluginList(options, callback) {
 	}
 	
 	//For each plugin check if it's installed.
-	array.forEach(function(plugin) {
+	array.forEach(function(plugindata) {
 	//for (var id in data) {
 		
 		//If the row is full, push the row to the list
@@ -73,9 +73,9 @@ var getPluginList = function getPluginList(options, callback) {
 			tmpRow = [];
 		}
 		
-		plugin.installed = exports.checkInstalled(plugin.id);
+		plugindata.installed = int.checkInstalled(plugindata.id);
 		
-		tmpRow.push(plugin);
+		tmpRow.push(plugindata);
 		i++;
 	});
 	

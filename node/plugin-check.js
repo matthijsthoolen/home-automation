@@ -4,7 +4,7 @@
  *																			  *
 \******************************************************************************/
 
-var prelog = '(Pluginmodule';
+var prelog = '(Pluginmodule:check';
 
 module.exports = function(callback) {
 
@@ -74,14 +74,14 @@ var checkInstalled = function checkInstalled(id, options, callback) {
 * Check if all the plugins in the config file still exists, if not remove from config file
 */
 var checkConfig = function checkConfig() {
-	var plugins = config.getActivePlugins();
+	var plugins = config.getPlugins();
 	var plugindir = config.getPluginFolder();
 	
 	var fs = require('fs');
 	
 	for(var plugin in plugins) {
 		if (!fs.existsSync(plugindir + plugins[plugin].folder)) {
-    		config.removePlugin(plugins[plugin].name);
+    		config.removePlugin(plugins[plugin].id);
 			log.info(prelog + ':checkConfig) Removed plugin from config file: ' + plugins[plugin].name); 
 		}
 	}
@@ -157,7 +157,5 @@ var checkFolder = function checkFolder(callback) {
 			
 		});
 	}
-	
-	config.removeCustomConfig({name: confName});
 
 };
