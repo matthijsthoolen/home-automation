@@ -68,6 +68,10 @@
 					{{ details.button }}
 					<i class="fa fa-cog fa-spin"
 					   ng-show="details.working"></i>
+					<i class="fa fa-warning"
+					   ng-show="details.error" title="{{ details.message }}"></i>
+					<i class="fa fa-check"
+					   ng-show="details.done" title="{{ details.message }}"></i>
 				</button>
 				
 			</div>

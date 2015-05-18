@@ -9,26 +9,87 @@
 		var details = $scope.$parent.details;
 		
 		$scope.click = function(action) {
+			//Disable the button and add a spinner
 			details.disabled = true;
 			details.working = true;
-			var name = 'NewPluginYeah';
+			
+			//Reset any errors and successes
+			details.error = false;
+			details.done = false;
+			
 			var data = {
 				id: details.id,
-				action: action,
-				name: name
+				action: action
 			};
 			
-			//Send socket request to server, and after response change button or reeanble
-			socket.emit('pluginStoreButton', data, function(err, stdout, stderr) {
-				
-				if (action === 'install') {
-					details.installed = true;
-				}
-				
-				details.disabled = false;
-				details.working = false;
-				
-				$scope.$apply();
+			//Message for the bootstrap dialog
+			var message = '' +
+				'Please give the name for the new plugin, other options can be set later!' +
+				'<form class="form-horizontal">' +
+					'<div class="form-group"> '+
+						'<label for="add-dev" class="col-sm-4 control-label">New plugin name</label>' +
+						'<div class="col-sm-6">' +
+							'<input type="text" class="form-control name" placeholder="Name for plugin">' + 
+						'</div>' +
+					'</div>' +
+				'</form>';
+			
+			//Show the bootstrap dialog window
+			BootstrapDialog.show({
+				title: 'Create new dev plugin',
+				message: message,
+				closable: true,
+				closeByBackdrop: false,
+				buttons: [
+					{
+						label: 'Add',
+						action: function(dialogRef) {
+							var row;
+
+							var versions = dialogRef.getModalBody().find('input.name').each(function() {
+								row = jQuery(this);
+								data.name = row.val();
+							});
+
+							//Send socket request to server, and after response change button or reeanble
+							socket.emit('pluginStoreButton', data, function(err, stdout, stderr) {
+
+								//If error set the error and message object.
+								if (err) {
+									details.error = true;
+									details.message = stderr;
+								} else {
+									details.done = true;
+									details.message = stdout;
+								}
+								
+								if (action === 'install') {
+									details.installed = true;
+								}
+
+								details.disabled = false;
+								details.working = false;
+
+								$scope.$apply();
+							});
+							
+							dialogRef.close();
+						}
+					},
+					{
+						label: 'Cancel',
+						action: function(dialogRef) {
+							
+							//Reenable the button
+							details.disabled = false;
+							details.working = false;
+							
+							$scope.$apply();
+							
+							dialogRef.close();
+						}
+					}
+				]
 			});
 		};
 	}]);

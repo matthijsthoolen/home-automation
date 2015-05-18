@@ -249,13 +249,11 @@ function pluginStoreButton(msg, callback) {
 		plugin.newDevPlugin({name: name}, function(err, stdout, stderr) {
 			if (err) {
 				log.warn(prelogFunc + 'Couldn\'t create newDevPlugin!');
-				util.doCallback(callback, {err: true, stderr: 'Couldn\'t create newDevPlugin!'});
+				util.doCallback(callback, {err: true, stderr: 'Couldn\'t create newDevPlugin! Is there already a plugin with this name available?'});
 				return;
 			}
 			
-			console.log('working!');
-			
-			callback('Joe je kan verder!');
+			util.doCallback(callback, {stdout: 'Succesfully created new DevPlugin "' + name + '"!'});
 		});
 	}
 }
