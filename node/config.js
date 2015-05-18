@@ -239,7 +239,7 @@ var setPluginVersion = function(id, options) {
 			
 			log.debug(prelogFunc + 'No version is currently set. Set the new version!');
 		} else {
-			if (curVersion >= version) {
+			if (util.versionCompare(version, curVersion) < 0) {
 				log.debug(prelogFunc + 'Tried to set version: ' + version + ' for id: ' + id + ' while current version is ' + curVersion);
 				return false;
 			}

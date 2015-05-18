@@ -274,8 +274,8 @@ var publishVersion = function publishVersion(options, callback) {
 	
 	var curVersion = config.getPluginInfo(id, {type: 'version'});
 	
-	//The new version must be bigger then the current version
-	if (curVersion > version) {
+	//Check if the new version is bigger then the old version
+	if (util.versionCompare(version, curVersion) < 0) {
 		response.message = prelogFunc + 'New version (' + version + ') must be newer then the current version (' + curVersion + ') for id: "' + id + '"';
 		response.status = 'failed';
 		

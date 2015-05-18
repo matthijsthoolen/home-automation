@@ -181,6 +181,71 @@ exports.checkPluginID = function(info, callback) {
 	
 };
 
+
+/*
+ * Check if the version is newer than the last version
+ *
+ * @param {string} v1
+ * @param {string} v2
+ * @param {object} options:
+ *		- lexicographical: true, compares each part of the version strings lexicographically instead of
+ *      naturally; this allows suffixes such as "b" or "dev" but will cause "1.10" to be considered 
+ * 		smaller than "1.2".
+ *      - zeroExtend: true, changes the result if one version string has less parts than the other. In
+ *		this case the shorter string will be padded with "zero" parts instead of being considered smaller.
+ * @returns {number|NaN}
+ *    0 if the versions are equal
+ *    a negative integer iff v1 < v2
+ *    a positive integer iff v1 > v2
+ *    NaN if either version string is in the wrong format
+ */
+exports.versionCompare = function(v1, v2, options) {
+	var lexicographical = util.opt(options, 'lexicographical', false),
+        zeroExtend = util.opt(options, 'zeroExtend', true),
+        v1parts = v1.split('.'),
+        v2parts = v2.split('.');
+
+    function isValidPart(x) {
+        return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
+    }
+
+    if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
+        return NaN;
+    }
+
+    if (zeroExtend) {
+        while (v1parts.length < v2parts.length) v1parts.push("0");
+        while (v2parts.length < v1parts.length) v2parts.push("0");
+    }
+
+    if (!lexicographical) {
+        v1parts = v1parts.map(Number);
+        v2parts = v2parts.map(Number);
+    }
+
+    for (var i = 0; i < v1parts.length; ++i) {
+        if (v2parts.length == i) {
+            return 1;
+        }
+
+        if (v1parts[i] == v2parts[i]) {
+            continue;
+        }
+        else if (v1parts[i] > v2parts[i]) {
+            return 1;
+        }
+        else {
+            return -1;
+        }
+    }
+
+    if (v1parts.length != v2parts.length) {
+        return -1;
+    }
+
+    return 0;
+};
+
 /******************************************************************************\
  *																			  *
  *							Folder actions									  *
@@ -869,7 +934,6 @@ exports.setFileContent = function(options, callback) {
 	} else {
 		//Else make sure that the file is completely empty before writing something to the file
 		fs.truncateSync(fd, '');
-		console.log('emptied file?');
 	}
 	
 	//convert to json string if json is true
