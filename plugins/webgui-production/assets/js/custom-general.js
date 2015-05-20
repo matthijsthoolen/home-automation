@@ -46,6 +46,14 @@ var socket = io();
     $(document).ready(function () {
         mainApp.main_fun();
 		$('[data-toggle="tooltip"]').tooltip();
+		
+		//Set default toastr settings
+		toastr.options = {
+			closeButton: true,
+			progressBar: true,
+			//positionClass: 'toast-top-center'
+			positionClass: 'toast-bottom-right'
+		};
     });
 
 }(jQuery));

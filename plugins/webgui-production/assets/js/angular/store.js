@@ -1,11 +1,11 @@
 (function() {
-	var app = angular.module('store', []);
+	var storeApp = angular.module('store', []);
 	
 	
 	/*
 	 * On click of the add or install button, start the functions needed for the action
 	 */
-	app.controller('InstallController', ['$scope', function($scope) {
+	storeApp.controller('InstallController', ['$scope', function($scope) {
 		var details = $scope.$parent.details;
 		
 		$scope.click = function(action) {
@@ -25,14 +25,14 @@
 			//Message for the bootstrap dialog
 			var message = '' +
 				'Please give the name for the new plugin, other options can be set later!' +
-				'<form class="form-horizontal">' +
+				'<div class="form-horizontal">' +
 					'<div class="form-group"> '+
 						'<label for="add-dev" class="col-sm-4 control-label">New plugin name</label>' +
 						'<div class="col-sm-6">' +
 							'<input type="text" class="form-control name" placeholder="Name for plugin">' + 
 						'</div>' +
 					'</div>' +
-				'</form>';
+				'</div>';
 			
 			//Show the bootstrap dialog window
 			BootstrapDialog.show({
@@ -40,9 +40,16 @@
 				message: message,
 				closable: true,
 				closeByBackdrop: false,
+				onhide: function() {
+					details.disabled = false;
+					details.working = false;
+					
+					$scope.$apply();
+				},
 				buttons: [
 					{
 						label: 'Add',
+						hotkey: 13,
 						action: function(dialogRef) {
 							var row;
 
@@ -58,9 +65,11 @@
 								if (err) {
 									details.error = true;
 									details.message = stderr;
+									toastr.warning(stderr);
 								} else {
 									details.done = true;
 									details.message = stdout;
+									toastr.info(stdout);
 								}
 								
 								if (action === 'install') {
@@ -98,7 +107,7 @@
 	/*
 	 * Add the grid-blocks for the plugins
 	 */
-	app.directive('pluginnewItem', ['$timeout', function($timeout) {		
+	storeApp.directive('pluginnewItem', ['$timeout', function($timeout) {		
 		return {
 			restrict: 'E',
 			templateUrl: '/assets/html/pluginnew-item.html',

@@ -20,7 +20,9 @@
      <!-- GOOGLE FONTS-->
    	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 	<!-- jQuery-UI STYLES -->
-	<link rel="stylesheet" href="assets/js/jquery-ui/jquery-ui.min.css">
+	<link rel="stylesheet" href="assets/js/jquery-ui/jquery-ui.min.css" />
+	<!-- Notifications -->
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" />
 	
 	{% endblock %}
 </head>
@@ -81,7 +83,7 @@ font-size: 16px;"> Last access : 26 March 2015 &nbsp; <a href="#" class="btn btn
                      <h2>{% block pagetitle %}{% endblock %}</h2>   
                         <h5>{% block pagetitle-sub %}{% endblock %}</h5>
                     </div>
-                </div>     
+                </div>
 				
 				{% block content %}
 				{% endblock %}
@@ -106,6 +108,11 @@ font-size: 16px;"> Last access : 26 March 2015 &nbsp; <a href="#" class="btn btn
     <script src="assets/js/jquery.metisMenu.js"></script>
 	<!-- SOCKET.IO SCRIPTS -->
 	<script src="/socket.io/socket.io.js"></script>	
+	<!-- Angular.JS -->
+	<script src="assets/js/angular.min.js"></script>
+	<!-- <script src="assets/js/angular.ng-modules.js"></script> -->
+	<!-- Notifications -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.js"></script>
     <!-- CUSTOM SCRIPTS -->
 	<script src="assets/js/custom-general.js"></script>
 	{% endblock %}
